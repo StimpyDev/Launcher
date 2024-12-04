@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+
+             xmlns:v="using:Launcher.Views"
+             xmlns:vm="using:Launcher.ViewModels"
+
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+
+             x:DataType="vm:AddServer"
+             x:Class="Launcher.Views.AddServer">
+
+  <StackPanel Margin="8,0,0,0"
+              Orientation="Vertical">
+
+    <TextBlock FontSize="18"
+               Classes="bold"
+               HorizontalAlignment="Center"
+               Text="{DynamicResource Text.Add_Server}" />
+
+    <Grid Margin="8,16,0,0"
+          RowDefinitions="32"
+          ColumnDefinitions="120,*">
+
+      <TextBlock Margin="0,0,8,0"
+                 HorizontalAlignment="Right"
+                 Text="{DynamicResource Text.Add_Server.ServerUrl}" />
+
+      <TextBox Grid.Column="1"
+               CornerRadius="3"
+               v:AutoFocusBehaviour.IsEnabled="True"
+               Text="{Binding ServerUrl, Mode=TwoWay}"
+               Watermark="{DynamicResource Text.Add_Server.ServerUrl.Placeholder}" />
+    </Grid>
+  </StackPanel>
+</UserControl>

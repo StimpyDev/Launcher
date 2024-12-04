@@ -1,0 +1,51 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+
+        xmlns:m="using:Launcher.Models"
+        xmlns:c="using:Launcher.Converters"
+        xmlns:vm="using:Launcher.ViewModels"
+
+        mc:Ignorable="d"
+        d:DesignWidth="400"
+        d:DesignHeight="200"
+
+        x:DataType="vm:Settings"
+        x:Class="Launcher.Views.Settings"
+
+        Icon="/App.ico"
+        CanResize="False"
+        WindowStartupLocation="CenterScreen"
+        Title="{DynamicResource Text.Settings}"
+
+        Width="400" Height="200"
+        MinWidth="400" MinHeight="200">
+
+  <TabControl>
+    <TabItem>
+      <TabItem.Header>
+        <TextBlock Text="{DynamicResource Text.Settings.General}" />
+      </TabItem.Header>
+
+      <Grid Margin="8" RowDefinitions="32,32" ColumnDefinitions="Auto, *">
+        <CheckBox Grid.Row="0" Grid.ColumnSpan="2"
+                      Content="{DynamicResource Text.Settings.General.DiscordActivity}"
+                      IsChecked="{Binding DiscordActivity, Mode=TwoWay}"/>
+
+        <TextBlock Grid.Row="1" Grid.Column="0"
+                       Text="{DynamicResource Text.Settings.General.Locale}"
+                       HorizontalAlignment="Right"
+                       Margin="0,0,16,0" />
+
+        <ComboBox Grid.Row="1" Grid.Column="1"
+          MinHeight="28"
+          Padding="8,0"
+          HorizontalAlignment="Stretch"
+          ItemsSource="{Binding Source={x:Static m:Locale.Supported}}"
+          DisplayMemberBinding="{Binding Name, x:DataType=m:Locale}"
+          SelectedItem="{Binding Locale, Mode=TwoWay, Converter={x:Static c:StringConverter.ToLocale}}" />
+      </Grid>
+    </TabItem>
+  </TabControl>
+</Window>

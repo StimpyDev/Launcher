@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Platforms>x64;x86</Platforms>
+    <TargetFramework>net9.0</TargetFramework>
+    <!-- Ignore warnings to leave the Discord Game SDK unchanged. -->
+    <NoWarn>CS8600,CS8601,CS8602,CS8605,CS8618,CS8625</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(Platform)' == 'x86'">
+    <None Include="lib\x86\discord_game_sdk.dll" />
+    <ContentWithTargetPath Include="lib\x86\discord_game_sdk.dll">
+      <TargetPath>discord_game_sdk.dll</TargetPath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </ContentWithTargetPath>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Platform)' == 'x64'">
+    <None Include="lib\x86_64\discord_game_sdk.dll" />
+    <ContentWithTargetPath Include="lib\x86_64\discord_game_sdk.dll">
+      <TargetPath>discord_game_sdk.dll</TargetPath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </ContentWithTargetPath>
+  </ItemGroup>
+
+</Project>
