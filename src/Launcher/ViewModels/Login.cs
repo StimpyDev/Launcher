@@ -121,6 +121,8 @@ public partial class Login : Popup
             }
 
             LaunchClient(loginResponse.SessionId, loginResponse.LaunchArguments);
+
+            return true;
         }
         catch (Exception ex)
         {
@@ -130,7 +132,7 @@ public partial class Login : Popup
                                      """, true);
         }
 
-        return true;
+        return false;
     }
 
     private void LaunchClient(string sessionId, string? launchArguments)
