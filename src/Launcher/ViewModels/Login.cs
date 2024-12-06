@@ -20,7 +20,7 @@ public partial class Login : Popup
     private readonly Server _server;
 
     [ObservableProperty]
-    private string? warning = "Test";
+    private string? warning;
 
     [Required]
     [ObservableProperty]
