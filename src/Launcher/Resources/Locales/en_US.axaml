@@ -51,6 +51,7 @@ Proceed at your own risk.</x:String>
   <x:String x:Key="Text.Settings.General" xml:space="preserve">General</x:String>
   <x:String x:Key="Text.Settings.General.Locale" xml:space="preserve">Language</x:String>
   <x:String x:Key="Text.Settings.General.DiscordActivity" xml:space="preserve">Discord Activity</x:String>
+  <x:String x:Key="Text.Settings.General.ParallelDownload" xml:space="preserve">Parallel Download</x:String>
 
   <x:String x:Key="Text.Add_Server" xml:space="preserve">Add Server</x:String>
   <x:String x:Key="Text.Add_Server.ServerUrl" xml:space="preserve">Server Url :</x:String>

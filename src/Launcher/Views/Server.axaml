@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:md="https://github.com/whistyun/Markdown.Avalonia"
 
+             xmlns:m="using:Launcher.Models"
              xmlns:vm="using:Launcher.ViewModels"
 
              mc:Ignorable="d"
@@ -53,7 +54,7 @@
 
     <!-- Server Play/Update Status -->
     <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Bottom" HorizontalAlignment="Left">
-      <Button Classes="waiting" Width="100" Height="60" Command="{Binding PlayCommand}" HorizontalContentAlignment="Center" IsEnabled="{Binding Process, Converter={x:Static ObjectConverters.IsNull}}">
+      <Button Classes="waiting" Width="100" Height="60" Command="{Binding PlayCommand}" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" IsEnabled="{Binding Process, Converter={x:Static ObjectConverters.IsNull}}">
         <TextBlock Text="{StaticResource Text.Play}" FontWeight="Medium" FontSize="30" />
         <Button.Styles>
           <Style Selector="Button[IsEnabled=True]">
@@ -74,7 +75,18 @@
         </Button.Styles>
       </Button>
 
-      <TextBlock Text="{Binding StatusMessage}" />
+      <StackPanel VerticalAlignment="Center">
+        <ItemsControl ItemsSource="{Binding DownloadProgressList}" >
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="m:ProgressInfo">
+              <StackPanel Orientation="Horizontal" Spacing="5">
+                <ProgressBar MinWidth="100" Value="{Binding Percentage}" ShowProgressText="True" Height="12" FontSize="12" />
+                <TextBlock Text="{Binding FilePath}" />
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
     </StackPanel>
 
     <!-- Icons -->

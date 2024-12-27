@@ -28,17 +28,21 @@
         <TextBlock Text="{DynamicResource Text.Settings.General}" />
       </TabItem.Header>
 
-      <Grid Margin="8" RowDefinitions="32,32" ColumnDefinitions="Auto, *">
+      <Grid Margin="8" RowDefinitions="32,32,32" ColumnDefinitions="Auto, *">
         <CheckBox Grid.Row="0" Grid.ColumnSpan="2"
                       Content="{DynamicResource Text.Settings.General.DiscordActivity}"
                       IsChecked="{Binding DiscordActivity, Mode=TwoWay}"/>
+        
+        <CheckBox Grid.Row="1" Grid.ColumnSpan="2"
+                      Content="{DynamicResource Text.Settings.General.ParallelDownload}"
+                      IsChecked="{Binding ParallelDownload, Mode=TwoWay}"/>
 
-        <TextBlock Grid.Row="1" Grid.Column="0"
+        <TextBlock Grid.Row="2" Grid.Column="0"
                        Text="{DynamicResource Text.Settings.General.Locale}"
                        HorizontalAlignment="Right"
                        Margin="0,0,16,0" />
 
-        <ComboBox Grid.Row="1" Grid.Column="1"
+        <ComboBox Grid.Row="3" Grid.Column="1"
           MinHeight="28"
           Padding="8,0"
           HorizontalAlignment="Stretch"

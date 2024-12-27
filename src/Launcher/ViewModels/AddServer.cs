@@ -49,6 +49,8 @@ public partial class AddServer : Popup
     {
         try
         {
+            ServerUrl = ServerUrl.Trim();
+
             var result = await HttpHelper.GetServerManifestAsync(ServerUrl);
 
             if (!result.Success || result.ServerManifest is null)

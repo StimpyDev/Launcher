@@ -1,31 +1,37 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
+using NLog;
+
 using HashDepot;
+
+using Downloader;
 
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 using Avalonia.Media;
+using Avalonia.Collections;
 
 using Launcher.Models;
 using Launcher.Helpers;
-using Launcher.Services;
 
 namespace Launcher.ViewModels;
 
 public partial class Server : ObservableObject
 {
     private readonly Main _main = null!;
+    private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
+    private readonly Lock _listLock = new();
 
     [ObservableProperty]
     private ServerInfo info = null!;
-
-    [ObservableProperty]
-    private string statusMessage = string.Empty;
 
     [ObservableProperty]
     private string status = App.GetText("Text.ServerStatus.Offline");
@@ -45,6 +51,9 @@ public partial class Server : ObservableObject
     [ObservableProperty]
     public IBrush? serverStatusFill;
 
+    [ObservableProperty]
+    private AvaloniaList<ProgressInfo> downloadProgressList = [];
+
     public Server()
     {
 #if DESIGNMODE
@@ -63,12 +72,31 @@ public partial class Server : ObservableObject
                 LoginApiUrl = "https://example.com"
             };
         }
+
+        DownloadProgressList.Add(new ProgressInfo
+        {
+            FilePath = Path.GetRandomFileName(),
+            Percentage = Random.Shared.NextDouble() * 100.0
+        });
+
+        DownloadProgressList.Add(new ProgressInfo
+        {
+            FilePath = Path.GetRandomFileName(),
+            Percentage = Random.Shared.NextDouble() * 100.0
+        });
+
+        DownloadProgressList.Add(new ProgressInfo
+        {
+            FilePath = Path.GetRandomFileName(),
+            Percentage = Random.Shared.NextDouble() * 100.0
+        });
 #endif
     }
 
     public Server(ServerInfo info, Main main)
     {
         Info = info;
+
         _main = main;
     }
 
@@ -125,7 +153,9 @@ public partial class Server : ObservableObject
     {
         if (Process is not null)
         {
-            App.AddNotification("Unable to play, the game is already open");
+            App.AddNotification("Unable to play, the game is already open", true);
+
+            _logger.Warn("Unable to play, the game is already open");
 
             return;
         }
@@ -135,12 +165,14 @@ public partial class Server : ObservableObject
         if (clientManifest is null)
             return;
 
-        StatusMessage = App.GetText("Text.Server.VerifyClientFiles");
-
         if (!await VerifyClientFilesAsync(clientManifest))
-            return;
+        {
+            App.AddNotification("Failed to verify client files, please try again", true);
 
-        StatusMessage = string.Empty;
+            _logger.Warn("Failed to verify client files");
+
+            return;
+        }
 
         App.ShowPopup(new Login(this));
     }
@@ -167,6 +199,8 @@ public partial class Server : ObservableObject
                 UIThreadHelper.Invoke(() =>
                 {
                     App.AddNotification(result.Error, true);
+
+                    _logger.Error(result.Error);
                 });
 
                 return false;
@@ -190,6 +224,8 @@ public partial class Server : ObservableObject
                                      An exception was thrown while getting server info.
                                      Exception: {ex}
                                      """, true);
+
+                _logger.Error(ex.ToString());
             });
         }
 
@@ -207,6 +243,8 @@ public partial class Server : ObservableObject
                 UIThreadHelper.Invoke(() =>
                 {
                     App.AddNotification(result.Error, true);
+
+                    _logger.Error(result.Error);
                 });
 
                 return null;
@@ -222,6 +260,8 @@ public partial class Server : ObservableObject
                                      An exception was thrown while getting client info.
                                      Exception: {ex}
                                      """, true);
+
+                _logger.Error(ex.ToString());
             });
         }
 
@@ -230,40 +270,129 @@ public partial class Server : ObservableObject
 
     private async Task<bool> VerifyClientFilesAsync(ClientManifest clientManifest)
     {
+        _logger.Info("Start - Verify Client Files");
+
         var filesToDownload = GetFilesToDownloadRecursively(clientManifest.RootFolder);
 
         var success = true;
 
-        await Parallel.ForEachAsync(filesToDownload, async (file, ct) =>
+        if (Settings.Instance.ParallelDownload)
         {
-            StatusMessage = App.GetText("Text.Server.DownloadingFile", Path.Combine(file.Path, file.FileName));
+            var parallelOptions = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = Math.Min(3, Environment.ProcessorCount)
+            };
 
-            var result = await HttpHelper.GetClientFileAsync(Info.Url, file.Path, file.FileName);
+            await Parallel.ForEachAsync(filesToDownload, parallelOptions, async (file, ct) =>
+            {
+                success = await DownloadFileAsync(file.Path, file.FileName);
+            });
+        }
+        else
+        {
+            foreach (var file in filesToDownload)
+            {
+                success = await DownloadFileAsync(file.Path, file.FileName);
+            }
+        }
 
-            if (!result.Success || result.Stream is null)
+        _logger.Info("End - Verify Client Files");
+
+        return success;
+    }
+
+    private async Task<bool> DownloadFileAsync(string path, string fileName)
+    {
+        var downloadFilePath = Path.Combine(path, fileName);
+
+        try
+        {
+            var clientFileUri = UriHelper.JoinUriPaths(Info.Url, "client", path, fileName);
+
+            using var downloadService = new DownloadService(new DownloadConfiguration
+            {
+                RequestConfiguration =
+                {
+                    UserAgent = $"{App.GetText("Text.Title")} v{App.CurrentVersion}"
+                }
+            });
+
+            downloadService.DownloadStarted += (s, e) =>
+            {
+                lock (_listLock)
+                {
+                    DownloadProgressList.Add(new ProgressInfo
+                    {
+                        FilePath = downloadFilePath
+                    });
+                }
+            };
+
+            downloadService.DownloadProgressChanged += (s, e) =>
+            {
+                lock (_listLock)
+                {
+                    var progressInfo = DownloadProgressList.FirstOrDefault(x => x.FilePath == downloadFilePath);
+
+                    if (progressInfo is not null)
+                        progressInfo.Percentage = e.ProgressPercentage;
+                }
+            };
+
+            downloadService.DownloadFileCompleted += (s, e) =>
+            {
+                if (e.Error is not null)
+                    _logger.Error("Download File Completed - {error}", e.Error.ToString());
+
+                lock (_listLock)
+                {
+                    var progressInfo = DownloadProgressList.FirstOrDefault(x => x.FilePath == downloadFilePath);
+
+                    if (progressInfo is not null)
+                    {
+                        _logger.Info("Download File Completed - {file}", progressInfo.FilePath);
+
+                        DownloadProgressList.Remove(progressInfo);
+                    }
+                }
+            };
+
+            using var fileStream = await downloadService.DownloadFileTaskAsync(clientFileUri);
+
+            if (fileStream is null)
             {
                 UIThreadHelper.Invoke(() =>
                 {
-                    App.AddNotification(result.Error, true);
+                    App.AddNotification($"""
+                                        Failed to get client file.
+                                        """, true);
+
+                    _logger.Error("Failed to get client file {path} {filename}", path, fileName);
                 });
 
-                success = false;
-
-                return;
+                return false;
             }
 
-            var fileDirectory = Path.Combine(Info.SavePath, "Client", file.Path);
-            var filePath = Path.Combine(fileDirectory, file.FileName);
+            var fileDirectory = Path.Combine(Info.SavePath, "Client", path);
+            var filePath = Path.Combine(fileDirectory, fileName);
 
             if (!Directory.Exists(fileDirectory))
                 Directory.CreateDirectory(fileDirectory);
 
             using var writeStream = File.Create(filePath);
 
-            await result.Stream.CopyToAsync(writeStream);
-        });
+            await fileStream.CopyToAsync(writeStream);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("Failed to download {path} {filename}", path, fileName);
 
-        return success;
+            _logger.Error(ex.ToString());
+
+            return false;
+        }
+
+        return true;
     }
 
     private IEnumerable<(string Path, string FileName)> GetFilesToDownloadRecursively(ClientFolder clientFolder, string path = "")

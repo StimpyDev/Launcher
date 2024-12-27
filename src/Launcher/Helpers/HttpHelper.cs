@@ -1,8 +1,9 @@
-﻿using System.IO;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Net.Mime;
 using System.Xml.Linq;
 using System.Threading.Tasks;
+
+using NLog;
 
 using Launcher.Models;
 
@@ -10,14 +11,15 @@ namespace Launcher.Helpers;
 
 public static class HttpHelper
 {
+    private static Logger _logger = LogManager.GetCurrentClassLogger();
     private static HttpClient _httpClient = CreateHttpClient();
 
     public static HttpClient CreateHttpClient()
     {
-        var httpClient = new HttpClient(new HttpClientHandler()
+        var httpClient = new HttpClient(new HttpLoggingHandler(new HttpClientHandler()
         {
             AllowAutoRedirect = true
-        });
+        }));
 
         var userAgent = $"{App.GetText("Text.Title")} v{App.CurrentVersion}";
 
@@ -39,6 +41,8 @@ public static class HttpHelper
                          Http Error: {response.ReasonPhrase}
                          """;
 
+            _logger.Error(error);
+
             return (false, error, null);
         }
 
@@ -48,6 +52,8 @@ public static class HttpHelper
                          Failed to get server manifest, invalid format.
                          Content Type: {response.Content.Headers.ContentType}
                          """;
+
+            _logger.Error(error);
 
             return (false, error, null);
         }
@@ -62,6 +68,8 @@ public static class HttpHelper
                          Failed to get server manifest, invalid version.
                          """;
 
+            _logger.Error(error);
+
             return (false, error, null);
         }
 
@@ -73,6 +81,8 @@ public static class HttpHelper
                          Failed to get server manifest, invalid data.
                          Xml Error: {xmlError}
                          """;
+
+            _logger.Error(error);
 
             return (false, error, null);
         }
@@ -93,6 +103,8 @@ public static class HttpHelper
                          Http Error: {response.ReasonPhrase}
                          """;
 
+            _logger.Error(error);
+
             return (false, error, null);
         }
 
@@ -102,6 +114,8 @@ public static class HttpHelper
                          Failed to get client manifest, invalid format.
                          Content Type: {response.Content.Headers.ContentType}
                          """;
+
+            _logger.Error(error);
 
             return (false, error, null);
         }
@@ -116,6 +130,8 @@ public static class HttpHelper
                          Failed to get client manifest, invalid version.
                          """;
 
+            _logger.Error(error);
+
             return (false, error, null);
         }
 
@@ -128,30 +144,11 @@ public static class HttpHelper
                          Xml Error: {xmlError}
                          """;
 
+            _logger.Error(error);
+
             return (false, error, null);
         }
 
         return (true, string.Empty, clientManifest);
-    }
-
-    public static async Task<(bool Success, string Error, Stream? Stream)> GetClientFileAsync(string serverUrl, string path, string fileName)
-    {
-        var clientFileUri = UriHelper.JoinUriPaths(serverUrl, "client", path, fileName);
-
-        var response = await _httpClient.GetAsync(clientFileUri);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = $"""
-                         Failed to get client file.
-                         Http Error: {response.ReasonPhrase}
-                         """;
-
-            return (false, error, null);
-        }
-
-        var contentStream = await response.Content.ReadAsStreamAsync();
-
-        return (true, string.Empty, contentStream);
     }
 }

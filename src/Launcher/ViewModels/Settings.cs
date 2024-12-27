@@ -21,6 +21,9 @@ public partial class Settings : ObservableObject
     private bool discordActivity = true;
 
     [ObservableProperty]
+    private bool parallelDownload = true;
+
+    [ObservableProperty]
     private LocaleType locale = LocaleType.en_US;
 
     [ObservableProperty]

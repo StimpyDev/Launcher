@@ -28,6 +28,8 @@
     <PackageReference Include="HashDepot" Version="3.1.0" />
 
     <PackageReference Include="Velopack" Version="0.0.942" />
+    
+    <PackageReference Include="Downloader" Version="3.3.1" />
 
     <PackageReference Include="NLog" Version="5.3.4" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.3.15" />
