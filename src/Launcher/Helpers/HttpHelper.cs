@@ -19,7 +19,7 @@ public static class HttpHelper
             AllowAutoRedirect = true
         });
 
-        var userAgent = $"{App.GetText("Text.Settings")} v{App.CurrentVersion}";
+        var userAgent = $"{App.GetText("Text.Title")} v{App.CurrentVersion}";
 
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
 
