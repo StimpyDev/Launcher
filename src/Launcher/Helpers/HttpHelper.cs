@@ -52,7 +52,7 @@ public static class HttpHelper
             return (false, error, null);
         }
 
-        var contentStream = await response.Content.ReadAsStreamAsync();
+        using var contentStream = await response.Content.ReadAsStreamAsync();
 
         var xmlDocument = XDocument.Load(contentStream);
 
@@ -106,7 +106,7 @@ public static class HttpHelper
             return (false, error, null);
         }
 
-        var contentStream = await response.Content.ReadAsStreamAsync();
+        using var contentStream = await response.Content.ReadAsStreamAsync();
 
         var xmlDocument = XDocument.Load(contentStream);
 
