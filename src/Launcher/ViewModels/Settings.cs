@@ -15,7 +15,7 @@ namespace Launcher.ViewModels;
 public partial class Settings : ObservableObject
 {
     private static Settings? _instance = null;
-    private static readonly string _savePath = Path.Combine(Environment.CurrentDirectory, "Launcher.xml");
+    private static readonly string _savePath = Path.Combine(Constants.SavePath, Constants.SettingsFile);
 
     [ObservableProperty]
     private bool discordActivity = true;

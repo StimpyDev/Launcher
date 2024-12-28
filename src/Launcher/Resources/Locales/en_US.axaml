@@ -34,6 +34,8 @@
   <x:String x:Key="Text.Splash.RestartLauncher" xml:space="preserve">Restarting launcher...</x:String>
   <x:String x:Key="Text.Splash.LauncherUpToDate" xml:space="preserve">Launcher is up to date.</x:String>
   <x:String x:Key="Text.Splash.DownloadProgress" xml:space="preserve">Downloading {0}... ({1}%)</x:String>
+  <x:String x:Key="Text.Splash.MigrateError" xml:space="preserve">Failed to migrate files,
+the launcher will be reset.</x:String>
 
   <x:String x:Key="Text.Login" xml:space="preserve">Login</x:String>
   <x:String x:Key="Text.Login.Username" xml:space="preserve">Username</x:String>

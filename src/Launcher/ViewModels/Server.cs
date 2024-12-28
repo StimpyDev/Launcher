@@ -184,7 +184,7 @@ public partial class Server : ObservableObject
         {
             Verb = "open",
             UseShellExecute = true,
-            FileName = Path.Combine(Environment.CurrentDirectory, Info.SavePath)
+            FileName = Path.Combine(Constants.SavePath, Info.SavePath)
         });
     }
 
@@ -373,7 +373,7 @@ public partial class Server : ObservableObject
                 return false;
             }
 
-            var fileDirectory = Path.Combine(Info.SavePath, "Client", path);
+            var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
             var filePath = Path.Combine(fileDirectory, fileName);
 
             if (!Directory.Exists(fileDirectory))
@@ -407,7 +407,7 @@ public partial class Server : ObservableObject
 
         foreach (var file in clientFolder.Files)
         {
-            var fileDirectory = Path.Combine(Info.SavePath, "Client", path);
+            var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
             var filePath = Path.Combine(fileDirectory, file.Name);
 
             if (File.Exists(filePath))

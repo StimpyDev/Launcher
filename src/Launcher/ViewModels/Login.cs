@@ -146,7 +146,7 @@ public partial class Login : Popup
         if (!string.IsNullOrEmpty(launchArguments))
             arguments.Add(launchArguments);
 
-        var workingDirectory = Path.Combine(Environment.CurrentDirectory, _server.Info.SavePath, "Client");
+        var workingDirectory = Path.Combine(Constants.SavePath, _server.Info.SavePath, "Client");
 
         _server.Process = new Process();
 

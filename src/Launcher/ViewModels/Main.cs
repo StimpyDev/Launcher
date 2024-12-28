@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 using Launcher.Models;
+using Launcher.Helpers;
 using Launcher.Services;
 
 namespace Launcher.ViewModels;
@@ -104,7 +105,7 @@ public partial class Main : ObservableObject
         {
             Verb = "open",
             UseShellExecute = true,
-            FileName = Environment.CurrentDirectory
+            FileName = Constants.SavePath
         });
     }
 

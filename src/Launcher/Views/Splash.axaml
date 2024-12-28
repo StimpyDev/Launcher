@@ -31,6 +31,6 @@
 
     <Label Padding="0 0 0 60" HorizontalAlignment="Center" Foreground="Gray" Content="{Binding Version, StringFormat='v{0}'}" />
 
-    <Label HorizontalAlignment="Center" Foreground="Gray" Content="{Binding Message}" />
+    <TextBlock HorizontalAlignment="Center" TextAlignment="Center" Foreground="Gray" Text="{Binding Message}" />
   </StackPanel>
 </Window>
