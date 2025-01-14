@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using NLog;
@@ -13,11 +14,20 @@ public class HttpLoggingHandler : DelegatingHandler
     {
         _logger = LogManager.GetCurrentClassLogger();
     }
+
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        _logger.Info(request.ToString());
-        var response = await base.SendAsync(request, cancellationToken);
-        _logger.Info(response.ToString());
-        return response;
+        try
+        {
+            _logger.Info(request.ToString());
+            var response = await base.SendAsync(request, cancellationToken);
+            _logger.Info(response.ToString());
+            return response;
+        }
+
+        catch (Exception)
+        {
+            throw new ApplicationException("Invalid Server URL");
+        }
     }
 }
