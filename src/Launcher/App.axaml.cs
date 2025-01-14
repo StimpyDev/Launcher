@@ -1,22 +1,14 @@
-using System;
-using System.IO;
 using System.Threading.Tasks;
-
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using Avalonia.Controls.ApplicationLifetimes;
-
+using Avalonia.Markup.Xaml;
+using Launcher.Models;
+using Launcher.ViewModels;
 using NLog;
-
+using NuGet.Versioning;
 using Velopack;
 using Velopack.Sources;
-
-using NuGet.Versioning;
-
-using Launcher.Models;
-using Launcher.Helpers;
-using Launcher.ViewModels;
 
 namespace Launcher;
 
@@ -57,37 +49,17 @@ public partial class App : Application
 
         var settings = Settings.Instance;
 
-        var splash = new Views.Splash();
-
-        applicationLifetime.MainWindow = splash;
+        var main = new Views.Main();
 
 #if RELEASE
+        // Check For updates on startup
         if (_updateManager.IsInstalled)
         {
-            splash.ViewModel.Message = GetText("Text.Splash.CheckForUpdates");
-
             var updateInfo = await _updateManager.CheckForUpdatesAsync();
 
             if (updateInfo is not null)
             {
-                // Migrate the files outside of the install directory
-                if (_updateManager.CurrentVersion == new SemanticVersion(1, 0, 0) &&
-                    updateInfo.TargetFullRelease.Version == new SemanticVersion(1, 0, 1))
-                {
-                    if (!MigrateFiles())
-                    {
-                        splash.ViewModel.Message = GetText("Text.Splash.MigrateError");
-
-                        await Task.Delay(1000);
-                    }
-                }
-
-                await _updateManager.DownloadUpdatesAsync(updateInfo, (p) =>
-                {
-                    splash.ViewModel.Message = GetText("Text.Splash.DownloadProgress", updateInfo.TargetFullRelease.Version, p);
-                });
-
-                splash.ViewModel.Message = GetText("Text.Splash.RestartLauncher");
+                await _updateManager.DownloadUpdatesAsync(updateInfo);
 
                 await Task.Delay(500);
 
@@ -98,18 +70,13 @@ public partial class App : Application
         }
 #endif
 
-        splash.ViewModel.Message = GetText("Text.Splash.LauncherUpToDate");
-
         await Task.Delay(500);
-
-        var main = new Views.Main();
 
         _main = main.ViewModel;
 
         applicationLifetime.MainWindow = main;
 
         main.Show();
-        splash.Close();
 
         base.OnFrameworkInitializationCompleted();
     }
@@ -232,42 +199,5 @@ public partial class App : Application
             return;
 
         app._main.Popup = null;
-    }
-
-    private bool MigrateFiles()
-    {
-        // Migrate settings
-        var oldSettingsFile = Path.Combine(Environment.CurrentDirectory, Constants.SettingsFile);
-
-        var newSettingsFile = Path.Combine(Constants.SavePath, Constants.SettingsFile);
-
-        try
-        {
-            File.Move(oldSettingsFile, newSettingsFile);
-        }
-        catch (Exception ex)
-        {
-            _logger.Error("Failed to migrate settings. {error}", ex.ToString());
-
-            return false;
-        }
-
-        // Migrate servers
-        var oldServersDirectory = Path.Combine(Environment.CurrentDirectory, Constants.ServersDirectory);
-
-        var newServersDirectory = Path.Combine(Constants.SavePath, Constants.ServersDirectory);
-
-        try
-        {
-            Directory.Move(oldServersDirectory, newServersDirectory);
-        }
-        catch (Exception ex)
-        {
-            _logger.Error("Failed to migrate servers. {error}", ex.ToString());
-
-            return false;
-        }
-
-        return true;
     }
 }

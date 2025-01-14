@@ -18,5 +18,11 @@
   <Application.Styles>
     <FluentTheme />
     <StyleInclude Source="/Resources/Styles.axaml" />
+	<StyleInclude Source="avares://AsyncImageLoader.Avalonia/AdvancedImage.axaml" />
   </Application.Styles>
+	
+	<Application.Resources>
+		<FontFamily x:Key="FontDefault">/Assets/Fonts/Maiandra-GD-Regular.otf#Maiandra GD</FontFamily>
+	</Application.Resources>
+	
 </Application>

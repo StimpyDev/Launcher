@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Reflection;
-
-using Microsoft.Extensions.Logging;
-
-using Velopack;
-
 using Avalonia;
 using Avalonia.Logging;
-
+using Launcher.Extensions;
+using Launcher.Services;
+using Launcher.ViewModels;
+using Microsoft.Extensions.Logging;
 using NLog;
 using NLog.Extensions.Logging;
-
-using Launcher.Services;
-using Launcher.Extensions;
-using Launcher.ViewModels;
+using Velopack;
 
 namespace Launcher;
 
@@ -41,9 +36,9 @@ internal sealed class Program
     internal static AppBuilder BuildAvaloniaApp()
     {
         var builder = AppBuilder.Configure<App>();
-
         builder.WithInterFont();
         builder.UsePlatformDetect();
+
 
 #if DEBUG
         builder.LogToTrace();

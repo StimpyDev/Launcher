@@ -1,13 +1,11 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
-
 using CommunityToolkit.Mvvm.ComponentModel;
-
-using Launcher.Models;
-using Launcher.Helpers;
 using Launcher.Extensions;
+using Launcher.Helpers;
+using Launcher.Models;
 
 namespace Launcher.ViewModels;
 
@@ -112,6 +110,8 @@ public partial class AddServer : Popup
 
     private bool TryCreateSavePath(string name, out string path)
     {
+        const string BaseDirectory = "Servers";
+
         path = string.Empty;
 
         try
@@ -121,10 +121,10 @@ public partial class AddServer : Popup
             var current = validName;
 
             var i = 1;
-            while (Directory.Exists(Path.Combine(Constants.SavePath, Constants.ServersDirectory, current)))
+            while (Directory.Exists(Path.Combine(BaseDirectory, current)))
                 current = $"{validName}_{i++}";
 
-            path = Path.Combine(Constants.SavePath, Constants.ServersDirectory, current);
+            path = Path.Combine(BaseDirectory, current);
 
             Directory.CreateDirectory(path);
         }

@@ -1,26 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:v="using:Launcher.Views"
+			 xmlns:vm="using:Launcher.ViewModels"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 mc:Ignorable="d"
+			 d:DesignWidth="800"
+			 d:DesignHeight="450"
+			 x:DataType="vm:DeleteServer"
+			 x:Class="Launcher.Views.DeleteServer">
 
-             xmlns:v="using:Launcher.Views"
-             xmlns:vm="using:Launcher.ViewModels"
+	<StackPanel Margin="8" Orientation="Vertical">
 
-             mc:Ignorable="d"
-             d:DesignWidth="800"
-             d:DesignHeight="450"
+		<StackPanel>
+			<TextBlock FontSize="20" HorizontalAlignment="Center" Text="{DynamicResource Text.Delete_Server}" FontFamily="{StaticResource FontDefault}" />
+		</StackPanel>
 
-             x:DataType="vm:DeleteServer"
-             x:Class="Launcher.Views.DeleteServer">
-
-  <StackPanel Margin="8,0,0,0"
-              Orientation="Vertical">
-
-    <TextBlock FontSize="18"
-               Classes="bold"
-               HorizontalAlignment="Center"
-               Text="{DynamicResource Text.Delete_Server}" />
-    <TextBlock HorizontalAlignment="Center"
-               Text="{DynamicResource Text.Delete_Server.Confirm}" />
-  </StackPanel>
+		<StackPanel>
+			<TextBlock HorizontalAlignment="Center" Text="{DynamicResource Text.Delete_Server.Confirm}" FontFamily="{StaticResource FontDefault}" Margin="8" FontSize="15" />
+		</StackPanel>
+		
+	</StackPanel>
 </UserControl>

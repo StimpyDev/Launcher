@@ -1,13 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Serialization;
-
 using Avalonia.Collections;
-
 using CommunityToolkit.Mvvm.ComponentModel;
-
-using Launcher.Models;
 using Launcher.Helpers;
+using Launcher.Models;
 using Launcher.Services;
 
 namespace Launcher.ViewModels;
@@ -15,7 +12,7 @@ namespace Launcher.ViewModels;
 public partial class Settings : ObservableObject
 {
     private static Settings? _instance = null;
-    private static readonly string _savePath = Path.Combine(Constants.SavePath, Constants.SettingsFile);
+    private static readonly string _savePath = Path.Combine(Environment.CurrentDirectory, "Launcher.xml");
 
     [ObservableProperty]
     private bool discordActivity = true;

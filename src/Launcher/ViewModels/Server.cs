@@ -1,25 +1,17 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Diagnostics;
-using System.Threading.Tasks;
 using System.Collections.Generic;
-
-using NLog;
-
-using HashDepot;
-
-using Downloader;
-
-using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.ComponentModel;
-
+using System.Diagnostics;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Avalonia.Media;
-using Avalonia.Collections;
-
-using Launcher.Models;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Downloader;
+using HashDepot;
 using Launcher.Helpers;
+using Launcher.Models;
+using NLog;
 
 namespace Launcher.ViewModels;
 
@@ -32,6 +24,9 @@ public partial class Server : ObservableObject
 
     [ObservableProperty]
     private ServerInfo info = null!;
+
+    [ObservableProperty]
+    private string statusMessage = string.Empty;
 
     [ObservableProperty]
     private string status = App.GetText("Text.ServerStatus.Offline");
@@ -51,8 +46,6 @@ public partial class Server : ObservableObject
     [ObservableProperty]
     public IBrush? serverStatusFill;
 
-    [ObservableProperty]
-    private AvaloniaList<ProgressInfo> downloadProgressList = [];
 
     public Server()
     {
@@ -72,24 +65,6 @@ public partial class Server : ObservableObject
                 LoginApiUrl = "https://example.com"
             };
         }
-
-        DownloadProgressList.Add(new ProgressInfo
-        {
-            FilePath = Path.GetRandomFileName(),
-            Percentage = Random.Shared.NextDouble() * 100.0
-        });
-
-        DownloadProgressList.Add(new ProgressInfo
-        {
-            FilePath = Path.GetRandomFileName(),
-            Percentage = Random.Shared.NextDouble() * 100.0
-        });
-
-        DownloadProgressList.Add(new ProgressInfo
-        {
-            FilePath = Path.GetRandomFileName(),
-            Percentage = Random.Shared.NextDouble() * 100.0
-        });
 #endif
     }
 
@@ -142,7 +117,7 @@ public partial class Server : ObservableObject
 
             OnlinePlayers = 0;
 
-            ServerStatusFill = new SolidColorBrush(Color.FromRgb(125, 128, 138));
+            ServerStatusFill = new SolidColorBrush(Color.FromRgb(242, 63, 67));
         }
 
         IsRefreshing = false;
@@ -162,17 +137,22 @@ public partial class Server : ObservableObject
 
         var clientManifest = await GetClientManifestAsync();
 
+        StatusMessage = App.GetText("Text.Server.VerifyClientFiles");
+
         if (clientManifest is null)
             return;
 
         if (!await VerifyClientFilesAsync(clientManifest))
         {
+
             App.AddNotification("Failed to verify client files, please try again", true);
 
             _logger.Warn("Failed to verify client files");
 
             return;
         }
+
+        StatusMessage = string.Empty;
 
         App.ShowPopup(new Login(this));
     }
@@ -184,7 +164,7 @@ public partial class Server : ObservableObject
         {
             Verb = "open",
             UseShellExecute = true,
-            FileName = Path.Combine(Constants.SavePath, Info.SavePath)
+            FileName = Path.Combine(Environment.CurrentDirectory, Info.SavePath)
         });
     }
 
@@ -321,39 +301,7 @@ public partial class Server : ObservableObject
             {
                 lock (_listLock)
                 {
-                    DownloadProgressList.Add(new ProgressInfo
-                    {
-                        FilePath = downloadFilePath
-                    });
-                }
-            };
-
-            downloadService.DownloadProgressChanged += (s, e) =>
-            {
-                lock (_listLock)
-                {
-                    var progressInfo = DownloadProgressList.FirstOrDefault(x => x.FilePath == downloadFilePath);
-
-                    if (progressInfo is not null)
-                        progressInfo.Percentage = e.ProgressPercentage;
-                }
-            };
-
-            downloadService.DownloadFileCompleted += (s, e) =>
-            {
-                if (e.Error is not null)
-                    _logger.Error("Download File Completed - {error}", e.Error.ToString());
-
-                lock (_listLock)
-                {
-                    var progressInfo = DownloadProgressList.FirstOrDefault(x => x.FilePath == downloadFilePath);
-
-                    if (progressInfo is not null)
-                    {
-                        _logger.Info("Download File Completed - {file}", progressInfo.FilePath);
-
-                        DownloadProgressList.Remove(progressInfo);
-                    }
+                    StatusMessage = App.GetText("Text.Server.DownloadingFile", downloadFilePath);
                 }
             };
 
@@ -373,7 +321,7 @@ public partial class Server : ObservableObject
                 return false;
             }
 
-            var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
+            var fileDirectory = Path.Combine(Info.SavePath, "Client", path);
             var filePath = Path.Combine(fileDirectory, fileName);
 
             if (!Directory.Exists(fileDirectory))
@@ -407,7 +355,7 @@ public partial class Server : ObservableObject
 
         foreach (var file in clientFolder.Files)
         {
-            var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
+            var fileDirectory = Path.Combine(Info.SavePath, "Client", path);
             var filePath = Path.Combine(fileDirectory, file.Name);
 
             if (File.Exists(filePath))

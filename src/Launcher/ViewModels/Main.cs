@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Linq;
-using System.Diagnostics;
 using System.Collections.Specialized;
-
+using System.Diagnostics;
+using System.Linq;
 using Avalonia.Collections;
-
-using CommunityToolkit.Mvvm.Input;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
-
+using CommunityToolkit.Mvvm.Input;
 using Launcher.Models;
-using Launcher.Helpers;
 using Launcher.Services;
+using NuGet.Versioning;
 
 namespace Launcher.ViewModels;
 
@@ -22,13 +20,19 @@ public partial class Main : ObservableObject
     [ObservableProperty]
     private Server? activeServer;
 
+    [ObservableProperty]
+    private string? message;
+
+    [ObservableProperty]
+    private SemanticVersion version = App.CurrentVersion;
+
     public AvaloniaList<Server> Servers { get; set; } = [];
     public AvaloniaList<Notification> Notifications { get; set; } = [];
 
     public Main()
     {
 #if DESIGNMODE
-        if (Avalonia.Controls.Design.IsDesignMode)
+        if (Design.IsDesignMode)
         {
             Servers.Clear();
 
@@ -105,7 +109,7 @@ public partial class Main : ObservableObject
         {
             Verb = "open",
             UseShellExecute = true,
-            FileName = Constants.SavePath
+            FileName = Environment.CurrentDirectory
         });
     }
 

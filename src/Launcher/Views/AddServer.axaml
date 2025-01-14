@@ -1,39 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:v="using:Launcher.Views"
+			 xmlns:vm="using:Launcher.ViewModels"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+			 mc:Ignorable="d"
+			 d:DesignWidth="800"
+			 d:DesignHeight="450"
+			 x:DataType="vm:AddServer"
+			 x:Class="Launcher.Views.AddServer">
 
-             xmlns:v="using:Launcher.Views"
-             xmlns:vm="using:Launcher.ViewModels"
+	<StackPanel Orientation="Vertical">
 
-             mc:Ignorable="d"
-             d:DesignWidth="800"
-             d:DesignHeight="450"
+		<TextBlock FontSize="20" HorizontalAlignment="Center" Text="{DynamicResource Text.Add_Server}" FontFamily="{StaticResource FontDefault}" />
+		
+		<StackPanel Margin="5">
+			<Image asyncImageLoader:ImageLoader.Source="https://github.com/StimpyDev/ImageHost/blob/main/textbox.png?raw=true" Stretch="None" HorizontalAlignment="Center"/>
+			<TextBox CaretBrush="Black" Foreground="Black" Margin="0,-38,0,0" HorizontalAlignment="Center" FontSize="13" FontWeight="Bold" Width="254" Height="22" Text="{Binding ServerUrl, Mode=TwoWay}" />
+			<TextBlock FontSize="17" Text="{DynamicResource Text.Add_Server.ServerUrl}" FontFamily="{StaticResource FontDefault}" Margin="-2,-30,0,0" />
+		</StackPanel>
 
-             x:DataType="vm:AddServer"
-             x:Class="Launcher.Views.AddServer">
-
-  <StackPanel Margin="8,0,0,0"
-              Orientation="Vertical">
-
-    <TextBlock FontSize="18"
-               Classes="bold"
-               HorizontalAlignment="Center"
-               Text="{DynamicResource Text.Add_Server}" />
-
-    <Grid Margin="8,16,0,0"
-          RowDefinitions="32"
-          ColumnDefinitions="120,*">
-
-      <TextBlock Margin="0,0,8,0"
-                 HorizontalAlignment="Right"
-                 Text="{DynamicResource Text.Add_Server.ServerUrl}" />
-
-      <TextBox Grid.Column="1"
-               CornerRadius="3"
-               v:AutoFocusBehaviour.IsEnabled="True"
-               Text="{Binding ServerUrl, Mode=TwoWay}"
-               Watermark="{DynamicResource Text.Add_Server.ServerUrl.Placeholder}" />
-    </Grid>
-  </StackPanel>
+	</StackPanel>
 </UserControl>
