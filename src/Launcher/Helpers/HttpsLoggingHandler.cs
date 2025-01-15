@@ -25,9 +25,9 @@ public class HttpLoggingHandler : DelegatingHandler
             return response;
         }
 
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw new ApplicationException("Invalid Server URL");
+            throw new Exception(ex.ToString());
         }
     }
 }
