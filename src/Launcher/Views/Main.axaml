@@ -27,8 +27,8 @@
 		<vm:Main />
 	</Design.DataContext>
 
-    <Window.Background>
-	   <ImageBrush asyncImageLoader:ImageBrushLoader.Source="https://github.com/StimpyDev/ImageHost/blob/main/background.png?raw=true" Stretch="UniformToFill" />
+	<Window.Background>
+		<ImageBrush asyncImageLoader:ImageBrushLoader.Source="https://github.com/StimpyDev/ImageHost/blob/main/background.png?raw=true" Stretch="UniformToFill" />
 	</Window.Background>
 
 	<Grid RowDefinitions="*" ColumnDefinitions="200,*">
@@ -78,7 +78,7 @@
 
 		<!-- Popups -->
 		<Grid Grid.Row="0" Grid.ColumnSpan="2" IsVisible="{Binding Popup, Converter={x:Static ObjectConverters.IsNotNull}}">
-			<Border Background="{StaticResource Color.Window}" Opacity="0.5" PointerPressed="OnPopupCancelByClickMask" />
+			<Border Background="{StaticResource Color.Window}" Opacity="0.5" />
 			<Grid Width="500" HorizontalAlignment="Center" VerticalAlignment="Center">
 				<ContentControl Content="{Binding Popup}" Opacity="0.9" ClipToBounds="False">
 					<ContentControl.DataTemplates>
@@ -91,12 +91,6 @@
 
 									<!-- Popup Widget -->
 									<ContentPresenter Margin="0,8" Content="{Binding View}" IsHitTestVisible="{Binding InProgress, Converter={x:Static BoolConverters.Not}}" />
-
-									<!-- Options -->
-									<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding InProgress, Converter={x:Static BoolConverters.Not}}">
-										<Button Classes="flat primary" Click="OnPopupSure" FontSize="15" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Content="{DynamicResource Text.Ok}" FontWeight="Medium" FontFamily="{StaticResource FontDefault}" HotKey="Enter" />
-										<Button Classes="flat primary" Margin="10,0,0,0" FontSize="15" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Content="{DynamicResource Text.Cancel}" FontFamily="{StaticResource FontDefault}" FontWeight="Medium" Click="OnPopupCancel" />
-									</StackPanel>
 
 									<!-- Running -->
 									<StackPanel Orientation="Vertical" IsVisible="{Binding InProgress}">

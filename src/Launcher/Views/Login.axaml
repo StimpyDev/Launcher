@@ -14,26 +14,30 @@
 
 	<StackPanel Orientation="Vertical">
 
-		<StackPanel>
-			<TextBlock FontSize="20" HorizontalAlignment="Center" Text="{DynamicResource Text.Login}" Margin="8" FontFamily="{StaticResource FontDefault}" />
+		<StackPanel HorizontalAlignment="Center">
 			<TextBlock Foreground="Yellow" Text="{Binding Warning, Mode=OneWay}" TextAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding Warning, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
 		</StackPanel>
 
-		<StackPanel>
+		<StackPanel HorizontalAlignment="Center">
 			<TextBlock Text="{DynamicResource Text.Login.Username}" HorizontalAlignment="Center" FontSize="18" FontFamily="{StaticResource FontDefault}" />
-			<Image asyncImageLoader:ImageLoader.Source="https://github.com/StimpyDev/ImageHost/blob/main/textbox.png?raw=true" Stretch="None" HorizontalAlignment="Center" />
-			<TextBox CaretBrush="Black" FontSize="13" Margin="0,-38,0,0" HorizontalAlignment="Center" FontWeight="Bold" Foreground="Black" Width="256" Height="22" v:AutoFocusBehaviour.IsEnabled="{Binding RememberUsername, Converter={x:Static BoolConverters.Not}}" Text="{Binding Username, Mode=TwoWay}" />
+			<Image asyncImageLoader:ImageLoader.Source="https://github.com/StimpyDev/ImageHost/blob/main/textbox.png?raw=true" Stretch="None" />
+			<TextBox CaretBrush="Black" FontSize="13" Margin="0,-38,0,0" FontWeight="Bold" Foreground="Black" Width="256" Height="22" v:AutoFocusBehaviour.IsEnabled="{Binding RememberUsername, Converter={x:Static BoolConverters.Not}}" Text="{Binding Username, Mode=TwoWay}" />
 		</StackPanel>
-		
+
 		<CheckBox FontSize="15" FontFamily="{StaticResource FontDefault}" HorizontalAlignment="Center" Content="{DynamicResource Text.Login.RememberUsername}" IsChecked="{Binding RememberUsername}" />
 
-		<StackPanel>
+		<StackPanel HorizontalAlignment="Center">
 			<TextBlock Text="{DynamicResource Text.Login.Password}" HorizontalAlignment="Center" FontSize="18" FontFamily="{StaticResource FontDefault}" />
-			<Image asyncImageLoader:ImageLoader.Source="https://github.com/StimpyDev/ImageHost/blob/main/textbox.png?raw=true" Stretch="None" HorizontalAlignment="Center" />
-			<TextBox CaretBrush="Black" HorizontalAlignment="Center" Margin="0,-38,0,0" FontSize="13" Width="256" Height="22" PasswordChar="•" Foreground="Black" FontWeight="Bold" v:AutoFocusBehaviour.IsEnabled="{Binding RememberPassword}" Text="{Binding Password, Mode=TwoWay}" />
+			<Image asyncImageLoader:ImageLoader.Source="https://github.com/StimpyDev/ImageHost/blob/main/textbox.png?raw=true" Stretch="None" />
+			<TextBox CaretBrush="Black" Margin="0,-38,0,0" FontSize="13" Width="256" Height="22" PasswordChar="•" Foreground="Black" FontWeight="Bold" v:AutoFocusBehaviour.IsEnabled="{Binding RememberPassword}" Text="{Binding Password, Mode=TwoWay}" />
 		</StackPanel>
-		
+
 		<CheckBox FontFamily="{StaticResource FontDefault}" HorizontalAlignment="Center" FontSize="15" Content="{DynamicResource Text.Login.RememberPassword}" IsChecked="{Binding RememberPassword}" />
-	
+
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
+			<Button Classes="flat primary" Click="Login_Button" FontFamily="{StaticResource FontDefault}" FontSize="15" Content="{StaticResource Text.Login}"  />
+			<Button Classes="flat primary" FontSize="15" Click="Login_Button_Cancel" Content="{StaticResource Text.Cancel}" FontFamily="{StaticResource FontDefault}" HotKey="Enter" />
+		</StackPanel>
+
 	</StackPanel>
 </UserControl>

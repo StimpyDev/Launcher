@@ -11,7 +11,7 @@
 			 x:DataType="vm:DeleteServer"
 			 x:Class="Launcher.Views.DeleteServer">
 
-	<StackPanel Margin="8" Orientation="Vertical">
+	<StackPanel Orientation="Vertical">
 
 		<StackPanel>
 			<TextBlock FontSize="20" HorizontalAlignment="Center" Text="{DynamicResource Text.Delete_Server}" FontFamily="{StaticResource FontDefault}" />
@@ -20,6 +20,17 @@
 		<StackPanel>
 			<TextBlock HorizontalAlignment="Center" Text="{DynamicResource Text.Delete_Server.Confirm}" FontFamily="{StaticResource FontDefault}" Margin="8" FontSize="15" />
 		</StackPanel>
-		
+
+		<StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Center">
+
+			<StackPanel>
+				<Button Classes="flat primary" Click="DeleteServer_Button_Yes" FontSize="15" Content="{StaticResource Text.Yes}" FontFamily="{StaticResource FontDefault}" HotKey="Enter" />
+			</StackPanel>
+
+			<StackPanel>
+				<Button Classes="flat primary" Click="DeleteServer_Button_No" FontSize="15" Content="{StaticResource Text.No}" FontFamily="{StaticResource FontDefault}" HotKey="Enter" />
+			</StackPanel>
+
+		</StackPanel>
 	</StackPanel>
 </UserControl>
