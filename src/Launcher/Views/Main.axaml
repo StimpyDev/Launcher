@@ -28,7 +28,7 @@
 	</Design.DataContext>
 
 	<Window.Background>
-		<ImageBrush asyncImageLoader:ImageBrushLoader.Source="https://github.com/StimpyDev/ImageHost/blob/main/background.png?raw=true" Stretch="UniformToFill" />
+		<ImageBrush asyncImageLoader:ImageBrushLoader.Source="https://github.com/StimpyDev/Launcher/blob/main/src/Launcher/Assets/background.png?raw=true" Stretch="UniformToFill" />
 	</Window.Background>
 
 	<Grid RowDefinitions="*" ColumnDefinitions="200,*">
