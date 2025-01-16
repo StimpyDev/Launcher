@@ -7,6 +7,7 @@
 		<GarbageCollectionAdaptationMode>1</GarbageCollectionAdaptationMode>
 		<TargetFramework>net9.0</TargetFramework>
 		<ApplicationIcon>App.ico</ApplicationIcon>
+		<PublishReadyToRun>true</PublishReadyToRun>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
