@@ -53,7 +53,7 @@
 		<!-- Server Play/Update Status -->
 		<StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
 			<Button Classes="no_background" Cursor="Hand" Command="{Binding PlayCommand}" IsVisible="{Binding PlayCommand.IsRunning, Converter={x:Static BoolConverters.Not}}" IsEnabled="{Binding Process, Converter={x:Static ObjectConverters.IsNull}}">
-				<Image asyncImageLoader:ImageLoader.Source="https://github.com/StimpyDev/ImageHost/blob/main/playnow.png?raw=true" Effect="drop-shadow(3 3 3 #40000000)" Height="60" Margin="0,0,0,20" Stretch="UniformToFill" />
+				<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset3.png" Effect="drop-shadow(3 3 3 #40000000)" Height="60" Margin="0,0,0,20" Stretch="UniformToFill" />
 			</Button>
 		</StackPanel>
 

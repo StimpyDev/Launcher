@@ -7,8 +7,8 @@
 			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			 xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
 			 mc:Ignorable="d"
-			 d:DesignWidth="800"
-			 d:DesignHeight="450"
+			 d:DesignWidth="500"
+			 d:DesignHeight="250"
 			 x:DataType="vm:Login"
 			 x:Class="Launcher.Views.Login">
 
@@ -20,7 +20,7 @@
 
 		<StackPanel HorizontalAlignment="Center">
 			<TextBlock Text="{DynamicResource Text.Login.Username}" FontStyle="Oblique" HorizontalAlignment="Center" FontSize="18" FontFamily="{StaticResource FontDefault}" />
-			<Image asyncImageLoader:ImageLoader.Source="https://github.com/StimpyDev/ImageHost/blob/main/textbox.png?raw=true" Stretch="None" />
+			<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset4.png" Stretch="None" />
 			<TextBox CaretBrush="Black" FontSize="13" Margin="0,-38,0,0" FontWeight="Bold" Foreground="Black" Width="256" Height="22" v:AutoFocusBehaviour.IsEnabled="{Binding RememberUsername, Converter={x:Static BoolConverters.Not}}" Text="{Binding Username, Mode=TwoWay}" />
 		</StackPanel>
 
@@ -28,7 +28,7 @@
 
 		<StackPanel HorizontalAlignment="Center">
 			<TextBlock Text="{DynamicResource Text.Login.Password}" FontStyle="Oblique" HorizontalAlignment="Center" FontSize="18" FontFamily="{StaticResource FontDefault}" />
-			<Image asyncImageLoader:ImageLoader.Source="https://github.com/StimpyDev/ImageHost/blob/main/textbox.png?raw=true" Stretch="None" />
+			<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset4.png" Stretch="None" />
 			<TextBox CaretBrush="Black" Margin="0,-38,0,0" FontSize="13" Width="256" Height="22" PasswordChar="•" Foreground="Black" FontWeight="Bold" v:AutoFocusBehaviour.IsEnabled="{Binding RememberPassword}" Text="{Binding Password, Mode=TwoWay}" />
 		</StackPanel>
 

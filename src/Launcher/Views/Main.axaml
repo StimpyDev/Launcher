@@ -34,7 +34,7 @@
 	<Grid RowDefinitions="*" ColumnDefinitions="200,*">
 
 		<!-- Left - Server List -->
-		<Image asyncImageLoader:ImageLoader.Source="https://github.com/StimpyDev/ImageHost/blob/main/fr_asset1.png?raw=true" Stretch="Uniform" Height="20" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="40,15,0,0"/>
+		<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset1.png" Stretch="Uniform" Height="20" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="40,15,0,0"/>
 		<DockPanel LastChildFill="True" Background="{StaticResource Color.Server}" Opacity="0.080">
 			<TextBlock DockPanel.Dock="Top" Opacity="100" HorizontalAlignment="Center" FontFamily="{StaticResource FontDefault}" FontStyle="Oblique" FontSize="16" Margin="17" Text="{DynamicResource Text.Servers}" />
 			<StackPanel Margin="10" HorizontalAlignment="Center" Orientation="Horizontal" DockPanel.Dock="Bottom">
@@ -116,11 +116,11 @@
 								<Border Background="{StaticResource Color.Window}" CornerRadius="10" Opacity="90" />
 								<Grid Margin="7" RowDefinitions="20,Auto,15">
 									<StackPanel Grid.Row="0" Orientation="Horizontal" IsVisible="{Binding IsError}">
-										<Image asyncImageLoader:ImageLoader.Source="https://github.com/StimpyDev/ImageHost/blob/main/fr_asset2.png?raw=true" Stretch="None" HorizontalAlignment="Left"/>
+										<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset2.png" Stretch="None" HorizontalAlignment="Left"/>
 										<TextBlock Margin="5,0,0,0" FontSize="15" FontFamily="{StaticResource FontDefault}" Text="{DynamicResource Text.Main.Error}" />
 									</StackPanel>
 									<StackPanel Grid.Row="0" Orientation="Horizontal" IsVisible="{Binding !IsError}">
-										<Image asyncImageLoader:ImageLoader.Source="https://github.com/StimpyDev/ImageHost/blob/main/fr_asset2.png?raw=true" Stretch="None" HorizontalAlignment="Left"/>
+										<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset2.png" Stretch="None" HorizontalAlignment="Left"/>
 										<TextBlock Margin="5,0,0,0" FontSize="15" FontFamily="{StaticResource FontDefault}" Text="{DynamicResource Text.Main.Error}" />
 									</StackPanel>
 									<TextBox Grid.Row="1" Classes="no_background no_border" IsReadOnly="True" FontSize="13" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" MaxHeight="100" Margin="8" Padding="0" VerticalContentAlignment="Top" Text="{Binding Message, Mode=TwoWay}" />

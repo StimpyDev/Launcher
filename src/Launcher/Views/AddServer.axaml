@@ -7,8 +7,8 @@
 			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			 xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
 			 mc:Ignorable="d"
-			 d:DesignWidth="800"
-			 d:DesignHeight="450"
+			 d:DesignWidth="500"
+			 d:DesignHeight="150"
 			 x:DataType="vm:AddServer"
 			 x:Class="Launcher.Views.AddServer">
 
@@ -19,7 +19,7 @@
 		</StackPanel>
 
 		<StackPanel HorizontalAlignment="Center" Spacing="5">
-			<Image asyncImageLoader:ImageLoader.Source="https://github.com/StimpyDev/ImageHost/blob/main/textbox.png?raw=true" Stretch="None"/>
+			<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset4.png" Stretch="None"/>
 			<TextBox CaretBrush="Black" Foreground="Black" Margin="0,-48,0,0" FontSize="13" FontWeight="Bold" Width="254" Height="22" Text="{Binding ServerUrl, Mode=TwoWay}" />
 		</StackPanel>
 
