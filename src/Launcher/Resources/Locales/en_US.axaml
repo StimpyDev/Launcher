@@ -8,9 +8,13 @@
 	
 	</Design.PreviewWith>
 	
-	<x:String x:Key="Text.Ok" xml:space="preserve">Ok</x:String>
+	<x:String x:Key="Text.Yes" xml:space="preserve">Yes</x:String>
 	
+	<x:String x:Key="Text.No" xml:space="preserve">No</x:String>
+
 	<x:String x:Key="Text.Cancel" xml:space="preserve">Cancel</x:String>
+
+	<x:String x:Key="Text.Add" xml:space="preserve">Add</x:String>
 	
 	<x:String x:Key="Text.Servers" xml:space="preserve">Server List</x:String>
 	

@@ -15,21 +15,21 @@
 	<StackPanel Orientation="Vertical">
 
 		<StackPanel>
-			<TextBlock FontSize="19" HorizontalAlignment="Center" FontStyle="Oblique" Text="{DynamicResource Text.Delete_Server}" FontFamily="{StaticResource FontDefault}" />
+			<TextBlock FontSize="18" HorizontalAlignment="Center" Text="{DynamicResource Text.Delete_Server}" FontFamily="{StaticResource FontDefault}" />
 		</StackPanel>
 
 		<StackPanel>
-			<TextBlock HorizontalAlignment="Center" FontStyle="Oblique" Text="{DynamicResource Text.Delete_Server.Confirm}" FontFamily="{StaticResource FontDefault}" Margin="8" FontSize="15" />
+			<TextBlock HorizontalAlignment="Center" Text="{DynamicResource Text.Delete_Server.Confirm}" FontFamily="{StaticResource FontDefault}" Margin="8" FontSize="15" />
 		</StackPanel>
 
-		<StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Center">
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 
-			<StackPanel>
-				<Button Classes="flat primary" Click="DeleteServer_Button_Yes" FontSize="15" Content="{StaticResource Text.Yes}" FontStyle="Oblique" FontFamily="{StaticResource FontDefault}" HotKey="Enter" />
+			<StackPanel Margin="5">
+				<Button Classes="flat primary" Click="DeleteServer_Button_Yes" Content="{StaticResource Text.Yes}" FontFamily="{StaticResource FontDefault}" />
 			</StackPanel>
 
-			<StackPanel>
-				<Button Classes="flat primary" Click="DeleteServer_Button_No" FontSize="15" Content="{StaticResource Text.No}" FontStyle="Oblique" FontFamily="{StaticResource FontDefault}" HotKey="Enter" />
+			<StackPanel Margin="5">
+				<Button Classes="flat primary" Click="DeleteServer_Button_No" Content="{StaticResource Text.No}" FontFamily="{StaticResource FontDefault}" />
 			</StackPanel>
 
 		</StackPanel>

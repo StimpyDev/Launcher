@@ -30,13 +30,13 @@
 				<Button Classes="flat primary" CornerRadius="5" Command="{Binding RefreshServerStatusCommand}">
 					<Path Width="15" Height="15" Classes.rotating="{Binding IsRefreshing}" Data="{StaticResource Icons.Loading}" Stretch="Fill" />
 				</Button>
-				<StackPanel Orientation="Horizontal" Margin="1">
-					<TextBlock Text="{StaticResource Text.ServerStatus}" FontFamily="{StaticResource FontDefault}" FontSize="16" />
-					<TextBlock Text="{Binding Status, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" FontSize="16" Foreground="{Binding ServerStatusFill}" />
+				<StackPanel Orientation="Horizontal">
+					<TextBlock Text="{StaticResource Text.ServerStatus}" FontFamily="{StaticResource FontDefault}" />
+					<TextBlock Text="{Binding Status, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" Foreground="{Binding ServerStatusFill}" />
 				</StackPanel>
-				<StackPanel Orientation="Horizontal" Margin="2" IsVisible="{Binding IsOnline}">
-					<TextBlock Text="{StaticResource Text.OnlinePlayers}" FontFamily="{StaticResource FontDefault}" FontSize="16" />
-					<TextBlock Text="{Binding OnlinePlayers, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" Width="30" FontSize="16" />
+				<StackPanel Orientation="Horizontal" IsVisible="{Binding IsOnline}">
+					<TextBlock Text="{StaticResource Text.OnlinePlayers}" FontFamily="{StaticResource FontDefault}" />
+					<TextBlock Text="{Binding OnlinePlayers, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" Width="30" />
 				</StackPanel>
 			</StackPanel>
 		</StackPanel>
@@ -53,7 +53,7 @@
 		<!-- Server Play/Update Status -->
 		<StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
 			<Button Classes="no_background" Cursor="Hand" Command="{Binding PlayCommand}" IsVisible="{Binding PlayCommand.IsRunning, Converter={x:Static BoolConverters.Not}}" IsEnabled="{Binding Process, Converter={x:Static ObjectConverters.IsNull}}">
-				<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset3.png" Effect="drop-shadow(3 3 3 #40000000)" Height="60" Margin="0,0,0,20" Stretch="UniformToFill" />
+				<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset3.png" Effect="drop-shadow(3 3 3 #40000000)" Height="60" Margin="0,0,0,30" Stretch="UniformToFill" />
 			</Button>
 		</StackPanel>
 

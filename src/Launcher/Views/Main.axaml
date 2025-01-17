@@ -28,7 +28,7 @@
 	</Design.DataContext>
 
 	<Window.Background>
-		<ImageBrush asyncImageLoader:ImageBrushLoader.Source="https://github.com/StimpyDev/Launcher/blob/main/src/Launcher/Assets/background.png?raw=true" Stretch="UniformToFill" />
+		<ImageBrush asyncImageLoader:ImageBrushLoader.Source="https://github.com/StimpyDev/Launcher/blob/main/src/Launcher/Assets/background.png?raw=true" AlignmentY="Top" Stretch="UniformToFill" />
 	</Window.Background>
 
 	<Grid RowDefinitions="*" ColumnDefinitions="200,*">
@@ -36,12 +36,12 @@
 		<!-- Left - Server List -->
 		<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset1.png" Stretch="Uniform" Height="20" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="40,15,0,0"/>
 		<DockPanel LastChildFill="True" Background="{StaticResource Color.Server}" Opacity="0.080">
-			<TextBlock DockPanel.Dock="Top" Opacity="100" HorizontalAlignment="Center" FontFamily="{StaticResource FontDefault}" FontStyle="Oblique" FontSize="16" Margin="17" Text="{DynamicResource Text.Servers}" />
+			<TextBlock DockPanel.Dock="Top" Opacity="100" HorizontalAlignment="Center" FontFamily="{StaticResource FontDefault}" FontSize="15" Margin="17" Text="{DynamicResource Text.Servers}" />
 			<StackPanel Margin="10" HorizontalAlignment="Center" Orientation="Horizontal" DockPanel.Dock="Bottom">
 				<Button Classes="no_background" Opacity="100" Command="{Binding ShowSettingsCommand}">
 					<Path Width="16" Height="16" Data="{StaticResource Icons.Settings}" Stretch="Fill" />
 				</Button>
-				<Button Classes="flat primary" Opacity="100" FontStyle="Oblique" FontFamily="{StaticResource FontDefault}" FontSize="15" Command="{Binding AddServerCommand}" >
+				<Button Classes="flat primary" Opacity="100" FontFamily="{StaticResource FontDefault}" Command="{Binding AddServerCommand}" >
 					<TextBlock Text="{StaticResource Text.Main.AddServer}" />
 				</Button>
 			</StackPanel>
@@ -83,7 +83,7 @@
 				<ContentControl Content="{Binding Popup}" Opacity="0.9" ClipToBounds="False">
 					<ContentControl.DataTemplates>
 						<DataTemplate DataType="vm:Popup">
-							<Border Margin="8,0,8,8" Background="{StaticResource Color.Window}">
+							<Border Margin="8,0,8,8" BorderBrush="{StaticResource Color.Border}" BorderThickness="1" Background="{StaticResource Color.Window}">
 								<Border.CornerRadius>
 									<OnPlatform Default="10,10,10,10" Linux="0" />
 								</Border.CornerRadius>
@@ -113,7 +113,7 @@
 					<ItemsControl.ItemTemplate>
 						<DataTemplate DataType="m:Notification">
 							<Grid Width="320" Margin="7">
-								<Border Background="{StaticResource Color.Window}" CornerRadius="10" Opacity="90" />
+								<Border Background="{StaticResource Color.Window}" BorderBrush="{StaticResource Color.Border}" BorderThickness="1" CornerRadius="10" Opacity="0.9" />
 								<Grid Margin="7" RowDefinitions="20,Auto,15">
 									<StackPanel Grid.Row="0" Orientation="Horizontal" IsVisible="{Binding IsError}">
 										<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset2.png" Stretch="None" HorizontalAlignment="Left"/>

@@ -7,36 +7,20 @@
 		<GarbageCollectionAdaptationMode>1</GarbageCollectionAdaptationMode>
 		<TargetFramework>net9.0</TargetFramework>
 		<ApplicationIcon>App.ico</ApplicationIcon>
-		<PublishReadyToRun>true</PublishReadyToRun>
+		<TieredPGO>true</TieredPGO>
+        <PublishReadyToRun>true</PublishReadyToRun>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 		<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
 		<AssemblyName>OSFRLauncher</AssemblyName>
 		<RootNamespace>OSFRLauncher</RootNamespace>
 	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
-		<DefineConstants>$(DefineConstants);DESIGNMODE</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)'=='Release'">
-		<DebugType>none</DebugType>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-		<Optimize>True</Optimize>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-		<Optimize>True</Optimize>
-	</PropertyGroup>
-
+	
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-		<Optimize>False</Optimize>
+	  <Optimize>True</Optimize>
 	</PropertyGroup>
-
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-		<Optimize>False</Optimize>
+	  <Optimize>True</Optimize>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -15,17 +15,17 @@
 	<StackPanel Orientation="Vertical" Spacing="5">
 
 		<StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-			<TextBlock FontSize="17" Text="{DynamicResource Text.Add_Server.ServerUrl}" FontStyle="Oblique" FontFamily="{StaticResource FontDefault}" />
+			<TextBlock FontSize="18" Text="{DynamicResource Text.Add_Server.ServerUrl}" FontFamily="{StaticResource FontDefault}" />
 		</StackPanel>
 
 		<StackPanel HorizontalAlignment="Center" Spacing="5">
 			<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset4.png" Stretch="None"/>
-			<TextBox CaretBrush="Black" Foreground="Black" Margin="0,-48,0,0" FontSize="13" FontWeight="Bold" Width="254" Height="22" Text="{Binding ServerUrl, Mode=TwoWay}" />
+			<TextBox CaretBrush="Black" v:AutoFocusBehaviour.IsEnabled="True" Foreground="Black" Margin="0,-48,0,0" FontSize="13" FontWeight="Bold" Width="254" Height="22" Text="{Binding ServerUrl, Mode=TwoWay}" />
 		</StackPanel>
 
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
-			<Button Classes="flat primary" FontStyle="Oblique" FontSize="15" Click="AddServer_Button_Add" Content="{StaticResource Text.Add}" FontFamily="{StaticResource FontDefault}" HotKey="Enter" />
-			<Button Classes="flat primary" FontStyle="Oblique" FontSize="15" Click="AddServer_Button_Cancel" Content="{StaticResource Text.Cancel}" FontFamily="{StaticResource FontDefault}" HotKey="Enter" />
+			<Button Classes="flat primary" Click="AddServer_Button_Add" Content="{StaticResource Text.Add}" FontFamily="{StaticResource FontDefault}" HotKey="Enter" />
+			<Button Classes="flat primary" Click="AddServer_Button_Cancel" Content="{StaticResource Text.Cancel}" FontFamily="{StaticResource FontDefault}" />
 
 		</StackPanel>
 	</StackPanel>
