@@ -3,7 +3,6 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using Avalonia.Collections;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Launcher.Models;
@@ -21,7 +20,10 @@ public partial class Main : ObservableObject
     private Server? activeServer;
 
     [ObservableProperty]
-    private string? message;
+    private string message = string.Empty;
+
+    [ObservableProperty]
+    private bool isRefreshing = false;
 
     [ObservableProperty]
     private SemanticVersion version = App.CurrentVersion;
@@ -94,6 +96,12 @@ public partial class Main : ObservableObject
         {
             DiscordService.UpdateActivity(App.GetText("Text.Discord.Idle"), "");
         }
+    }
+
+    [RelayCommand]
+    public void CheckForUpdates()
+    {
+        App.CheckForUpdates();
     }
 
     [RelayCommand]

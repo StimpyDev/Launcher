@@ -38,8 +38,11 @@
 		<DockPanel LastChildFill="True" Background="{StaticResource Color.Server}" Opacity="0.080">
 			<TextBlock DockPanel.Dock="Top" Opacity="100" HorizontalAlignment="Center" FontFamily="{StaticResource FontDefault}" FontSize="15" Margin="17" Text="{DynamicResource Text.Servers}" />
 			<StackPanel Margin="10" HorizontalAlignment="Center" Orientation="Horizontal" DockPanel.Dock="Bottom">
-				<Button Classes="no_background" Opacity="100" Command="{Binding ShowSettingsCommand}">
+				<Button Classes="no_background" Opacity="100" Command="{Binding ShowSettingsCommand}" ToolTip.Tip="{StaticResource Text.Settings}">
 					<Path Width="16" Height="16" Data="{StaticResource Icons.Settings}" Stretch="Fill" />
+				</Button>
+				<Button Classes="no_background" Opacity="100" Command="{Binding CheckForUpdatesCommand}" ToolTip.Tip="{StaticResource Text.Main.CheckingForUpdatesToolTip}">
+					<Path Width="16" Height="16" Classes.rotating="{Binding IsRefreshing}" Data="{StaticResource Icons.Loading}" Stretch="Fill" />
 				</Button>
 				<Button Classes="flat primary" Opacity="100" FontFamily="{StaticResource FontDefault}" Command="{Binding AddServerCommand}" >
 					<TextBlock Text="{StaticResource Text.Main.AddServer}" />
@@ -70,10 +73,15 @@
 		<Button Classes="flat primary" Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="15,0,0,10" Command="{Binding DeleteServerCommand}" IsVisible="{Binding ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}">
 			<Path Width="16" Height="16" Data="{StaticResource Icons.Delete}" Stretch="Fill" />
 		</Button>
+		
 		<Button Grid.Row="0" Grid.Column="1" Classes="flat primary" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,15,10" Command="{Binding OpenFolderCommand}" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNull}}">
 			<Path Width="16" Height="16" Data="{StaticResource Icons.Folder}" Stretch="Fill" />
 		</Button>
+		
+		<TextBlock Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Margin="25" FontSize="13" FontFamily="{StaticResource FontDefault}" VerticalAlignment="Bottom" Text="{Binding Message, Mode=OneWay}" />
+		
 		<Label Grid.Row="0" Grid.Column="1" FontFamily="{StaticResource FontDefault}" Margin="5" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0.5" Content="{Binding Version, StringFormat='Version: {0}'}" />
+		
 		<v:Server DataContext="{Binding ActiveServer, Mode=TwoWay}" Grid.Row="0" Grid.Column="1" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}" />
 
 		<!-- Popups -->

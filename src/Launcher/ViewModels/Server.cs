@@ -157,7 +157,7 @@ public partial class Server : ObservableObject
         App.ShowPopup(new Login(this));
     }
 
-    [RelayCommand()]
+    [RelayCommand]
     public void OpenFolder()
     {
         Process.Start(new ProcessStartInfo()

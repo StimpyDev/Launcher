@@ -42,7 +42,7 @@ public partial class App : Application
         };
     }
 
-    public override async void OnFrameworkInitializationCompleted()
+    public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime applicationLifetime)
             return;
@@ -51,15 +51,48 @@ public partial class App : Application
 
         var main = new Views.Main();
 
-#if RELEASE
-        // Check For updates on startup
+        _main = main.ViewModel;
+
+        applicationLifetime.MainWindow = main;
+
+        main.Show();
+
+        base.OnFrameworkInitializationCompleted();
+    }
+
+    public static async void CheckForUpdates()
+    {
+        if (Current is not App app || app._main is null)
+            return;
+
         if (_updateManager.IsInstalled)
         {
+            // Checking For Updates
+            app._main.IsRefreshing = true;
+            app._main.Message = GetText("Text.Main.CheckingForUpdates");
             var updateInfo = await _updateManager.CheckForUpdatesAsync();
 
-            if (updateInfo is not null)
+            if (updateInfo is null)
             {
-                await _updateManager.DownloadUpdatesAsync(updateInfo);
+                // No Updates Found
+                app._main.Message = GetText("Text.Main.NoUpdatesFound");
+
+                await Task.Delay(700);
+
+                app._main.Message = string.Empty;
+                app._main.IsRefreshing = false;
+            }
+
+            else if (updateInfo is not null)
+            {
+                await _updateManager.DownloadUpdatesAsync(updateInfo, (p) =>
+                {
+                    // Downloading Update
+                    app._main.Message = GetText("Text.Main.Downloading", updateInfo.TargetFullRelease.Version, p);
+                });
+
+                // Relaunches the launcher to complete the update
+                app._main.Message = GetText("Text.Main.Relaunching");
 
                 await Task.Delay(500);
 
@@ -68,17 +101,6 @@ public partial class App : Application
                 return;
             }
         }
-#endif
-
-        await Task.Delay(500);
-
-        _main = main.ViewModel;
-
-        applicationLifetime.MainWindow = main;
-
-        main.Show();
-
-        base.OnFrameworkInitializationCompleted();
     }
 
     public static void SetLocale(LocaleType value)
