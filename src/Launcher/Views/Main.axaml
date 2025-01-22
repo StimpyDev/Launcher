@@ -41,7 +41,7 @@
 				<Button Classes="no_background" Opacity="100" Command="{Binding ShowSettingsCommand}" ToolTip.Tip="{StaticResource Text.Settings}">
 					<Path Width="16" Height="16" Data="{StaticResource Icons.Settings}" Stretch="Fill" />
 				</Button>
-				<Button Classes="no_background" Opacity="100" Command="{Binding CheckForUpdatesCommand}" ToolTip.Tip="{StaticResource Text.Main.CheckingForUpdatesToolTip}">
+				<Button Classes="no_background" Opacity="100" Command="{Binding CheckForUpdatesCommand}" ToolTip.Tip="{StaticResource Text.Main.CheckingForUpdatesToolTip}" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNull}}">
 					<Path Width="16" Height="16" Classes.rotating="{Binding IsRefreshing}" Data="{StaticResource Icons.Loading}" Stretch="Fill" />
 				</Button>
 				<Button Classes="flat primary" Opacity="100" FontFamily="{StaticResource FontDefault}" Command="{Binding AddServerCommand}" >
