@@ -60,7 +60,7 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
-    public static async void CheckForUpdates()
+    public static async Task CheckForUpdatesAsync()
     {
         if (Current is not App app || app._main is null)
             return;
@@ -172,7 +172,7 @@ public partial class App : Application
         app._main.ActiveServer = null;
     }
 
-    public static void ShowPopup(Popup popup, bool process = false)
+    public static async Task ShowPopupAsync(Popup popup, bool process = false)
     {
         if (Current is not App app || app._main is null)
             return;
@@ -183,10 +183,10 @@ public partial class App : Application
         app._main.Popup = popup;
 
         if (process)
-            ProcessPopup();
+            await ProcessPopupAsync();
     }
 
-    public static async void ProcessPopup()
+    public static async Task ProcessPopupAsync()
     {
         if (Current is not App app || app._main is null)
             return;

@@ -14,7 +14,7 @@ public partial class Server : UserControl
         if (DataContext is not ViewModels.Server server)
             return;
 
-        var success = await server.OnShow();
+        var success = await server.OnShowAsync();
 
         if (!success)
             App.ClearServerSelection();

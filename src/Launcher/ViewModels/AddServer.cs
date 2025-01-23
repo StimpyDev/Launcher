@@ -40,10 +40,10 @@ public partial class AddServer : Popup
     {
         ProgressDescription = App.GetText("Text.Add_Server.Loading");
 
-        return Task.Run(OnAddServer);
+        return Task.Run(OnAddServerAsync);
     }
 
-    private async Task<bool> OnAddServer()
+    private async Task<bool> OnAddServerAsync()
     {
         try
         {

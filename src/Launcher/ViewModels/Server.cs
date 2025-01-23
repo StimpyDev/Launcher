@@ -75,7 +75,7 @@ public partial class Server : ObservableObject
         _main = main;
     }
 
-    public async Task<bool> OnShow()
+    public async Task<bool> OnShowAsync()
     {
         if (!await RefreshServerInfoAsync())
             return false;
@@ -154,7 +154,7 @@ public partial class Server : ObservableObject
 
         StatusMessage = string.Empty;
 
-        App.ShowPopup(new Login(this));
+        await App.ShowPopupAsync(new Login(this));
     }
 
     [RelayCommand]

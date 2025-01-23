@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
@@ -12,7 +13,7 @@ public partial class DeleteServer : UserControl
 
     private void DeleteServer_Button_Yes(object sender, RoutedEventArgs e)
     {
-        App.ProcessPopup();
+        Task task = App.ProcessPopupAsync();
         e.Handled = true;
     }
 

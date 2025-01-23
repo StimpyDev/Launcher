@@ -2,6 +2,7 @@
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -101,7 +102,7 @@ public partial class Main : ObservableObject
     [RelayCommand]
     public void CheckForUpdates()
     {
-        App.CheckForUpdates();
+        Task task = App.CheckForUpdatesAsync();
     }
 
     [RelayCommand]
@@ -124,7 +125,7 @@ public partial class Main : ObservableObject
     [RelayCommand]
     public void AddServer()
     {
-        App.ShowPopup(new AddServer());
+        Task task = App.ShowPopupAsync(new AddServer());
     }
 
     [RelayCommand]
@@ -133,7 +134,7 @@ public partial class Main : ObservableObject
         if (ActiveServer is null)
             return;
 
-        App.ShowPopup(new DeleteServer(ActiveServer.Info));
+        Task task = App.ShowPopupAsync(new DeleteServer(ActiveServer.Info));
     }
 
     public void OnReceiveNotification(Notification notification)

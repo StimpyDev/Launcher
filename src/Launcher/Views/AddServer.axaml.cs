@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
@@ -12,7 +13,7 @@ public partial class AddServer : UserControl
 
     private void AddServer_Button_Add(object sender, RoutedEventArgs e)
     {
-        App.ProcessPopup();
+        Task task = App.ProcessPopupAsync();
         e.Handled = true;
     }
 
