@@ -34,7 +34,6 @@
 	<Grid RowDefinitions="*" ColumnDefinitions="200,*">
 
 		<!-- Left - Server List -->
-		<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset1.png" Stretch="Uniform" Height="20" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="40,15,0,0"/>
 		<DockPanel LastChildFill="True" Background="{StaticResource Color.Server}" Opacity="0.080">
 			<TextBlock DockPanel.Dock="Top" Opacity="100" HorizontalAlignment="Center" FontFamily="{StaticResource FontDefault}" FontSize="15" Margin="17" Text="{DynamicResource Text.Servers}" />
 			<StackPanel Margin="10" HorizontalAlignment="Center" Orientation="Horizontal" DockPanel.Dock="Bottom">
@@ -87,7 +86,7 @@
 		<!-- Popups -->
 		<Grid Grid.Row="0" Grid.ColumnSpan="2" IsVisible="{Binding Popup, Converter={x:Static ObjectConverters.IsNotNull}}">
 			<Border Background="{StaticResource Color.Window}" Opacity="0.5" />
-			<Grid Width="500" HorizontalAlignment="Center" VerticalAlignment="Center">
+			<Grid Width="550" HorizontalAlignment="Center" VerticalAlignment="Center">
 				<ContentControl Content="{Binding Popup}" Opacity="0.9" ClipToBounds="False">
 					<ContentControl.DataTemplates>
 						<DataTemplate DataType="vm:Popup">

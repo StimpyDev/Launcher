@@ -17,21 +17,22 @@
 		Title="{DynamicResource Text.Settings}"
 		Background="{StaticResource Color.Window}"
 		Width="400"
-		Height="180"
+		Height="200"
 		MinWidth="400"
-		MinHeight="180">
+		MinHeight="200">
 
 	<TabControl>
 		<TabItem>
 			<TabItem.Header>
 				<TextBlock Text="{DynamicResource Text.Settings.General}" />
 			</TabItem.Header>
-			
-			<Grid Margin="10" RowDefinitions="20,35" ColumnDefinitions="Auto, *">
-				<CheckBox Grid.Row="0" Grid.ColumnSpan="2" Content="{DynamicResource Text.Settings.General.DiscordActivity}" IsChecked="{Binding DiscordActivity, Mode=TwoWay}" />
-				<CheckBox Grid.Row="1" Grid.ColumnSpan="2"  Content="{DynamicResource Text.Settings.General.ParallelDownload}" IsChecked="{Binding ParallelDownload, Mode=TwoWay}"/>
+
+			<Grid Margin="10" RowDefinitions="25,30,25,25" ColumnDefinitions="Auto, *">
+				<CheckBox Grid.Row="0" Content="{DynamicResource Text.Settings.General.DiscordActivity}" IsChecked="{Binding DiscordActivity, Mode=TwoWay}" />
+				<CheckBox Grid.Row="1" Content="{DynamicResource Text.Settings.General.ParallelDownload}" IsChecked="{Binding ParallelDownload, Mode=TwoWay}"/>
+				<TextBlock Grid.Row="2" Text="{DynamicResource Text.Settings.General.Locale}" HorizontalAlignment="Left" Margin="0,0,16,0" />   
+				<ComboBox Grid.Row="3" MinHeight="28" Padding="8,0" HorizontalAlignment="Stretch" ItemsSource="{Binding Source={x:Static m:Locale.Supported}}" DisplayMemberBinding="{Binding Name, x:DataType=m:Locale}" SelectedItem="{Binding Locale, Mode=TwoWay, Converter={x:Static c:StringConverter.ToLocale}}" />
 			</Grid>
-			
 		</TabItem>
 	</TabControl>
 </Window>

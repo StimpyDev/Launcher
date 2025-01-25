@@ -8,7 +8,6 @@
 			 mc:Ignorable="d"
 			 d:DesignWidth="500"
 			 d:DesignHeight="150"
-			 Width="500"
 			 x:DataType="vm:DeleteServer"
 			 x:Class="Launcher.Views.DeleteServer">
 
@@ -19,7 +18,7 @@
 		</StackPanel>
 
 		<StackPanel>
-			<TextBlock HorizontalAlignment="Center" Text="{DynamicResource Text.Delete_Server.Confirm}" FontFamily="{StaticResource FontDefault}" Margin="8" FontSize="15" />
+			<TextBlock HorizontalAlignment="Center" Text="{DynamicResource Text.Delete_Server.Confirm}" FontFamily="{StaticResource FontDefault}" Margin="5" FontSize="15" />
 		</StackPanel>
 
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

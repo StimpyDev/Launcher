@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<Design.PreviewWith>
+
+		<Border Padding="20">
+			<TextBlock Text="{DynamicResource Text.Ok}" />
+		</Border>
+
+	</Design.PreviewWith>
+
+	<x:String x:Key="Text.Yes" xml:space="preserve">Sí</x:String>
+
+	<x:String x:Key="Text.No" xml:space="preserve">No</x:String>
+
+	<x:String x:Key="Text.Cancel" xml:space="preserve">Cancelar</x:String>
+
+	<x:String x:Key="Text.Add" xml:space="preserve">Agregar</x:String>
+
+	<x:String x:Key="Text.Servers" xml:space="preserve">Lista de servidores</x:String>
+
+	<x:String x:Key="Text.Title" xml:space="preserve">OSFR Launcher</x:String>
+
+	<x:String x:Key="Text.Main.Relaunching" xml:space="preserve">Relanzamiento...</x:String>
+
+	<x:String x:Key="Text.Main.NoUpdatesFound" xml:space="preserve">No se encontraron actualizaciones. El lanzador está actualizado.</x:String>
+
+	<x:String x:Key="Text.Main.Downloading" xml:space="preserve">Descargando actualización {0}... ({1}%)</x:String>
+
+	<x:String x:Key="Text.Main.CheckingForUpdates" xml:space="preserve">Buscando actualizaciones...</x:String>
+
+	<x:String x:Key="Text.Main.CheckingForUpdatesToolTip" xml:space="preserve">Buscar actualizaciones</x:String>
+
+	<x:String x:Key="Text.Close" xml:space="preserve">×</x:String>
+
+	<x:String x:Key="Text.Main.Error" xml:space="preserve">Ups! Nos encontramos con un obstáculo...</x:String>
+
+	<x:String x:Key="Text.Login" xml:space="preserve">Login</x:String>
+
+	<x:String x:Key="Text.Login.Username" xml:space="preserve">Nombre de usuario::</x:String>
+
+	<x:String x:Key="Text.Login.Password" xml:space="preserve">Contraseña:</x:String>
+
+	<x:String x:Key="Text.Login.Unauthorized" xml:space="preserve">Nombre de usuario o contraseña incorrectos.</x:String>
+
+	<x:String x:Key="Text.Login.RememberUsername" xml:space="preserve">Recordar nombre de usuario</x:String>
+
+	<x:String x:Key="Text.Login.RememberPassword" xml:space="preserve">Recordar contraseña</x:String>
+
+	<x:String x:Key="Text.Login.SecureApiWarning" xml:space="preserve">Este servidor no utiliza HTTPS. Proceda bajo su propio riesgo.</x:String>
+
+	<x:String x:Key="Text.Server.DownloadingFile" xml:space="preserve">Descargando: {0}</x:String>
+
+	<x:String x:Key="Text.Main.AddServer" xml:space="preserve">Add Servidor</x:String>
+
+	<x:String x:Key="Text.Settings" xml:space="preserve">Configuraciones</x:String>
+
+	<x:String x:Key="Text.Settings.General" xml:space="preserve">General</x:String>
+
+	<x:String x:Key="Text.Settings.General.Locale" xml:space="preserve">Idioma:</x:String>
+
+	<x:String x:Key="Text.Settings.General.DiscordActivity" xml:space="preserve">Actividad en Discord</x:String>
+
+	<x:String x:Key="Text.Settings.General.ParallelDownload" xml:space="preserve">Descarga Paralela</x:String>
+
+	<x:String x:Key="Text.Add_Server.ServerUrl" xml:space="preserve">URL del servidor:</x:String>
+
+	<x:String x:Key="Text.Add_Server.Loading" xml:space="preserve">Añadiendo servidor...</x:String>
+
+	<x:String x:Key="Text.Server.VerifyClientFiles" xml:space="preserve">Verificando archivos de clientes...</x:String>
+
+	<x:String x:Key="Text.Login.Loading" xml:space="preserve">Iniciando Sesión...</x:String>
+
+	<x:String x:Key="Text.Add_Server.InvalidServerUrl1" xml:space="preserve">Formato de URL inválido. {0}</x:String>
+
+	<x:String x:Key="Text.Add_Server.InvalidServerUrl2" xml:space="preserve">URL inválida, solo se admite http/https. {0}</x:String>
+
+	<x:String x:Key="Text.Delete_Server" xml:space="preserve">Eliminar Servidor</x:String>
+
+	<x:String x:Key="Text.Delete_Server.Loading" xml:space="preserve">Eliminando Servidor...</x:String>
+
+	<x:String x:Key="Text.Delete_Server.Confirm" xml:space="preserve">¿Estás seguro de que quieres eliminar el servidor? Esto no se puede deshacer.</x:String>
+
+	<x:String x:Key="Text.ServerStatus" xml:space="preserve">Estado: </x:String>
+
+	<x:String x:Key="Text.OnlinePlayers" xml:space="preserve">Jugadores: </x:String>
+
+	<x:String x:Key="Text.ServerStatus.Online" xml:space="preserve">En línea</x:String>
+
+	<x:String x:Key="Text.ServerStatus.Locked" xml:space="preserve">Bloqueado</x:String>
+
+	<x:String x:Key="Text.ServerStatus.Offline" xml:space="preserve">Fuera de línea</x:String>
+
+	<x:String x:Key="Text.Discord.Playing" xml:space="preserve">Jugando en el/los servidor(es): </x:String>
+
+	<x:String x:Key="Text.Discord.Idle" xml:space="preserve">En reposo en el lanzador OSFR</x:String>
+
+</ResourceDictionary>
