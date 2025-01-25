@@ -20,9 +20,9 @@
 
 	<x:String x:Key="Text.Title" xml:space="preserve">OSFR Launcher</x:String>
 
-	<x:String x:Key="Text.Main.Relaunching" xml:space="preserve">Relancement...</x:String>
+	<x:String x:Key="Text.Main.Relaunching" xml:space="preserve">Relance...</x:String>
 
-	<x:String x:Key="Text.Main.NoUpdatesFound" xml:space="preserve">Aucune mise à jour trouvée. Le lanceur est à jour.</x:String>
+	<x:String x:Key="Text.Main.NoUpdatesFound" xml:space="preserve">Aucune mise à jour n'a été trouvée. Le lanceur est à jour.</x:String>
 
 	<x:String x:Key="Text.Main.Downloading" xml:space="preserve">>Téléchargement de la mise à jour {0}... ({1}%)</x:String>
 
@@ -42,9 +42,9 @@
 
 	<x:String x:Key="Text.Login.Unauthorized" xml:space="preserve">Nom d'utilisateur ou mot de passe incorrect.</x:String>
 
-	<x:String x:Key="Text.Login.RememberUsername" xml:space="preserve">Se souvenir du nom d'utilisateur</x:String>
+	<x:String x:Key="Text.Login.RememberUsername" xml:space="preserve">Mémoriser le nom d'utilisateur</x:String>
 
-	<x:String x:Key="Text.Login.RememberPassword" xml:space="preserve">Se souvenir du mot de passe</x:String>
+	<x:String x:Key="Text.Login.RememberPassword" xml:space="preserve">Mémoriser le mot de passe</x:String>
 
 	<x:String x:Key="Text.Login.SecureApiWarning" xml:space="preserve">Ce serveur n'utilise pas HTTPS. Procédez à vos propres risques.</x:String>
 
@@ -66,19 +66,19 @@
 
 	<x:String x:Key="Text.Add_Server.Loading" xml:space="preserve">Ajout de serveur...</x:String>
 
-	<x:String x:Key="Text.Server.VerifyClientFiles" xml:space="preserve">Vérification des dossiers clients...</x:String>
+	<x:String x:Key="Text.Server.VerifyClientFiles" xml:space="preserve">Vérification des fichiers clients...</x:String>
 
 	<x:String x:Key="Text.Login.Loading" xml:space="preserve">Connexion...</x:String>
 
 	<x:String x:Key="Text.Add_Server.InvalidServerUrl1" xml:space="preserve">Format d'URL invalide. {0}</x:String>
 
-	<x:String x:Key="Text.Add_Server.InvalidServerUrl2" xml:space="preserve">URL invalide, seuls http/https sont pris en charge. {0}</x:String>
+	<x:String x:Key="Text.Add_Server.InvalidServerUrl2" xml:space="preserve">URL non valide, seul http/https est supporté. {0}</x:String>
 
 	<x:String x:Key="Text.Delete_Server" xml:space="preserve">Supprimer le serveur</x:String>
 
 	<x:String x:Key="Text.Delete_Server.Loading" xml:space="preserve">Suppression du serveur...</x:String>
 
-	<x:String x:Key="Text.Delete_Server.Confirm" xml:space="preserve">Êtes-vous sûr de vouloir supprimer le serveur? Cela ne peut pas être annulé.</x:String>
+	<x:String x:Key="Text.Delete_Server.Confirm" xml:space="preserve">Êtes-vous sûr de vouloir supprimer le serveur? Il n'est pas possible d'annuler cette opération.</x:String>
 
 	<x:String x:Key="Text.ServerStatus" xml:space="preserve">Statut: </x:String>
 
@@ -92,6 +92,6 @@
 
 	<x:String x:Key="Text.Discord.Playing" xml:space="preserve">Jouer sur le(s) serveur(s): </x:String>
 
-	<x:String x:Key="Text.Discord.Idle" xml:space="preserve">Au ralenti dans le lanceur OSFR</x:String>
+	<x:String x:Key="Text.Discord.Idle" xml:space="preserve">Le ralenti dans le lanceur de l'OSFR</x:String>
 
 </ResourceDictionary>

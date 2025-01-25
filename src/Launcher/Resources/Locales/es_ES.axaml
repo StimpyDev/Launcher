@@ -20,13 +20,13 @@
 
 	<x:String x:Key="Text.Title" xml:space="preserve">OSFR Launcher</x:String>
 
-	<x:String x:Key="Text.Main.Relaunching" xml:space="preserve">Relanzamiento...</x:String>
+	<x:String x:Key="Text.Main.Relaunching" xml:space="preserve">Relanzamiento de...</x:String>
 
-	<x:String x:Key="Text.Main.NoUpdatesFound" xml:space="preserve">No se encontraron actualizaciones. El lanzador está actualizado.</x:String>
+	<x:String x:Key="Text.Main.NoUpdatesFound" xml:space="preserve">No se han encontrado actualizaciones. El lanzador está actualizado.</x:String>
 
 	<x:String x:Key="Text.Main.Downloading" xml:space="preserve">Descargando actualización {0}... ({1}%)</x:String>
 
-	<x:String x:Key="Text.Main.CheckingForUpdates" xml:space="preserve">Buscando actualizaciones...</x:String>
+	<x:String x:Key="Text.Main.CheckingForUpdates" xml:space="preserve">Comprobación de actualizaciones...</x:String>
 
 	<x:String x:Key="Text.Main.CheckingForUpdatesToolTip" xml:space="preserve">Buscar actualizaciones</x:String>
 
@@ -46,13 +46,13 @@
 
 	<x:String x:Key="Text.Login.RememberPassword" xml:space="preserve">Recordar contraseña</x:String>
 
-	<x:String x:Key="Text.Login.SecureApiWarning" xml:space="preserve">Este servidor no utiliza HTTPS. Proceda bajo su propio riesgo.</x:String>
+	<x:String x:Key="Text.Login.SecureApiWarning" xml:space="preserve">Este servidor no utiliza HTTPS. Proceda bajo su propia responsabilidad.</x:String>
 
 	<x:String x:Key="Text.Server.DownloadingFile" xml:space="preserve">Descargando: {0}</x:String>
 
 	<x:String x:Key="Text.Main.AddServer" xml:space="preserve">Add Servidor</x:String>
 
-	<x:String x:Key="Text.Settings" xml:space="preserve">Configuraciones</x:String>
+	<x:String x:Key="Text.Settings" xml:space="preserve">Ajustes</x:String>
 
 	<x:String x:Key="Text.Settings.General" xml:space="preserve">General</x:String>
 
@@ -66,19 +66,19 @@
 
 	<x:String x:Key="Text.Add_Server.Loading" xml:space="preserve">Añadiendo servidor...</x:String>
 
-	<x:String x:Key="Text.Server.VerifyClientFiles" xml:space="preserve">Verificando archivos de clientes...</x:String>
+	<x:String x:Key="Text.Server.VerifyClientFiles" xml:space="preserve">Verificación de archivos de cliente...</x:String>
 
-	<x:String x:Key="Text.Login.Loading" xml:space="preserve">Iniciando Sesión...</x:String>
+	<x:String x:Key="Text.Login.Loading" xml:space="preserve">Inicio de sesión...</x:String>
 
-	<x:String x:Key="Text.Add_Server.InvalidServerUrl1" xml:space="preserve">Formato de URL inválido. {0}</x:String>
+	<x:String x:Key="Text.Add_Server.InvalidServerUrl1" xml:space="preserve">Formato de url no válido. {0}</x:String>
 
-	<x:String x:Key="Text.Add_Server.InvalidServerUrl2" xml:space="preserve">URL inválida, solo se admite http/https. {0}</x:String>
+	<x:String x:Key="Text.Add_Server.InvalidServerUrl2" xml:space="preserve">URL no válida, sólo se admite http/https. {0}</x:String>
 
-	<x:String x:Key="Text.Delete_Server" xml:space="preserve">Eliminar Servidor</x:String>
+	<x:String x:Key="Text.Delete_Server" xml:space="preserve">Borrar Servidor</x:String>
 
-	<x:String x:Key="Text.Delete_Server.Loading" xml:space="preserve">Eliminando Servidor...</x:String>
+	<x:String x:Key="Text.Delete_Server.Loading" xml:space="preserve">Borrar Servidor...</x:String>
 
-	<x:String x:Key="Text.Delete_Server.Confirm" xml:space="preserve">¿Estás seguro de que quieres eliminar el servidor? Esto no se puede deshacer.</x:String>
+	<x:String x:Key="Text.Delete_Server.Confirm" xml:space="preserve">¿Está seguro de que desea eliminar el servidor? Esto no se puede deshacer.</x:String>
 
 	<x:String x:Key="Text.ServerStatus" xml:space="preserve">Estado: </x:String>
 
@@ -88,10 +88,10 @@
 
 	<x:String x:Key="Text.ServerStatus.Locked" xml:space="preserve">Bloqueado</x:String>
 
-	<x:String x:Key="Text.ServerStatus.Offline" xml:space="preserve">Fuera de línea</x:String>
+	<x:String x:Key="Text.ServerStatus.Offline" xml:space="preserve">Sin conexión</x:String>
 
-	<x:String x:Key="Text.Discord.Playing" xml:space="preserve">Jugando en el/los servidor(es): </x:String>
+	<x:String x:Key="Text.Discord.Playing" xml:space="preserve">Jugando en servidor(es): </x:String>
 
-	<x:String x:Key="Text.Discord.Idle" xml:space="preserve">En reposo en el lanzador OSFR</x:String>
+	<x:String x:Key="Text.Discord.Idle" xml:space="preserve">Ralentí en el lanzador OSFR</x:String>
 
 </ResourceDictionary>
