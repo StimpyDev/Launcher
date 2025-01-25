@@ -78,7 +78,7 @@
 
 	<x:String x:Key="Text.Delete_Server.Loading" xml:space="preserve">Suppression du serveur...</x:String>
 
-	<x:String x:Key="Text.Delete_Server.Confirm" xml:space="preserve">Êtes-vous sûr de vouloir supprimer le serveur? Il n'est pas possible d'annuler cette opération.</x:String>
+	<x:String x:Key="Text.Delete_Server.Confirm" xml:space="preserve">Êtes-vous sûr de vouloir supprimer le serveur? Cela ne peut pas être annulé..</x:String>
 
 	<x:String x:Key="Text.ServerStatus" xml:space="preserve">Statut: </x:String>
 
