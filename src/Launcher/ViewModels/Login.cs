@@ -175,7 +175,8 @@ public partial class Login : Popup
         var arguments = new List<string>
         {
             $"Server={_server.Info.LoginServer}",
-            $"SessionId={sessionId}"
+            $"SessionId={sessionId}",
+            $"Internationalization:Locale={Settings.Instance.Locale}"
         };
 
         if (!string.IsNullOrEmpty(launchArguments))
