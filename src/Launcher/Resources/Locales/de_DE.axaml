@@ -56,7 +56,7 @@
 	
 	<x:String x:Key="Text.Settings.General" xml:space="preserve">Allgemein</x:String>
 	
-	<x:String x:Key="Text.Settings.General.Locale" xml:space="preserve">Sprache:</x:String>
+	<x:String x:Key="Text.Settings.General.Locale" xml:space="preserve">Sprache: (Hinweis: Dies ändert auch die Sprache im Spiel)</x:String>
 	
 	<x:String x:Key="Text.Settings.General.DiscordActivity" xml:space="preserve">Discord Aktivität</x:String>
 	
