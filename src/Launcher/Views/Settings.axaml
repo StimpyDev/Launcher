@@ -18,7 +18,7 @@
 		Background="{StaticResource Color.Window}"
 		Width="400"
 		Height="200"
-		MinWidth="400"
+		MinWidth="450"
 		MinHeight="200">
 
 	<TabControl>
