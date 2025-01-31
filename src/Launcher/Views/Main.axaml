@@ -44,6 +44,12 @@
 					<Path Width="16" Height="16" Classes.rotating="{Binding IsRefreshing}" Data="{StaticResource Icons.Loading}" Stretch="Fill" />
 				</Button>
 				<Button Classes="flat primary" Opacity="100" FontFamily="{StaticResource FontDefault}" Command="{Binding AddServerCommand}" >
+					<Button.Background>
+						<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+							<GradientStop Color="#687AA7" Offset="0.0"/>
+							<GradientStop Color="#3C4C74" Offset="0.8"/>
+						</LinearGradientBrush>
+					</Button.Background>
 					<TextBlock Text="{StaticResource Text.Main.AddServer}" />
 				</Button>
 			</StackPanel>
@@ -70,10 +76,22 @@
 
 		<!-- Right - Active Server -->
 		<Button Classes="flat primary" Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="15,0,0,10" Command="{Binding DeleteServerCommand}" IsVisible="{Binding ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}">
+			<Button.Background>
+				<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+					<GradientStop Color="#687AA7" Offset="0.0"/>
+					<GradientStop Color="#3C4C74" Offset="0.8"/>
+				</LinearGradientBrush>
+			</Button.Background>
 			<Path Width="16" Height="16" Data="{StaticResource Icons.Delete}" Stretch="Fill" />
 		</Button>
 		
 		<Button Grid.Row="0" Grid.Column="1" Classes="flat primary" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,15,10" Command="{Binding OpenFolderCommand}" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNull}}">
+			<Button.Background>
+				<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+					<GradientStop Color="#687AA7" Offset="0.0"/>
+					<GradientStop Color="#3C4C74" Offset="0.8"/>
+				</LinearGradientBrush>
+			</Button.Background>
 			<Path Width="16" Height="16" Data="{StaticResource Icons.Folder}" Stretch="Fill" />
 		</Button>
 		

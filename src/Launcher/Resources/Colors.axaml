@@ -20,7 +20,7 @@
 	
 	<SolidColorBrush x:Key="Color.FlatButton.PrimaryBackground">#3C4C74</SolidColorBrush>
 	
-	<SolidColorBrush x:Key="Color.FlatButton.PrimaryBackgroundHovered">#38476A</SolidColorBrush>
+	<SolidColorBrush x:Key="Color.FlatButton.PrimaryBackgroundHovered">#3C4C74</SolidColorBrush>
 	
 	<SolidColorBrush x:Key="Color.FG1">#ffffff</SolidColorBrush>
 	
