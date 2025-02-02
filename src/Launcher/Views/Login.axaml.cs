@@ -11,13 +11,13 @@ public partial class Login : UserControl
         InitializeComponent();
     }
 
-    private void Login_Button(object sender, RoutedEventArgs e)
+    private static void Login_Button(object sender, RoutedEventArgs e)
     {
         Task task = App.ProcessPopupAsync();
         e.Handled = true;
     }
 
-    private void Login_Button_Cancel(object sender, RoutedEventArgs e)
+    private static void Login_Button_Cancel(object sender, RoutedEventArgs e)
     {
         App.CancelPopup();
         e.Handled = true;

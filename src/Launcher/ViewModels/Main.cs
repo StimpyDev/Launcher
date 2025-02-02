@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Avalonia.Collections;
+﻿using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Launcher.Models;
 using Launcher.Services;
 using NuGet.Versioning;
+using System;
+using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Launcher.ViewModels;
 
@@ -100,19 +100,19 @@ public partial class Main : ObservableObject
     }
 
     [RelayCommand]
-    public void CheckForUpdates()
+    public static void CheckForUpdates()
     {
         Task task = App.CheckForUpdatesAsync();
     }
 
     [RelayCommand]
-    public void ShowSettings()
+    public static void ShowSettings()
     {
         App.ShowSettings();
     }
 
     [RelayCommand]
-    public void OpenFolder()
+    public static void OpenFolder()
     {
         Process.Start(new ProcessStartInfo()
         {
@@ -123,7 +123,7 @@ public partial class Main : ObservableObject
     }
 
     [RelayCommand]
-    public void AddServer()
+    public static void AddServer()
     {
         Task task = App.ShowPopupAsync(new AddServer());
     }

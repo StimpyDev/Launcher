@@ -1,4 +1,7 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Launcher.Helpers;
+using Launcher.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -7,9 +10,6 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
-using Launcher.Helpers;
-using Launcher.Models;
 
 namespace Launcher.ViewModels;
 

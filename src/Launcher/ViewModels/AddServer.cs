@@ -1,11 +1,11 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Launcher.Extensions;
 using Launcher.Helpers;
 using Launcher.Models;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Launcher.ViewModels;
 
@@ -108,7 +108,7 @@ public partial class AddServer : Popup
         return false;
     }
 
-    private bool TryCreateSavePath(string name, out string path)
+    private static bool TryCreateSavePath(string name, out string path)
     {
         const string BaseDirectory = "Servers";
 

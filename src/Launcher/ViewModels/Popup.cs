@@ -1,6 +1,5 @@
-﻿using System.Threading.Tasks;
-
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Threading.Tasks;
 
 namespace Launcher.ViewModels;
 

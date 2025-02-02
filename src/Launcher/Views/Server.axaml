@@ -37,12 +37,12 @@
 					<Path Width="15" Height="15" Classes.rotating="{Binding IsRefreshing}" Data="{StaticResource Icons.Loading}" Stretch="Fill" />
 				</Button>
 				<StackPanel Orientation="Horizontal">
-					<TextBlock Text="{StaticResource Text.ServerStatus}" FontFamily="{StaticResource FontDefault}" />
-					<TextBlock Text="{Binding Status, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" Foreground="{Binding ServerStatusFill}" />
+					<TextBlock Text="{StaticResource Text.ServerStatus}" FontSize="16" FontFamily="{StaticResource FontDefault}" />
+					<TextBlock Text="{Binding Status, Mode=OneWay}" FontSize="15" FontFamily="{StaticResource FontDefault}" Foreground="{Binding ServerStatusFill}" />
 				</StackPanel>
 				<StackPanel Orientation="Horizontal" IsVisible="{Binding IsOnline}">
-					<TextBlock Text="{StaticResource Text.OnlinePlayers}" FontFamily="{StaticResource FontDefault}" />
-					<TextBlock Text="{Binding OnlinePlayers, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" Width="30" />
+					<TextBlock Text="{StaticResource Text.OnlinePlayers}" FontSize="16" FontFamily="{StaticResource FontDefault}" />
+					<TextBlock Text="{Binding OnlinePlayers, Mode=OneWay}" FontSize="15" FontFamily="{StaticResource FontDefault}" Width="30" />
 				</StackPanel>
 			</StackPanel>
 		</StackPanel>

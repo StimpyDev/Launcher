@@ -1,9 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Launcher.Helpers;
 using Launcher.Models;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Launcher.ViewModels;
 
@@ -55,7 +55,7 @@ public partial class DeleteServer : Popup
         return true;
     }
 
-    private void ForceDeleteDirectory(string path)
+    private static void ForceDeleteDirectory(string path)
     {
         var directory = new DirectoryInfo(path)
         {

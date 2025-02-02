@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Avalonia.Logging;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Avalonia.Logging;
 
 namespace Launcher;
 

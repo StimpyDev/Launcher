@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reflection;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Logging;
 using Launcher.Extensions;
 using Launcher.Services;
@@ -8,6 +6,8 @@ using Launcher.ViewModels;
 using Microsoft.Extensions.Logging;
 using NLog;
 using NLog.Extensions.Logging;
+using System;
+using System.Reflection;
 using Velopack;
 
 namespace Launcher;

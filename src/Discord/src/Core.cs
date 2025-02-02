@@ -1074,7 +1074,7 @@ namespace Discord
             }
         }
 
-        private void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
+        private static void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
         {
             Marshal.StructureToPtr(events, eventsPtr, false);
         }
@@ -1377,7 +1377,7 @@ namespace Discord
             }
         }
 
-        private void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
+        private static void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
         {
             Marshal.StructureToPtr(events, eventsPtr, false);
         }
@@ -1517,7 +1517,7 @@ namespace Discord
             }
         }
 
-        private void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
+        private static void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
         {
             events.OnCurrentUserUpdate = OnCurrentUserUpdateImpl;
             Marshal.StructureToPtr(events, eventsPtr, false);
@@ -1646,7 +1646,7 @@ namespace Discord
             }
         }
 
-        private void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
+        private static void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
         {
             Marshal.StructureToPtr(events, eventsPtr, false);
         }
@@ -1824,7 +1824,7 @@ namespace Discord
             }
         }
 
-        private void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
+        private static void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
         {
             events.OnActivityJoin = OnActivityJoinImpl;
             events.OnActivitySpectate = OnActivitySpectateImpl;
@@ -2055,7 +2055,7 @@ namespace Discord
             }
         }
 
-        private void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
+        private static void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
         {
             events.OnRefresh = OnRefreshImpl;
             events.OnRelationshipUpdate = OnRelationshipUpdateImpl;
@@ -2466,7 +2466,7 @@ namespace Discord
             }
         }
 
-        private void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
+        private static void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
         {
             events.OnLobbyUpdate = OnLobbyUpdateImpl;
             events.OnLobbyDelete = OnLobbyDeleteImpl;
@@ -3068,7 +3068,7 @@ namespace Discord
             }
         }
 
-        private void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
+        private static void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
         {
             events.OnMessage = OnMessageImpl;
             events.OnRouteUpdate = OnRouteUpdateImpl;
@@ -3369,7 +3369,7 @@ namespace Discord
             }
         }
 
-        private void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
+        private static void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
         {
             events.OnToggle = OnToggleImpl;
             Marshal.StructureToPtr(events, eventsPtr, false);
@@ -3663,7 +3663,7 @@ namespace Discord
             }
         }
 
-        private void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
+        private static void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
         {
             Marshal.StructureToPtr(events, eventsPtr, false);
         }
@@ -3922,7 +3922,7 @@ namespace Discord
             }
         }
 
-        private void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
+        private static void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
         {
             events.OnEntitlementCreate = OnEntitlementCreateImpl;
             events.OnEntitlementDelete = OnEntitlementDeleteImpl;
@@ -4171,7 +4171,7 @@ namespace Discord
             }
         }
 
-        private void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
+        private static void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
         {
             events.OnSettingsUpdate = OnSettingsUpdateImpl;
             Marshal.StructureToPtr(events, eventsPtr, false);
@@ -4380,7 +4380,7 @@ namespace Discord
             }
         }
 
-        private void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
+        private static void InitEvents(IntPtr eventsPtr, ref FFIEvents events)
         {
             events.OnUserAchievementUpdate = OnUserAchievementUpdateImpl;
             Marshal.StructureToPtr(events, eventsPtr, false);
