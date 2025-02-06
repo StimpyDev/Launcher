@@ -27,22 +27,16 @@
 		<!-- Server Status -->
 		<StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,10,0,0">
 			<StackPanel Spacing="5" Orientation="Horizontal">
-				<Button Classes="flat primary" CornerRadius="5" Command="{Binding RefreshServerStatusCommand}">
-					<Button.Background>
-						<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
-							<GradientStop Color="#687AA7" Offset="0.0"/>
-							<GradientStop Color="#3C4C74" Offset="0.8"/>
-						</LinearGradientBrush>
-					</Button.Background>
+				<Button Classes="no_background" Command="{Binding RefreshServerStatusCommand}">
 					<Path Width="15" Height="15" Classes.rotating="{Binding IsRefreshing}" Data="{StaticResource Icons.Loading}" Stretch="Fill" />
 				</Button>
 				<StackPanel Orientation="Horizontal">
-					<TextBlock Text="{StaticResource Text.ServerStatus}" FontSize="16" FontFamily="{StaticResource FontDefault}" />
-					<TextBlock Text="{Binding Status, Mode=OneWay}" FontSize="15" FontFamily="{StaticResource FontDefault}" Foreground="{Binding ServerStatusFill}" />
+					<TextBlock Text="{StaticResource Text.ServerStatus}" FontFamily="{StaticResource FontDefault}" />
+					<TextBlock Text="{Binding Status, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" Foreground="{Binding ServerStatusFill}" />
 				</StackPanel>
 				<StackPanel Orientation="Horizontal" IsVisible="{Binding IsOnline}">
-					<TextBlock Text="{StaticResource Text.OnlinePlayers}" FontSize="16" FontFamily="{StaticResource FontDefault}" />
-					<TextBlock Text="{Binding OnlinePlayers, Mode=OneWay}" FontSize="15" FontFamily="{StaticResource FontDefault}" Width="30" />
+					<TextBlock Text="{StaticResource Text.OnlinePlayers}" FontFamily="{StaticResource FontDefault}" />
+					<TextBlock Text="{Binding OnlinePlayers, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" Width="30" />
 				</StackPanel>
 			</StackPanel>
 		</StackPanel>
@@ -59,7 +53,7 @@
 		<!-- Server Play/Update Status -->
 		<StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
 			<Button Classes="no_background" Cursor="Hand" Command="{Binding PlayCommand}" IsVisible="{Binding PlayCommand.IsRunning, Converter={x:Static BoolConverters.Not}}" IsEnabled="{Binding Process, Converter={x:Static ObjectConverters.IsNull}}">
-				<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset3.png" Effect="drop-shadow(3 3 3 #40000000)" Height="60" Margin="0,0,0,30" Stretch="UniformToFill" />
+				<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset3.png" Effect="drop-shadow(3 3 3 #40000000)" Height="55" Margin="0,0,0,30" Stretch="UniformToFill" />
 			</Button>
 		</StackPanel>
 
@@ -71,12 +65,12 @@
 					<GradientStop Color="#3C4C74" Offset="0.8"/>
 				</LinearGradientBrush>
 			</Button.Background>
-			<Path Width="16" Height="16" Data="{StaticResource Icons.Folder}" Stretch="Fill" />
+			<Path Width="15" Height="15" Data="{StaticResource Icons.Folder}" Stretch="Fill" />
 		</Button>
 
 		<!--Status Info-->
 		<StackPanel VerticalAlignment="Bottom" Grid.Row="3" Margin="40,0,0,100" HorizontalAlignment="Center">
-			<TextBlock Text="{Binding StatusMessage, Mode=OneWay}" FontSize="13" FontWeight="Medium"/>
+			<TextBlock Text="{Binding StatusMessage, Mode=OneWay}" FontSize="13" FontWeight="SemiBold"/>
 		</StackPanel>	
 	</Grid>
 </UserControl>

@@ -38,10 +38,10 @@
 			<TextBlock DockPanel.Dock="Top" Opacity="100" HorizontalAlignment="Center" FontFamily="{StaticResource FontDefault}" FontSize="15" Margin="17" Text="{DynamicResource Text.Servers}" />
 			<StackPanel Margin="10" HorizontalAlignment="Center" Orientation="Horizontal" DockPanel.Dock="Bottom">
 				<Button Classes="no_background" Opacity="100" Command="{Binding ShowSettingsCommand}" ToolTip.Tip="{StaticResource Text.Settings}">
-					<Path Width="16" Height="16" Data="{StaticResource Icons.Settings}" Stretch="Fill" />
+					<Path Width="15" Height="15" Data="{StaticResource Icons.Settings}" Stretch="Fill" />
 				</Button>
 				<Button Classes="no_background" Opacity="100" Command="{Binding CheckForUpdatesCommand}" ToolTip.Tip="{StaticResource Text.Main.CheckingForUpdatesToolTip}" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNull}}">
-					<Path Width="16" Height="16" Classes.rotating="{Binding IsRefreshing}" Data="{StaticResource Icons.Loading}" Stretch="Fill" />
+					<Path Width="15" Height="15" Classes.rotating="{Binding IsRefreshing}" Data="{StaticResource Icons.Loading}" Stretch="Fill" />
 				</Button>
 				<Button Classes="flat primary" Opacity="100" FontFamily="{StaticResource FontDefault}" Command="{Binding AddServerCommand}" >
 					<Button.Background>
@@ -53,7 +53,7 @@
 					<TextBlock Text="{StaticResource Text.Main.AddServer}" />
 				</Button>
 			</StackPanel>
-			<ListBox Grid.Row="1" ItemsSource="{Binding Servers, Mode=TwoWay}" SelectedItem="{Binding ActiveServer, Mode=TwoWay}" SelectionMode="Toggle">
+			<ListBox Grid.Row="1" ItemsSource="{Binding Servers, Mode=TwoWay}" Background="Transparent" SelectedItem="{Binding ActiveServer, Mode=TwoWay}" SelectionMode="Toggle">
 				<ListBox.ItemTemplate>
 					<DataTemplate x:DataType="vm:Server">
 						<StackPanel>
@@ -82,7 +82,7 @@
 					<GradientStop Color="#3C4C74" Offset="0.8"/>
 				</LinearGradientBrush>
 			</Button.Background>
-			<Path Width="16" Height="16" Data="{StaticResource Icons.Delete}" Stretch="Fill" />
+			<Path Width="15" Height="15" Data="{StaticResource Icons.Delete}" Stretch="Fill" />
 		</Button>
 		
 		<Button Grid.Row="0" Grid.Column="1" Classes="flat primary" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,15,10" Command="{Binding OpenFolderCommand}" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNull}}">
@@ -92,12 +92,12 @@
 					<GradientStop Color="#3C4C74" Offset="0.8"/>
 				</LinearGradientBrush>
 			</Button.Background>
-			<Path Width="16" Height="16" Data="{StaticResource Icons.Folder}" Stretch="Fill" />
+			<Path Width="15" Height="15" Data="{StaticResource Icons.Folder}" Stretch="Fill" />
 		</Button>
 		
 		<TextBlock Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Margin="25" FontSize="13" FontFamily="{StaticResource FontDefault}" VerticalAlignment="Bottom" Text="{Binding Message, Mode=OneWay}" />
 		
-		<Label Grid.Row="0" Grid.Column="1" FontFamily="{StaticResource FontDefault}" Margin="5" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0.5" Content="{Binding Version, StringFormat='Version: {0}'}" />
+		<Label Grid.Row="0" Grid.Column="1" FontFamily="{StaticResource FontDefault}" Margin="5" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0.5" Content="{Binding Version, StringFormat='Version: {0}'}" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNull}}" />
 		
 		<v:Server DataContext="{Binding ActiveServer, Mode=TwoWay}" Grid.Row="0" Grid.Column="1" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}" />
 
@@ -132,19 +132,19 @@
 		</Grid>
 
 		<!-- Notifications -->
-		<Grid Grid.Row="0" Grid.ColumnSpan="2" Width="360" HorizontalAlignment="Center" VerticalAlignment="Top">
+		<Grid Grid.Row="0" Grid.ColumnSpan="2" Width="400" HorizontalAlignment="Center" VerticalAlignment="Top">
 			<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
 				<ItemsControl ItemsSource="{Binding Notifications}">
 					<ItemsControl.ItemTemplate>
 						<DataTemplate DataType="m:Notification">
-							<Grid Width="320" Margin="7">
+							<Grid Margin="7">
 								<Border Background="{StaticResource Color.Window}" BorderBrush="{StaticResource Color.Border}" BorderThickness="1" CornerRadius="10" Opacity="0.9" />
 								<Grid Margin="7" RowDefinitions="20,Auto,15">
-									<StackPanel Grid.Row="0" Orientation="Horizontal" IsVisible="{Binding IsError}">
+									<StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding IsError}">
 										<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset2.png" Stretch="None" HorizontalAlignment="Left"/>
 										<TextBlock Margin="5,0,0,0" FontSize="15" FontFamily="{StaticResource FontDefault}" Text="{DynamicResource Text.Main.Error}" />
 									</StackPanel>
-									<StackPanel Grid.Row="0" Orientation="Horizontal" IsVisible="{Binding !IsError}">
+									<StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding !IsError}">
 										<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset2.png" Stretch="None" HorizontalAlignment="Left"/>
 										<TextBlock Margin="5,0,0,0" FontSize="15" FontFamily="{StaticResource FontDefault}" Text="{DynamicResource Text.Main.Error}" />
 									</StackPanel>
