@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using CommunityToolkit.Mvvm.Input;
 using Launcher.Models;
 using Launcher.ViewModels;
 using NLog;
@@ -60,6 +61,7 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
+    [RelayCommand(AllowConcurrentExecutions = false)]
     public static async Task CheckForUpdatesAsync()
     {
         if (Current is not App app || app._main is null)
