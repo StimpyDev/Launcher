@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Reflection;
-
-using Microsoft.Extensions.Logging;
+using System.IO;
 
 using Velopack;
 
@@ -9,8 +7,10 @@ using Avalonia;
 using Avalonia.Logging;
 
 using NLog;
-using NLog.Extensions.Logging;
+using NLog.Config;
+using NLog.Targets;
 
+using Launcher.Helpers;
 using Launcher.Services;
 using Launcher.Extensions;
 using Launcher.ViewModels;
@@ -22,13 +22,11 @@ internal sealed class Program
     [STAThread]
     internal static void Main(string[] args)
     {
+        SetupNLog();
+
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-        LogManager.Setup().LoadConfigurationFromAssemblyResource(typeof(Program).GetTypeInfo().Assembly);
-
-        using var loggerFactory = LoggerFactory.Create(builder => builder.AddNLog(LogManager.Configuration));
-
-        VelopackApp.Build().Run(loggerFactory.CreateLogger<VelopackApp>());
+        VelopackApp.Build().Run();
 
         if (Settings.Instance.DiscordActivity)
             DiscordService.Start();
@@ -54,11 +52,31 @@ internal sealed class Program
         return builder;
     }
 
+    private static void SetupNLog()
+    {
+        var loggingConfiguration = new LoggingConfiguration();
+
+#if DEBUG
+        var debuggerTarget = new DebuggerTarget("debugger");
+        loggingConfiguration.AddRule(LogLevel.Debug, LogLevel.Fatal, debuggerTarget);
+#endif
+
+        var fileTarget = new FileTarget("file")
+        {
+            DeleteOldFileOnStartup = true,
+            FileName = Path.Combine(Constants.SavePath, Constants.LogFile)
+        };
+
+        loggingConfiguration.AddRule(LogLevel.Info, LogLevel.Fatal, fileTarget);
+
+        LogManager.Configuration = loggingConfiguration;
+    }
+
     private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
         var logger = LogManager.GetCurrentClassLogger();
 
         if (e.ExceptionObject is Exception exception)
-            logger.Log(NLog.LogLevel.Fatal, exception.ToString());
+            logger.Log(LogLevel.Fatal, exception.ToString());
     }
 }

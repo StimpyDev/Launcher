@@ -21,7 +21,6 @@
   <ItemGroup>
     <AvaloniaResource Include="App.ico" />
     <EmbeddedResource Include="Models\*.xsd" />
-    <EmbeddedResource Include="Resources\NLog.config" />
   </ItemGroup>
 
   <ItemGroup>
