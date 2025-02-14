@@ -7,7 +7,7 @@
     <NoWarn>CS8600,CS8601,CS8602,CS8605,CS8618,CS8625</NoWarn>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(Platform)' == 'x86'">
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT' And '$(Platform)' == 'x86'">
     <None Include="lib\x86\discord_game_sdk.dll" />
     <ContentWithTargetPath Include="lib\x86\discord_game_sdk.dll">
       <TargetPath>discord_game_sdk.dll</TargetPath>
@@ -15,10 +15,18 @@
     </ContentWithTargetPath>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(Platform)' == 'x64'">
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT' And '$(Platform)' == 'x64'">
     <None Include="lib\x86_64\discord_game_sdk.dll" />
     <ContentWithTargetPath Include="lib\x86_64\discord_game_sdk.dll">
       <TargetPath>discord_game_sdk.dll</TargetPath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </ContentWithTargetPath>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(OS)' == 'OSX' And '$(Platform)' == 'x64'">
+    <None Include="lib\x86_64\discord_game_sdk.dylib" />
+    <ContentWithTargetPath Include="lib\x86_64\discord_game_sdk.dylib">
+      <TargetPath>discord_game_sdk.dylib</TargetPath>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </ContentWithTargetPath>
   </ItemGroup>

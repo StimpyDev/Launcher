@@ -25,11 +25,9 @@ public static class DiscordService
                 _discord = new Discord.Discord(ClientId, (ulong)Discord.CreateFlags.NoRequireDiscord);
             }
         }
-        catch (Discord.ResultException ex)
+        finally
         {
-            // If discord isn't installed don't create background thread.
-            if (ex.Result == Discord.Result.NotInstalled)
-                return;
+            Stop();
         }
 
         Task.Factory.StartNew(UpdateAsync, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
@@ -37,17 +35,17 @@ public static class DiscordService
 
     public static void Stop()
     {
+        _cts.Cancel();
+
         _discord?.Dispose();
         _discord = null;
-
-        _cts.Cancel();
     }
 
     private static async Task UpdateAsync()
     {
-        while (!_cts.Token.IsCancellationRequested)
+        try
         {
-            try
+            while (!_cts.Token.IsCancellationRequested)
             {
                 lock (_lock)
                 {
@@ -55,15 +53,13 @@ public static class DiscordService
 
                     _discord.RunCallbacks();
                 }
-            }
-            catch (Discord.ResultException ex)
-            {
-                // If Discord isn't running wait longer.
-                if (ex.Result == Discord.Result.NotRunning)
-                    await Task.Delay(TimeSpan.FromMinutes(1));
-            }
 
-            await Task.Delay(1000 / 60);
+                await Task.Delay(1000 / 60);
+            }
+        }
+        finally
+        {
+            Stop();
         }
     }
 

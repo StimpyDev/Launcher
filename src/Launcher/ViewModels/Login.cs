@@ -135,30 +135,31 @@ public partial class Login : Popup
         return false;
     }
 
-    private void LaunchClient(string sessionId, string? launchArguments)
+    private void LaunchClient(string sessionId, string? serverArguments)
     {
-        var fileName = RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
-                ? "FreeRealmsMac.exe"
-                : "FreeRealms.exe";
+        const string FileName = "FreeRealms.exe";
 
-        List<string> arguments = [$"Server={_server.Info.LoginServer}", $"SessionId={sessionId}"];
+        List<string> launcherArguments = [$"Server={_server.Info.LoginServer}", $"SessionId={sessionId}"];
 
-        if (!string.IsNullOrEmpty(launchArguments))
-            arguments.Add(launchArguments);
+        if (!string.IsNullOrEmpty(serverArguments))
+            launcherArguments.Add(serverArguments);
+
+        var arguments = string.Join(' ', launcherArguments);
 
         var workingDirectory = Path.Combine(Constants.SavePath, _server.Info.SavePath, "Client");
 
         _server.Process = new Process();
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
+            RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
             _server.Process.StartInfo.FileName = "wine";
-            _server.Process.StartInfo.Arguments = $"{fileName} {arguments}";
+            _server.Process.StartInfo.Arguments = $"{FileName} {arguments}";
         }
         else
         {
-            _server.Process.StartInfo.FileName = fileName;
-            _server.Process.StartInfo.Arguments = string.Join(' ', arguments);
+            _server.Process.StartInfo.FileName = FileName;
+            _server.Process.StartInfo.Arguments = arguments;
         }
 
         _server.Process.StartInfo.UseShellExecute = true;
