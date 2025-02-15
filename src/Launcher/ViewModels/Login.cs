@@ -36,6 +36,9 @@ public partial class Login : Popup
     [ObservableProperty]
     private bool rememberPassword;
 
+    public bool AutoFocusUsername => string.IsNullOrEmpty(Username);
+    public bool AutoFocusPassword => !string.IsNullOrEmpty(Username) && string.IsNullOrEmpty(Password);
+
     public Login(Server server)
     {
         _server = server;
