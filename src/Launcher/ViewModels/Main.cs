@@ -1,16 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Diagnostics;
-using System.Collections.Specialized;
-
-using Avalonia.Collections;
-
-using CommunityToolkit.Mvvm.Input;
+﻿using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
-
+using CommunityToolkit.Mvvm.Input;
 using Launcher.Models;
-using Launcher.Helpers;
 using Launcher.Services;
+using NuGet.Versioning;
+using System;
+using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Launcher.ViewModels;
 
@@ -22,13 +20,22 @@ public partial class Main : ObservableObject
     [ObservableProperty]
     private Server? activeServer;
 
+    [ObservableProperty]
+    private string message = string.Empty;
+
+    [ObservableProperty]
+    private bool isRefreshing = false;
+
+    [ObservableProperty]
+    private SemanticVersion version = App.CurrentVersion;
+
     public AvaloniaList<Server> Servers { get; set; } = [];
     public AvaloniaList<Notification> Notifications { get; set; } = [];
 
     public Main()
     {
 #if DESIGNMODE
-        if (Avalonia.Controls.Design.IsDesignMode)
+        if (Design.IsDesignMode)
         {
             Servers.Clear();
 
@@ -93,26 +100,32 @@ public partial class Main : ObservableObject
     }
 
     [RelayCommand]
-    public void ShowSettings()
+    public static void CheckForUpdates()
+    {
+        Task task = App.CheckForUpdatesAsync();
+    }
+
+    [RelayCommand]
+    public static void ShowSettings()
     {
         App.ShowSettings();
     }
 
     [RelayCommand]
-    public void OpenFolder()
+    public static void OpenFolder()
     {
         Process.Start(new ProcessStartInfo()
         {
             Verb = "open",
             UseShellExecute = true,
-            FileName = Constants.SavePath
+            FileName = Environment.CurrentDirectory
         });
     }
 
     [RelayCommand]
-    public void AddServer()
+    public static void AddServer()
     {
-        App.ShowPopup(new AddServer());
+        Task task = App.ShowPopupAsync(new AddServer());
     }
 
     [RelayCommand]
@@ -121,7 +134,7 @@ public partial class Main : ObservableObject
         if (ActiveServer is null)
             return;
 
-        App.ShowPopup(new DeleteServer(ActiveServer.Info));
+        Task task = App.ShowPopupAsync(new DeleteServer(ActiveServer.Info));
     }
 
     public void OnReceiveNotification(Notification notification)

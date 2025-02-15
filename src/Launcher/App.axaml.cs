@@ -1,19 +1,15 @@
 using System.Threading.Tasks;
-
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using Avalonia.Controls.ApplicationLifetimes;
-
-using NLog;
-
-using Velopack;
-using Velopack.Sources;
-
-using NuGet.Versioning;
-
+using Avalonia.Markup.Xaml;
+using CommunityToolkit.Mvvm.Input;
 using Launcher.Models;
 using Launcher.ViewModels;
+using NLog;
+using NuGet.Versioning;
+using Velopack;
+using Velopack.Sources;
 
 namespace Launcher;
 
@@ -47,45 +43,10 @@ public partial class App : Application
         };
     }
 
-    public override async void OnFrameworkInitializationCompleted()
+    public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime applicationLifetime)
             return;
-
-        var settings = Settings.Instance;
-
-        var splash = new Views.Splash();
-
-        applicationLifetime.MainWindow = splash;
-
-#if RELEASE
-        if (_updateManager.IsInstalled)
-        {
-            splash.ViewModel.Message = GetText("Text.Splash.CheckForUpdates");
-
-            var updateInfo = await _updateManager.CheckForUpdatesAsync();
-
-            if (updateInfo is not null)
-            {
-                await _updateManager.DownloadUpdatesAsync(updateInfo, (p) =>
-                {
-                    splash.ViewModel.Message = GetText("Text.Splash.DownloadProgress", updateInfo.TargetFullRelease.Version, p);
-                });
-
-                splash.ViewModel.Message = GetText("Text.Splash.RestartLauncher");
-
-                await Task.Delay(500);
-
-                _updateManager.ApplyUpdatesAndRestart(updateInfo);
-
-                return;
-            }
-        }
-#endif
-
-        splash.ViewModel.Message = GetText("Text.Splash.LauncherUpToDate");
-
-        await Task.Delay(500);
 
         var main = new Views.Main();
 
@@ -94,9 +55,52 @@ public partial class App : Application
         applicationLifetime.MainWindow = main;
 
         main.Show();
-        splash.Close();
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    [RelayCommand(AllowConcurrentExecutions = false)]
+    public static async Task CheckForUpdatesAsync()
+    {
+        if (Current is not App app || app._main is null)
+            return;
+
+        if (_updateManager.IsInstalled)
+        {
+            // Checking For Updates
+            app._main.IsRefreshing = true;
+            app._main.Message = GetText("Text.Main.CheckingForUpdates");
+            var updateInfo = await _updateManager.CheckForUpdatesAsync();
+
+            if (updateInfo is null)
+            {
+                // No Updates Found
+                app._main.Message = GetText("Text.Main.NoUpdatesFound");
+
+                await Task.Delay(700);
+
+                app._main.Message = string.Empty;
+                app._main.IsRefreshing = false;
+            }
+
+            else if (updateInfo is not null)
+            {
+                await _updateManager.DownloadUpdatesAsync(updateInfo, (p) =>
+                {
+                    // Downloading Update
+                    app._main.Message = GetText("Text.Main.Downloading", updateInfo.TargetFullRelease.Version, p);
+                });
+
+                // Relaunches the launcher to complete the update
+                app._main.Message = GetText("Text.Main.Relaunching");
+
+                await Task.Delay(500);
+
+                _updateManager.ApplyUpdatesAndRestart(updateInfo);
+
+                return;
+            }
+        }
     }
 
     public static void SetLocale(LocaleType value)
@@ -168,7 +172,7 @@ public partial class App : Application
         app._main.ActiveServer = null;
     }
 
-    public static void ShowPopup(Popup popup, bool process = false)
+    public static async Task ShowPopupAsync(Popup popup, bool process = false)
     {
         if (Current is not App app || app._main is null)
             return;
@@ -179,10 +183,10 @@ public partial class App : Application
         app._main.Popup = popup;
 
         if (process)
-            ProcessPopup();
+            await ProcessPopupAsync();
     }
 
-    public static async void ProcessPopup()
+    public static async Task ProcessPopupAsync()
     {
         if (Current is not App app || app._main is null)
             return;

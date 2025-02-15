@@ -42,6 +42,9 @@ public class Locale
     }
 
     public static readonly List<Locale> Supported = [
-        new Locale(LocaleType.en_US, "English")
+        new Locale(LocaleType.en_US, "English"),
+        new Locale(LocaleType.fr_FR, "French"),
+        new Locale(LocaleType.de_DE, "German"),
+        new Locale(LocaleType.es_ES, "Spanish")
         ];
 }

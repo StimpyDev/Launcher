@@ -1,190 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-
-        xmlns:v="using:Launcher.Views"
-        xmlns:m="using:Launcher.Models"
         xmlns:c="using:Launcher.Controls"
-        xmlns:cv="using:Launcher.Converters"
-        xmlns:vm="using:Launcher.ViewModels"
+		xmlns:cv="using:Launcher.Converters"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:m="using:Launcher.Models"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:v="using:Launcher.Views"
+		xmlns:vm="using:Launcher.ViewModels"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+		mc:Ignorable="d"
+		d:DesignWidth="800"
+		d:DesignHeight="550"
+		x:DataType="vm:Main"
+		x:Class="Launcher.Views.Main"
+		Title="{DynamicResource Text.Title}"
+		Icon="/App.ico"
+		WindowStartupLocation="CenterScreen"
+		CanResize="False"
+		Width="800"
+		Height="550"
+		MinWidth="800"
+		MinHeight="550">
 
-        mc:Ignorable="d"
-        d:DesignWidth="800"
-        d:DesignHeight="400"
+	<Design.DataContext>
+		<vm:Main />
+	</Design.DataContext>
 
-        x:DataType="vm:Main"
-        x:Class="Launcher.Views.Main"
+	<Window.Background>
+		<ImageBrush asyncImageLoader:ImageBrushLoader.Source="https://github.com/StimpyDev/Launcher/blob/main/src/Launcher/Assets/background.png?raw=true" AlignmentY="Top" Stretch="UniformToFill" />
+	</Window.Background>
 
-        Icon="/App.ico"
-        Title="{DynamicResource Text.Title}"
-        WindowStartupLocation="CenterScreen"
+	<Grid RowDefinitions="*" ColumnDefinitions="200,*">
 
-        Width="800" Height="400"
-        MinWidth="800" MinHeight="400">
+		<!-- Left - Server List -->
+		<DockPanel LastChildFill="True" Background="{StaticResource Color.Server}" Opacity="0.080">
+			<TextBlock DockPanel.Dock="Top" Opacity="100" HorizontalAlignment="Center" FontFamily="{StaticResource FontDefault}" FontSize="15" Margin="17" Text="{DynamicResource Text.Servers}" />
+			<StackPanel Margin="10" HorizontalAlignment="Center" Orientation="Horizontal" DockPanel.Dock="Bottom">
+				<Button Classes="no_background" Opacity="100" Command="{Binding ShowSettingsCommand}" ToolTip.Tip="{StaticResource Text.Settings}">
+					<Path Width="15" Height="15" Data="{StaticResource Icons.Settings}" Stretch="Fill" />
+				</Button>
+				<Button Classes="no_background" Opacity="100" Command="{Binding CheckForUpdatesCommand}" ToolTip.Tip="{StaticResource Text.Main.CheckingForUpdatesToolTip}" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNull}}">
+					<Path Width="15" Height="15" Classes.rotating="{Binding IsRefreshing}" Data="{StaticResource Icons.Loading}" Stretch="Fill" />
+				</Button>
+				<Button Classes="flat primary" Opacity="100" FontFamily="{StaticResource FontDefault}" Command="{Binding AddServerCommand}" >
+					<Button.Background>
+						<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+							<GradientStop Color="#687AA7" Offset="0.0"/>
+							<GradientStop Color="#3C4C74" Offset="0.8"/>
+						</LinearGradientBrush>
+					</Button.Background>
+					<TextBlock Text="{StaticResource Text.Main.AddServer}" />
+				</Button>
+			</StackPanel>
+			<ListBox Grid.Row="1" ItemsSource="{Binding Servers, Mode=TwoWay}" Background="Transparent" SelectedItem="{Binding ActiveServer, Mode=TwoWay}" SelectionMode="Toggle">
+				<ListBox.ItemTemplate>
+					<DataTemplate x:DataType="vm:Server">
+						<StackPanel>
+							<TextBlock Text="{Binding Info.Name, Mode=OneWay}" FontSize="16" Opacity="100" FontFamily="{StaticResource FontDefault}" FontStyle="Oblique"/>
+						</StackPanel>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+				<ListBox.Styles>
+					<Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+						<Setter Property="Cursor" Value="Hand" />
+					</Style>
+				</ListBox.Styles>
+				<ListBox.Styles>
+					<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+						<Setter Property="Background" Value="{StaticResource Color.FlatButton.PrimaryBackground}" />
+					</Style>
+				</ListBox.Styles>
+			</ListBox>
+		</DockPanel>
 
-  <Design.DataContext>
-    <vm:Main />
-  </Design.DataContext>
+		<!-- Right - Active Server -->
+		<Button Classes="flat primary" Grid.Column="1" Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="15,0,0,10" Command="{Binding DeleteServerCommand}" IsVisible="{Binding ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}">
+			<Button.Background>
+				<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+					<GradientStop Color="#687AA7" Offset="0.0"/>
+					<GradientStop Color="#3C4C74" Offset="0.8"/>
+				</LinearGradientBrush>
+			</Button.Background>
+			<Path Width="15" Height="15" Data="{StaticResource Icons.Delete}" Stretch="Fill" />
+		</Button>
+		
+		<Button Grid.Row="0" Grid.Column="1" Classes="flat primary" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,15,10" Command="{Binding OpenFolderCommand}" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNull}}">
+			<Button.Background>
+				<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+					<GradientStop Color="#687AA7" Offset="0.0"/>
+					<GradientStop Color="#3C4C74" Offset="0.8"/>
+				</LinearGradientBrush>
+			</Button.Background>
+			<Path Width="15" Height="15" Data="{StaticResource Icons.Folder}" Stretch="Fill" />
+		</Button>
+		
+		<TextBlock Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Margin="25" FontSize="13" FontFamily="{StaticResource FontDefault}" VerticalAlignment="Bottom" Text="{Binding Message, Mode=OneWay}" />
+		
+		<Label Grid.Row="0" Grid.Column="1" FontFamily="{StaticResource FontDefault}" Margin="5" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0.5" Content="{Binding Version, StringFormat='Version: {0}'}" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNull}}" />
+		
+		<v:Server DataContext="{Binding ActiveServer, Mode=TwoWay}" Grid.Row="0" Grid.Column="1" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}" />
 
-  <Grid RowDefinitions="*" ColumnDefinitions="200,*">
+		<!-- Popups -->
+		<Grid Grid.Row="0" Grid.ColumnSpan="2" IsVisible="{Binding Popup, Converter={x:Static ObjectConverters.IsNotNull}}">
+			<Border Background="{StaticResource Color.Window}" Opacity="0.5" />
+			<Grid Width="550" HorizontalAlignment="Center" VerticalAlignment="Center">
+				<ContentControl Content="{Binding Popup}" Opacity="0.9" ClipToBounds="False">
+					<ContentControl.DataTemplates>
+						<DataTemplate DataType="vm:Popup">
+							<Border Margin="8,0,8,8" BorderBrush="{StaticResource Color.Border}" BorderThickness="1" Background="{StaticResource Color.Window}">
+								<Border.CornerRadius>
+									<OnPlatform Default="10,10,10,10" Linux="0" />
+								</Border.CornerRadius>
+								<StackPanel Margin="8" Orientation="Vertical">
 
-    <!-- Left - Server List -->
-    <DockPanel LastChildFill="True" Background="{StaticResource Color.Popup}">
-      <TextBlock DockPanel.Dock="Top" FontWeight="Bold" FontSize="18" Margin="9" Text="{DynamicResource Text.Servers}" />
-      <StackPanel Margin="5" Orientation="Horizontal" DockPanel.Dock="Bottom" Spacing="5">
-        <Button Classes="flat" Command="{Binding ShowSettingsCommand}" ToolTip.Tip="{DynamicResource Text.Settings}">
-          <Path Width="18" Height="18" Data="{StaticResource Icons.Settings}" Stretch="Fill" />
-        </Button>
+									<!-- Popup Widget -->
+									<ContentPresenter Margin="0,8" Content="{Binding View}" IsHitTestVisible="{Binding InProgress, Converter={x:Static BoolConverters.Not}}" />
 
-        <Button Classes="flat" Command="{Binding OpenFolderCommand}" ToolTip.Tip="{DynamicResource Text.OpenFolder}">
-          <Path Width="18" Height="18" Data="{StaticResource Icons.Folder}" Stretch="Fill" />
-        </Button>
+									<!-- Running -->
+									<StackPanel Orientation="Vertical" IsVisible="{Binding InProgress}">
+										<Rectangle Height="1" HorizontalAlignment="Stretch" />
+										<StackPanel Orientation="Horizontal" />
+										<TextBlock FontStyle="Italic" Text="{Binding ProgressDescription, Mode=OneWay}" HorizontalAlignment="Center" FontFamily="{StaticResource FontDefault}" />
+									</StackPanel>
+								</StackPanel>
+							</Border>
+						</DataTemplate>
+					</ContentControl.DataTemplates>
+				</ContentControl>
+			</Grid>
+		</Grid>
 
-        <Button Classes="flat primary" Command="{Binding AddServerCommand}" ToolTip.Tip="{DynamicResource Text.Add_Server}">
-          <Path Width="18" Height="18" Data="{StaticResource Icons.Add}" Stretch="Fill" />
-        </Button>
-
-        <Button Classes="flat" Command="{Binding DeleteServerCommand}" ToolTip.Tip="{DynamicResource Text.Delete_Server}" IsVisible="{Binding ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}">
-          <Path Width="18" Height="18" Data="{StaticResource Icons.Delete}" Stretch="Fill" />
-        </Button>
-      </StackPanel>
-
-      <ListBox Grid.Row="1" ItemsSource="{Binding Servers, Mode=TwoWay}" SelectedItem="{Binding ActiveServer, Mode=TwoWay}" SelectionMode="Toggle">
-        <ListBox.ItemTemplate>
-          <DataTemplate x:DataType="vm:Server">
-            <TextBlock Text="{Binding Info.Name}" />
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
-    </DockPanel>
-
-    <!-- Right - Active Server -->
-    <v:Server DataContext="{Binding ActiveServer, Mode=TwoWay}" Grid.Row="0" Grid.Column="1" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}" />
-
-    <!-- Popups -->
-    <Grid Grid.Row="0" Grid.ColumnSpan="2" IsVisible="{Binding Popup, Converter={x:Static ObjectConverters.IsNotNull}}">
-      <Border Background="{StaticResource Color.Popup}" Opacity="50" PointerPressed="OnPopupCancelByClickMask"/>
-
-      <Grid Width="500" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <ContentControl Content="{Binding Popup}" ClipToBounds="False">
-
-          <ContentControl.DataTemplates>
-            <DataTemplate DataType="vm:Popup">
-              <Border Margin="8,0,8,8"
-                      Background="{StaticResource Color.Popup}"
-                      BorderBrush="{StaticResource Color.Border0}">
-                <Border.CornerRadius>
-                  <OnPlatform Default="0,0,4,4" Linux="0"/>
-                </Border.CornerRadius>
-
-                <Border.BorderThickness>
-                  <OnPlatform Default="0" Linux="1,0,1,1"/>
-                </Border.BorderThickness>
-
-                <Border.Effect>
-                  <OnPlatform>
-                    <On Options="Windows, macOS">
-                      <DropShadowEffect BlurRadius="8" OffsetX="0" OffsetY="0" Color="Black" Opacity=".5"/>
-                    </On>
-                  </OnPlatform>
-                </Border.Effect>
-
-                <StackPanel Margin="8" Orientation="Vertical">
-                  <!-- Popup Widget -->
-                  <ContentPresenter Margin="0,8"
-                                    Content="{Binding View}"
-                                    IsHitTestVisible="{Binding InProgress, Converter={x:Static BoolConverters.Not}}"/>
-
-                  <!-- Options -->
-                  <StackPanel Margin="0,8,0,0"
-                              Height="32"
-                              Orientation="Horizontal"
-                              HorizontalAlignment="Center"
-                              IsVisible="{Binding InProgress, Converter={x:Static BoolConverters.Not}}">
-                    <Button Classes="flat primary"
-                            Width="80"
-                            Content="{DynamicResource Text.Ok}"
-                            Click="OnPopupSure"
-                            HotKey="Enter"/>
-                    <Button Classes="flat"
-                            Width="80"
-                            Margin="8,0,0,0"
-                            Content="{DynamicResource Text.Cancel}"
-                            Click="OnPopupCancel" />
-                  </StackPanel>
-
-                  <!-- Running -->
-                  <StackPanel Orientation="Vertical" Margin="8" IsVisible="{Binding InProgress}">
-                    <Rectangle Height="1" Margin="-8,0" HorizontalAlignment="Stretch" Fill="{StaticResource Color.Border1}" />
-                    <StackPanel Orientation="Horizontal" Margin="0,8">
-
-                      <Path Width="12" Height="12" Classes="rotating" Data="{StaticResource Icons.Loading}" IsVisible="{Binding InProgress}" Stretch="Fill" />
-                      <TextBlock Margin="6,0,0,0" FontSize="14" FontWeight="Bold" Text="{DynamicResource Text.Running}"/>
-                    </StackPanel>
-
-                    <TextBlock HorizontalAlignment="Stretch"
-                               TextWrapping="Wrap"
-                               FontStyle="Italic"
-                               Text="{Binding ProgressDescription}"/>
-                    <ProgressBar Margin="0,8,0,0"
-                                 HorizontalAlignment="Stretch"
-                                 IsIndeterminate="True"
-                                 Background="{StaticResource Color.FG2}" Foreground="{StaticResource Color.Accent1}"
-                                 Minimum="0" Maximum="100"/>
-                  </StackPanel>
-                </StackPanel>
-              </Border>
-            </DataTemplate>
-          </ContentControl.DataTemplates>
-        </ContentControl>
-      </Grid>
-    </Grid>
-
-    <!-- Notifications -->
-    <Grid Grid.Row="0" Grid.ColumnSpan="2" Width="360" HorizontalAlignment="Right" VerticalAlignment="Top">
-      <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-        <ItemsControl ItemsSource="{Binding Notifications}">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate DataType="m:Notification">
-              <Grid Width="320" Margin="8">
-                <Border Background="{StaticResource Color.Window}" Opacity="90" BorderBrush="{StaticResource Color.Border0}" BorderThickness="1" CornerRadius="4" Effect="drop-shadow(0 0 8 #40000000)" />
-
-                <Grid Margin="8" RowDefinitions="26,Auto,Auto">
-                  <StackPanel Grid.Row="0" Margin="8,0,0,0" Orientation="Horizontal" IsVisible="{Binding IsError}">
-                    <Path Width="14" Height="14" Data="{StaticResource Icons.Error}" Fill="Red" Stretch="Fill" />
-                    <TextBlock Margin="8,0,0,0" FontWeight="Bold" FontSize="14" Text="{DynamicResource Text.Main.Error}" />
-                  </StackPanel>
-                  <StackPanel Grid.Row="0" Margin="8,0,0,0" Orientation="Horizontal" IsVisible="{Binding !IsError}">
-                    <Path Width="14" Height="14" Data="{StaticResource Icons.Info}" Fill="Green" Stretch="Fill" />
-                    <TextBlock Margin="8,0,0,0" FontWeight="Bold" FontSize="14" Text="{DynamicResource Text.Main.Info}" />
-                  </StackPanel>
-
-                  <TextBox Grid.Row="1"
-                           Classes="no_background no_border"
-                           IsReadOnly="True"
-                           TextWrapping="Wrap"
-                           ScrollViewer.VerticalScrollBarVisibility="Auto"
-                           MaxHeight="100"
-                           Margin="8" Padding="0"
-                           VerticalContentAlignment="Top"
-                           Text="{Binding Message}"/>
-                  <Button Grid.Row="3"
-                          Classes="flat primary"
-                          Height="30"
-                          Margin="4,0"
-                          Command="{Binding $parent[Window].((vm:Main)DataContext).DismissNotification}"
-                          CommandParameter="{Binding}"
-                          Content="{DynamicResource Text.Close}"
-                          HorizontalAlignment="Right"
-                          HorizontalContentAlignment="Center"
-                          VerticalContentAlignment="Center"/>
-                </Grid>
-              </Grid>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-      </ScrollViewer>
-    </Grid>
-  </Grid>
+		<!-- Notifications -->
+		<Grid Grid.Row="0" Grid.ColumnSpan="2" Width="400" HorizontalAlignment="Center" VerticalAlignment="Top">
+			<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+				<ItemsControl ItemsSource="{Binding Notifications}">
+					<ItemsControl.ItemTemplate>
+						<DataTemplate DataType="m:Notification">
+							<Grid Margin="7">
+								<Border Background="{StaticResource Color.Window}" BorderBrush="{StaticResource Color.Border}" BorderThickness="1" CornerRadius="10" Opacity="0.9" />
+								<Grid Margin="7" RowDefinitions="20,Auto,15">
+									<StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding IsError}">
+										<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset2.png" Stretch="None" HorizontalAlignment="Left"/>
+										<TextBlock Margin="5,0,0,0" FontSize="15" FontFamily="{StaticResource FontDefault}" Text="{DynamicResource Text.Main.Error}" />
+									</StackPanel>
+									<StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding !IsError}">
+										<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset2.png" Stretch="None" HorizontalAlignment="Left"/>
+										<TextBlock Margin="5,0,0,0" FontSize="15" FontFamily="{StaticResource FontDefault}" Text="{DynamicResource Text.Main.Error}" />
+									</StackPanel>
+									<TextBox Grid.Row="1" Classes="no_background no_border" IsReadOnly="True" FontSize="13" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" MaxHeight="100" Margin="8" Padding="0" VerticalContentAlignment="Top" Text="{Binding Message, Mode=TwoWay}" />
+									<Button Grid.Row="3" Cursor="Hand" Margin="0,0,0,5" Classes="no_background" Height="30" Command="{Binding $parent[Window].((vm:Main)DataContext).DismissNotification}" CommandParameter="{Binding}" Content="{DynamicResource Text.Close}" HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+								</Grid>
+							</Grid>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+			</ScrollViewer>
+		</Grid>
+	</Grid>
 </Window>

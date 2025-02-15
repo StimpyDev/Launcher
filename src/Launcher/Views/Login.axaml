@@ -1,70 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:v="using:Launcher.Views"
+			 xmlns:vm="using:Launcher.ViewModels"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+			 mc:Ignorable="d"
+			 d:DesignWidth="500"
+			 d:DesignHeight="250"
+			 x:DataType="vm:Login"
+			 x:Class="Launcher.Views.Login">
 
-             xmlns:v="using:Launcher.Views"
-             xmlns:vm="using:Launcher.ViewModels"
+	<StackPanel Orientation="Vertical">
 
-             mc:Ignorable="d"
-             d:DesignWidth="800"
-             d:DesignHeight="450"
+		<StackPanel HorizontalAlignment="Center">
+			<TextBlock Foreground="Yellow" Text="{Binding Warning, Mode=OneWay}" TextAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding Warning, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+		</StackPanel>
 
-             x:DataType="vm:Login"
-             x:Class="Launcher.Views.Login">
+		<StackPanel HorizontalAlignment="Center">
+			<TextBlock Text="{DynamicResource Text.Login.Username}" HorizontalAlignment="Center" FontSize="18" FontFamily="{StaticResource FontDefault}" />
+			<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset4.png" Stretch="None" />
+			<TextBox CaretBrush="Black" FontSize="13" Margin="0,-38,0,0" FontWeight="Bold" Foreground="Black" Width="256" Height="22" v:AutoFocusBehaviour.IsEnabled="{Binding RememberUsername, Converter={x:Static BoolConverters.Not}}" Text="{Binding Username, Mode=TwoWay}" />
+		</StackPanel>
 
+		<CheckBox FontSize="14" FontFamily="{StaticResource FontDefault}" HorizontalAlignment="Center" Content="{DynamicResource Text.Login.RememberUsername}" IsChecked="{Binding RememberUsername}" />
 
-  <StackPanel Spacing="8"
-              Margin="8,0,0,0"
-              Orientation="Vertical">
+		<StackPanel HorizontalAlignment="Center">
+			<TextBlock Text="{DynamicResource Text.Login.Password}" HorizontalAlignment="Center" FontSize="18" FontFamily="{StaticResource FontDefault}" />
+			<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset4.png" Stretch="None" />
+			<TextBox CaretBrush="Black" Margin="0,-38,0,0" FontSize="13" Width="256" Height="22" PasswordChar="•" Foreground="Black" FontWeight="Bold" v:AutoFocusBehaviour.IsEnabled="{Binding RememberPassword, Converter={x:Static BoolConverters.Not}}" Text="{Binding Password, Mode=TwoWay}" />
+		</StackPanel>
 
-    <TextBlock FontSize="18"
-               Classes="bold"
-               HorizontalAlignment="Center"
-               Text="{DynamicResource Text.Login}" />
+		<CheckBox FontFamily="{StaticResource FontDefault}" HorizontalAlignment="Center" FontSize="14" Content="{DynamicResource Text.Login.RememberPassword}" IsChecked="{Binding RememberPassword}" />
 
-    <TextBlock Classes="bold"
-               Foreground="Yellow"
-               Text="{Binding Warning}"
-               TextAlignment="Center"
-               HorizontalAlignment="Center"
-               IsVisible="{Binding Warning, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
+			<Button Classes="flat primary" Click="Login_Button" FontFamily="{StaticResource FontDefault}" Content="{StaticResource Text.Login}" HotKey="Enter">
+				<Button.Background>
+					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+						<GradientStop Color="#687AA7" Offset="0.0"/>
+						<GradientStop Color="#3C4C74" Offset="0.8"/>
+					</LinearGradientBrush>
+				</Button.Background>
+			</Button>
+			<Button Classes="flat primary" Click="Login_Button_Cancel" Content="{StaticResource Text.Cancel}" FontFamily="{StaticResource FontDefault}">
+				<Button.Background>
+					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+						<GradientStop Color="#687AA7" Offset="0.0"/>
+						<GradientStop Color="#3C4C74" Offset="0.8"/>
+					</LinearGradientBrush>
+				</Button.Background>
+			</Button>
+		</StackPanel>
 
-    <Grid RowDefinitions="32"
-          ColumnDefinitions="120,*">
-
-      <TextBlock Grid.Column="0"
-                 Margin="0,0,8,0"
-                 HorizontalAlignment="Right"
-                 Text="{DynamicResource Text.Login.Username}" />
-
-      <TextBox Grid.Column="1"
-               CornerRadius="3"
-               v:AutoFocusBehaviour.IsEnabled="{Binding RememberUsername, Converter={x:Static BoolConverters.Not}}"
-               Text="{Binding Username, Mode=TwoWay}" />
-    </Grid>
-
-    <Grid RowDefinitions="32"
-          ColumnDefinitions="120,*">
-
-      <TextBlock Grid.Column="0"
-                 Margin="0,0,8,0"
-                 HorizontalAlignment="Right"
-                 Text="{DynamicResource Text.Login.Password}" />
-
-      <TextBox Grid.Column="1"
-               CornerRadius="3"
-               PasswordChar="•"
-               v:AutoFocusBehaviour.IsEnabled="{Binding RememberUsername}"
-               Text="{Binding Password, Mode=TwoWay}" />
-    </Grid>
-
-    <Grid RowDefinitions="32"
-          ColumnDefinitions="120,*">
-
-      <CheckBox Grid.Column="1" Content="{DynamicResource Text.Login.RememberUsername}" IsChecked="{Binding RememberUsername}" />
-    </Grid>
-
-  </StackPanel>
-
+	</StackPanel>
 </UserControl>

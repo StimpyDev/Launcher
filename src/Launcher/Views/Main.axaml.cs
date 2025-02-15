@@ -1,5 +1,5 @@
-using Avalonia.Input;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 
 namespace Launcher.Views;
@@ -31,24 +31,5 @@ public partial class Main : Window
         }
 
         base.OnKeyDown(e);
-    }
-
-    private void OnPopupSure(object sender, RoutedEventArgs e)
-    {
-        App.ProcessPopup();
-
-        e.Handled = true;
-    }
-
-    private void OnPopupCancel(object sender, RoutedEventArgs e)
-    {
-        App.CancelPopup();
-
-        e.Handled = true;
-    }
-
-    private void OnPopupCancelByClickMask(object sender, PointerPressedEventArgs e)
-    {
-        OnPopupCancel(sender, e);
     }
 }

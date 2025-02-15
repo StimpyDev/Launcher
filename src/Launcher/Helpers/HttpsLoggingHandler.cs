@@ -1,8 +1,8 @@
-﻿using System.Net.Http;
+﻿using NLog;
+using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-
-using NLog;
 
 namespace Launcher;
 
@@ -17,12 +17,17 @@ public class HttpLoggingHandler : DelegatingHandler
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        _logger.Info(request.ToString());
+        try
+        {
+            _logger.Info(request.ToString());
+            var response = await base.SendAsync(request, cancellationToken);
+            _logger.Info(response.ToString());
+            return response;
+        }
 
-        var response = await base.SendAsync(request, cancellationToken);
-
-        _logger.Info(response.ToString());
-
-        return response;
+        catch (Exception ex)
+        {
+            throw new Exception(ex.ToString());
+        }
     }
 }

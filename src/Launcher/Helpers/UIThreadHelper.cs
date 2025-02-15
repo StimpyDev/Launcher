@@ -1,6 +1,5 @@
-﻿using System;
-
-using Avalonia.Threading;
+﻿using Avalonia.Threading;
+using System;
 
 namespace Launcher.Helpers;
 

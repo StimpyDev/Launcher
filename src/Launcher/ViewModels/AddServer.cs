@@ -1,13 +1,11 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Launcher.Extensions;
+using Launcher.Helpers;
+using Launcher.Models;
+using System;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
-
-using CommunityToolkit.Mvvm.ComponentModel;
-
-using Launcher.Models;
-using Launcher.Helpers;
-using Launcher.Extensions;
 
 namespace Launcher.ViewModels;
 
@@ -42,10 +40,10 @@ public partial class AddServer : Popup
     {
         ProgressDescription = App.GetText("Text.Add_Server.Loading");
 
-        return Task.Run(OnAddServer);
+        return Task.Run(OnAddServerAsync);
     }
 
-    private async Task<bool> OnAddServer()
+    private async Task<bool> OnAddServerAsync()
     {
         try
         {
@@ -110,8 +108,10 @@ public partial class AddServer : Popup
         return false;
     }
 
-    private bool TryCreateSavePath(string name, out string path)
+    private static bool TryCreateSavePath(string name, out string path)
     {
+        const string BaseDirectory = "Servers";
+
         path = string.Empty;
 
         try
@@ -121,10 +121,10 @@ public partial class AddServer : Popup
             var current = validName;
 
             var i = 1;
-            while (Directory.Exists(Path.Combine(Constants.SavePath, Constants.ServersDirectory, current)))
+            while (Directory.Exists(Path.Combine(BaseDirectory, current)))
                 current = $"{validName}_{i++}";
 
-            path = Path.Combine(Constants.SavePath, Constants.ServersDirectory, current);
+            path = Path.Combine(BaseDirectory, current);
 
             Directory.CreateDirectory(path);
         }

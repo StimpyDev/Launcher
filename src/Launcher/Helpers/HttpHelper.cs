@@ -1,11 +1,9 @@
-﻿using System.Net.Http;
-using System.Net.Mime;
-using System.Xml.Linq;
-using System.Threading.Tasks;
-
+﻿using Launcher.Models;
 using NLog;
-
-using Launcher.Models;
+using System.Net.Http;
+using System.Net.Mime;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Launcher.Helpers;
 
@@ -148,6 +146,7 @@ public static class HttpHelper
 
             return (false, error, null);
         }
+
 
         return (true, string.Empty, clientManifest);
     }

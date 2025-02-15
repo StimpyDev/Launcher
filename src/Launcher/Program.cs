@@ -1,19 +1,15 @@
-﻿using System;
-using System.IO;
-
-using Velopack;
-
 using Avalonia;
 using Avalonia.Logging;
-
+using Launcher.Extensions;
+using Launcher.Helpers;
+using Launcher.Services;
+using Launcher.ViewModels;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
-
-using Launcher.Helpers;
-using Launcher.Services;
-using Launcher.Extensions;
-using Launcher.ViewModels;
+using System;
+using System.IO;
+using Velopack;
 
 namespace Launcher;
 

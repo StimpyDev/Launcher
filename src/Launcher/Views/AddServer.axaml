@@ -1,39 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:v="using:Launcher.Views"
+			 xmlns:vm="using:Launcher.ViewModels"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+			 mc:Ignorable="d"
+			 d:DesignWidth="500"
+			 d:DesignHeight="150"
+			 x:DataType="vm:AddServer"
+			 x:Class="Launcher.Views.AddServer">
 
-             xmlns:v="using:Launcher.Views"
-             xmlns:vm="using:Launcher.ViewModels"
+	<StackPanel Orientation="Vertical" Spacing="5">
 
-             mc:Ignorable="d"
-             d:DesignWidth="800"
-             d:DesignHeight="450"
+		<StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+			<TextBlock FontSize="18" Text="{DynamicResource Text.Add_Server.ServerUrl}" FontFamily="{StaticResource FontDefault}" />
+		</StackPanel>
 
-             x:DataType="vm:AddServer"
-             x:Class="Launcher.Views.AddServer">
+		<StackPanel HorizontalAlignment="Center" Spacing="5">
+			<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset4.png" Stretch="None"/>
+			<TextBox CaretBrush="Black" v:AutoFocusBehaviour.IsEnabled="True" Foreground="Black" Margin="0,-48,0,0" FontSize="13" FontWeight="Bold" Width="254" Height="22" Text="{Binding ServerUrl, Mode=TwoWay}" />
+		</StackPanel>
 
-  <StackPanel Margin="8,0,0,0"
-              Orientation="Vertical">
-
-    <TextBlock FontSize="18"
-               Classes="bold"
-               HorizontalAlignment="Center"
-               Text="{DynamicResource Text.Add_Server}" />
-
-    <Grid Margin="8,16,0,0"
-          RowDefinitions="32"
-          ColumnDefinitions="120,*">
-
-      <TextBlock Margin="0,0,8,0"
-                 HorizontalAlignment="Right"
-                 Text="{DynamicResource Text.Add_Server.ServerUrl}" />
-
-      <TextBox Grid.Column="1"
-               CornerRadius="3"
-               v:AutoFocusBehaviour.IsEnabled="True"
-               Text="{Binding ServerUrl, Mode=TwoWay}"
-               Watermark="{DynamicResource Text.Add_Server.ServerUrl.Placeholder}" />
-    </Grid>
-  </StackPanel>
+		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
+			<Button Classes="flat primary" Click="AddServer_Button_Add" Content="{StaticResource Text.Add}" FontFamily="{StaticResource FontDefault}" HotKey="Enter">
+				<Button.Background>
+					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+						<GradientStop Color="#687AA7" Offset="0.0"/>
+						<GradientStop Color="#3C4C74" Offset="0.8"/>
+					</LinearGradientBrush>
+				</Button.Background>
+			</Button>
+			<Button Classes="flat primary" Click="AddServer_Button_Cancel" Content="{StaticResource Text.Cancel}" FontFamily="{StaticResource FontDefault}">
+				<Button.Background>
+					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+						<GradientStop Color="#687AA7" Offset="0.0"/>
+						<GradientStop Color="#3C4C74" Offset="0.8"/>
+					</LinearGradientBrush>
+				</Button.Background>
+			</Button>
+		</StackPanel>
+	</StackPanel>
 </UserControl>
