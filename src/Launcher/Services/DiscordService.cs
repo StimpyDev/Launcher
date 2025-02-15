@@ -25,6 +25,9 @@ public static class DiscordService
                 _discord = new Discord.Discord(ClientId, (ulong)Discord.CreateFlags.NoRequireDiscord);
             }
         }
+        catch
+        {
+        }
         finally
         {
             Stop();
@@ -56,6 +59,9 @@ public static class DiscordService
 
                 await Task.Delay(1000 / 60);
             }
+        }
+        catch
+        {
         }
         finally
         {
