@@ -36,7 +36,7 @@ public partial class Main : ObservableObject
     public Main()
     {
 #if DESIGNMODE
-        if (Design.IsDesignMode)
+        if (Avalonia.Controls.Design.IsDesignMode)
         {
             Servers.Clear();
 
