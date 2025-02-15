@@ -55,7 +55,7 @@ public partial class DeleteServer : Popup
         return true;
     }
 
-    private static void ForceDeleteDirectory(string path)
+    private void ForceDeleteDirectory(string path)
     {
         var directory = new DirectoryInfo(path)
         {

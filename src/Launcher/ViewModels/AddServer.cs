@@ -108,10 +108,8 @@ public partial class AddServer : Popup
         return false;
     }
 
-    private static bool TryCreateSavePath(string name, out string path)
+    private bool TryCreateSavePath(string name, out string path)
     {
-        const string BaseDirectory = "Servers";
-
         path = string.Empty;
 
         try
@@ -121,10 +119,10 @@ public partial class AddServer : Popup
             var current = validName;
 
             var i = 1;
-            while (Directory.Exists(Path.Combine(BaseDirectory, current)))
+            while (Directory.Exists(Path.Combine(Constants.SavePath, Constants.ServersDirectory, current)))
                 current = $"{validName}_{i++}";
 
-            path = Path.Combine(BaseDirectory, current);
+            path = Path.Combine(Constants.SavePath, Constants.ServersDirectory, current);
 
             Directory.CreateDirectory(path);
         }

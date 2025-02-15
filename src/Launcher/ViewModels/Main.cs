@@ -1,6 +1,7 @@
 ﻿using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Launcher.Helpers;
 using Launcher.Models;
 using Launcher.Services;
 using NuGet.Versioning;
@@ -100,41 +101,41 @@ public partial class Main : ObservableObject
     }
 
     [RelayCommand]
-    public static void CheckForUpdates()
+    public async Task CheckForUpdates()
     {
-        Task task = App.CheckForUpdatesAsync();
+        await App.CheckForUpdatesAsync();
     }
 
     [RelayCommand]
-    public static void ShowSettings()
+    public void ShowSettings()
     {
         App.ShowSettings();
     }
 
     [RelayCommand]
-    public static void OpenFolder()
+    public void OpenFolder()
     {
         Process.Start(new ProcessStartInfo()
         {
             Verb = "open",
             UseShellExecute = true,
-            FileName = Environment.CurrentDirectory
+            FileName = Constants.SavePath
         });
     }
 
     [RelayCommand]
-    public static void AddServer()
+    public async Task AddServer()
     {
-        Task task = App.ShowPopupAsync(new AddServer());
+        await App.ShowPopupAsync(new AddServer());
     }
 
     [RelayCommand]
-    public void DeleteServer()
+    public async Task DeleteServer()
     {
         if (ActiveServer is null)
             return;
 
-        Task task = App.ShowPopupAsync(new DeleteServer(ActiveServer.Info));
+        await App.ShowPopupAsync(new DeleteServer(ActiveServer.Info));
     }
 
     public void OnReceiveNotification(Notification notification)
