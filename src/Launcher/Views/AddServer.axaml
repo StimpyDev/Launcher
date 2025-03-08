@@ -20,7 +20,7 @@
 
 		<StackPanel HorizontalAlignment="Center" Spacing="5">
 			<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset4.png" Stretch="None"/>
-			<TextBox CaretBrush="Black" v:AutoFocusBehaviour.IsEnabled="True" Foreground="Black" Margin="0,-48,0,0" FontSize="13" FontWeight="Bold" Width="254" Height="22" Text="{Binding ServerUrl, Mode=TwoWay}" />
+			<TextBox CaretBrush="Black" v:AutoFocusBehaviour.IsEnabled="True" Foreground="Black" Margin="0,-48,0,0" FontSize="13" FontWeight="SemiBold" Width="254" Height="22" Text="{Binding ServerUrl, Mode=TwoWay}" />
 		</StackPanel>
 
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">

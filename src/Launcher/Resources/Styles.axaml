@@ -93,9 +93,9 @@
 	<Style Selector="Button.flat.primary">
 		<Setter Property="Background" Value="{StaticResource Color.FlatButton.PrimaryBackground}" />
 		<Setter Property="Cursor" Value="Hand" />
-		<Setter Property="CornerRadius" Value="5"/>
+		<Setter Property="CornerRadius" Value="4"/>
 		<Setter Property="BorderBrush" Value="{DynamicResource Color.Border}"/>
-		<Setter Property="BorderThickness" Value="2"/>
+		<Setter Property="BorderThickness" Value="1"/>
 	</Style>
 	<Style Selector="Button.flat.primary:pointerover /template/ Border#PART_Border">
 		<Setter Property="Background" Value="{StaticResource Color.FlatButton.PrimaryBackgroundHovered}" />
