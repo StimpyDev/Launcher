@@ -48,12 +48,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Views\RestartPopup.axaml.cs">
-      <DependentUpon>RestartPopup.axaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="App.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
