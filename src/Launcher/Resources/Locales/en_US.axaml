@@ -93,5 +93,11 @@
 	<x:String x:Key="Text.Discord.Playing" xml:space="preserve">Playing on Server(s): </x:String>
 	
 	<x:String x:Key="Text.Discord.Idle" xml:space="preserve">Idling in the OSFR Launcher</x:String>
+	
+	<x:String x:Key="Text.Restart" xml:space="preserve">Restart Required...</x:String>
+
+	<x:String x:Key="Text.Restart.Required" xml:space="preserve">For these settings to be fully applied. A restart is required.</x:String>
+	
+	<x:String x:Key="Text.Restart.Button" xml:space="preserve">Restart Now</x:String>
 
 </ResourceDictionary>

@@ -34,15 +34,10 @@ public partial class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
-
-        SetLocale(Settings.Instance.Locale);
-
-        Settings.Instance.LocaleChanged += (s, e) =>
         {
             SetLocale(Settings.Instance.Locale);
-        };
+        }
     }
-
     public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime applicationLifetime)
@@ -122,8 +117,12 @@ public partial class App : Application
         app.Resources.MergedDictionaries.Add(targetLocale);
 
         app._activeLocale = targetLocale;
-    }
 
+        Settings.Instance.LocaleChanged += async (s, e) =>
+        {
+            await ShowPopupAsync(new RestartPopup());
+        };
+    }
     public static string GetText(string key, params object?[] args)
     {
         if (Current is not App app)

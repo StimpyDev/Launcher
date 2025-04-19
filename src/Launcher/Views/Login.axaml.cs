@@ -1,6 +1,5 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using System.Threading.Tasks;
 
 namespace Launcher.Views;
 
@@ -11,9 +10,9 @@ public partial class Login : UserControl
         InitializeComponent();
     }
 
-    private static void Login_Button(object sender, RoutedEventArgs e)
+    private static async void Login_Button(object sender, RoutedEventArgs e)
     {
-        Task task = App.ProcessPopupAsync();
+        await App.ProcessPopupAsync();
         e.Handled = true;
     }
 

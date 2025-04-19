@@ -5,7 +5,6 @@ using Launcher.Helpers;
 using Launcher.Models;
 using Launcher.Services;
 using NuGet.Versioning;
-using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
