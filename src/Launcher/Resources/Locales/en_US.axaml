@@ -97,7 +97,9 @@
 	<x:String x:Key="Text.Restart" xml:space="preserve">Restart Required...</x:String>
 
 	<x:String x:Key="Text.Restart.Required" xml:space="preserve">For these settings to be fully applied. A restart is required.</x:String>
-	
+
+	<x:String x:Key="Text.Restart.Required.Placeholder" xml:space="preserve">*Restart Required</x:String>
+
 	<x:String x:Key="Text.Restart.Button" xml:space="preserve">Restart Now</x:String>
 
 </ResourceDictionary>

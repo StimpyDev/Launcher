@@ -98,6 +98,8 @@
 
 	<x:String x:Key="Text.Restart.Required" xml:space="preserve">Pour que ces paramètres soient entièrement appliqués, un redémarrage est nécessaire.</x:String>
 
+	<x:String x:Key="Text.Restart.Required.Placeholder" xml:space="preserve">*Redémarrage Requis</x:String>
+	
 	<x:String x:Key="Text.Restart.Button" xml:space="preserve">Redémarrer Maintenant</x:String>
 	
 </ResourceDictionary>
