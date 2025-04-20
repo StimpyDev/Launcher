@@ -136,17 +136,12 @@ public partial class Main : ObservableObject
 
         await App.ShowPopupAsync(new DeleteServer(ActiveServer.Info));
     }
-
-    public void OnReceiveNotification(Notification notification)
+    public async void OnReceiveNotification(Notification notification)
     {
         Notifications.Add(notification);
-    }
 
-    public void DismissNotification(object e)
-    {
-        if (e is not Notification notification)
-            return;
-
+        // Automatically dismisses notification after 10 seconds.
+        await Task.Delay(10000);
         Notifications.Remove(notification);
     }
 }
