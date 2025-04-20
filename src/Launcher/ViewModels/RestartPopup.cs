@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -15,13 +16,18 @@ namespace Launcher.ViewModels
             };
         }
         [RelayCommand]
-        public void RestartLauncher()
+        public static async Task RestartLauncher()
         {
-            Path.Combine("Appdata", "Local", "OSFR Launcher", "current");
+            const string exeName = "Launcher.exe";
+            var launcherPath = Directory.GetCurrentDirectory();
+       
 
-            Task.Delay(1000);
+            var procces = new Process();
+            await Task.Delay(500);
 
-            Process.Start("Launcher.exe");
+            procces.StartInfo.FileName = exeName;
+            procces.StartInfo.WorkingDirectory = launcherPath;
+            procces.Start();
 
             foreach (Process process in Process.GetProcessesByName("Launcher"))
             {

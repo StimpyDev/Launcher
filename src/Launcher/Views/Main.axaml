@@ -149,7 +149,6 @@
 										<TextBlock Margin="5,0,0,0" FontSize="15" FontFamily="{StaticResource FontDefault}" Text="{DynamicResource Text.Main.Error}" />
 									</StackPanel>
 									<TextBox Grid.Row="1" Classes="no_background no_border" IsReadOnly="True" FontSize="13" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" MaxHeight="100" Margin="8" Padding="0" VerticalContentAlignment="Top" Text="{Binding Message, Mode=TwoWay}" />
-									<Button Grid.Row="3" Cursor="Hand" Margin="0,0,0,5" Classes="no_background" Height="30" Command="{Binding $parent[Window].((vm:Main)DataContext).DismissNotification}" CommandParameter="{Binding}" Content="{DynamicResource Text.Close}" HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
 								</Grid>
 							</Grid>
 						</DataTemplate>
