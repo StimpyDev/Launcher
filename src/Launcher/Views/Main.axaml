@@ -92,7 +92,7 @@
 					<GradientStop Color="#3C4C74" Offset="0.8"/>
 				</LinearGradientBrush>
 			</Button.Background>
-			<Path Width="16" Height="16" Data="{StaticResource Icons.Folder}" Stretch="Fill" />
+			<Path Width="16" Height="16" Data="{StaticResource Icons.Logs}" Stretch="Fill" />
 		</Button>
 		
 		<TextBlock Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Margin="25" FontSize="13" FontFamily="{StaticResource FontDefault}" VerticalAlignment="Bottom" Text="{Binding Message, Mode=OneWay}" />
