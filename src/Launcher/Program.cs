@@ -60,7 +60,7 @@ internal sealed class Program
         var fileTarget = new FileTarget("file")
         {
             DeleteOldFileOnStartup = true,
-            FileName = Path.Combine(Constants.SavePath, Constants.LogFile)
+            FileName = Path.Combine(Directory.GetCurrentDirectory(), Constants.LogFile)
         };
 
         loggingConfiguration.AddRule(LogLevel.Info, LogLevel.Fatal, fileTarget);
