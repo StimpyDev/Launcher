@@ -4,9 +4,12 @@ using CommunityToolkit.Mvvm.Input;
 using Launcher.Helpers;
 using Launcher.Models;
 using Launcher.Services;
+using NLog;
 using NuGet.Versioning;
+using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -29,6 +32,7 @@ public partial class Main : ObservableObject
     [ObservableProperty]
     private SemanticVersion version = App.CurrentVersion;
 
+    private readonly Logger _logger = LogManager.GetCurrentClassLogger();
     public AvaloniaList<Server> Servers { get; set; } = [];
     public AvaloniaList<Notification> Notifications { get; set; } = [];
 
@@ -112,14 +116,30 @@ public partial class Main : ObservableObject
     }
 
     [RelayCommand]
-    public void OpenFolder()
+    public void OpenLogs()
     {
-        Process.Start(new ProcessStartInfo()
+        try
         {
-            Verb = "open",
-            UseShellExecute = true,
-            FileName = Constants.SavePath
-        });
+            Process.Start(new ProcessStartInfo()
+            {
+                Verb = "open",
+                UseShellExecute = true,
+                WorkingDirectory = Directory.GetCurrentDirectory(),
+                FileName = Constants.LogFile
+            });
+        }
+        catch (Exception ex)
+        {
+            UIThreadHelper.Invoke(() =>
+            {
+                App.AddNotification($"""
+                                     An exception was thrown while opening logs.
+                                     Exception: {ex}
+                                     """, true);
+
+                _logger.Error(ex.ToString());
+            });
+        }
     }
 
     [RelayCommand]
