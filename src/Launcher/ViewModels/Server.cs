@@ -158,14 +158,29 @@ public partial class Server : ObservableObject
     }
 
     [RelayCommand]
-    public void OpenFolder()
+    public void OpenClientFolder()
     {
-        Process.Start(new ProcessStartInfo()
+        try
         {
-            Verb = "open",
-            UseShellExecute = true,
-            FileName = Path.Combine(Constants.SavePath, Info.SavePath)
-        });
+            Process.Start(new ProcessStartInfo()
+            {
+                Verb = "open",
+                UseShellExecute = true,
+                FileName = Path.Combine(Constants.SavePath, Info.SavePath, "Client")
+            });
+        }
+        catch (Exception ex)
+        {
+            UIThreadHelper.Invoke(() =>
+            {
+                App.AddNotification($"""
+                                     An exception was thrown while opening the client folder.
+                                     Exception: {ex}
+                                     """, true);
+
+                _logger.Error(ex.ToString());
+            });
+        }
     }
 
     private async Task<bool> RefreshServerInfoAsync()
