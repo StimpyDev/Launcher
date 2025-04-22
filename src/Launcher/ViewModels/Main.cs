@@ -160,8 +160,8 @@ public partial class Main : ObservableObject
     {
         Notifications.Add(notification);
 
-        // Automatically dismisses notification after 10 seconds.
-        await Task.Delay(10000);
+        // Automatically dismisses notification after 5 seconds.
+        await Task.Delay(5000);
         Notifications.Remove(notification);
     }
 }
