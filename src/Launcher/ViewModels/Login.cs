@@ -31,6 +31,9 @@ public partial class Login : Popup
     private string password = string.Empty;
 
     [ObservableProperty]
+    private string statusMessage = string.Empty;
+
+    [ObservableProperty]
     private bool rememberUsername;
 
     [ObservableProperty]
@@ -171,6 +174,8 @@ public partial class Login : Popup
 
     private void LaunchClient(string sessionId, string? serverArguments)
     {
+        StatusMessage = App.GetText("Text.IsRunning");
+
         const string FileName = "FreeRealms.exe";
 
         var launcherArguments = new List<string>

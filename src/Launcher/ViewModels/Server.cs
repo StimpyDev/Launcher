@@ -91,6 +91,7 @@ public partial class Server : ObservableObject
     public void ClientProcessExited(object? sender, EventArgs e)
     {
         Process = null;
+        StatusMessage = string.Empty;
     }
 
     [RelayCommand(AllowConcurrentExecutions = false)]
