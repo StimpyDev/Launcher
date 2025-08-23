@@ -1,28 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<UserControl xmlns="https://github.com/avaloniaui"
-			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-			 xmlns:v="using:Launcher.Views"
-			 xmlns:vm="using:Launcher.ViewModels"
-			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+<UserControl
+	xmlns="https://github.com/avaloniaui"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:v="using:Launcher.Views"
+	xmlns:vm="using:Launcher.ViewModels"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			 mc:Ignorable="d"
 			 d:DesignWidth="500"
 			 d:DesignHeight="150"
 			 x:DataType="vm:DeleteServer"
 			 x:Class="Launcher.Views.DeleteServer">
-
 	<StackPanel Orientation="Vertical">
-
 		<StackPanel>
 			<TextBlock FontSize="18" HorizontalAlignment="Center" Text="{DynamicResource Text.Delete_Server}" FontFamily="{StaticResource FontDefault}" />
 		</StackPanel>
-
 		<StackPanel>
 			<TextBlock HorizontalAlignment="Center" Text="{DynamicResource Text.Delete_Server.Confirm}" FontFamily="{StaticResource FontDefault}" Margin="5" FontSize="15" />
 		</StackPanel>
-
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-
 			<StackPanel Margin="5">
 				<Button Classes="flat primary" Click="DeleteServer_Button_Yes" Content="{StaticResource Text.Yes}" FontFamily="{StaticResource FontDefault}">
 					<Button.Background>
@@ -33,7 +29,6 @@
 					</Button.Background>
 				</Button>
 			</StackPanel>
-
 			<StackPanel Margin="5">
 				<Button Classes="flat primary" Click="DeleteServer_Button_No" Content="{StaticResource Text.No}" FontFamily="{StaticResource FontDefault}">
 					<Button.Background>
@@ -44,7 +39,6 @@
 					</Button.Background>
 				</Button>
 			</StackPanel>
-
 		</StackPanel>
 	</StackPanel>
 </UserControl>

@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<UserControl xmlns="https://github.com/avaloniaui"
-			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-			 xmlns:v="using:Launcher.Views"
-			 xmlns:vm="using:Launcher.ViewModels"
-			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-			 xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+<UserControl
+	xmlns="https://github.com/avaloniaui"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:v="using:Launcher.Views"
+	xmlns:vm="using:Launcher.ViewModels"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
 			 mc:Ignorable="d"
 			 d:DesignWidth="500"
 			 d:DesignHeight="150"
 			 x:DataType="vm:RestartPopup"
 			 x:Class="Launcher.Views.RestartPopup">
-
 	<StackPanel Orientation="Vertical" Spacing="5" Margin="5">
-
 		<StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top">
 			<TextBlock FontSize="18" Text="{DynamicResource Text.Restart}" FontFamily="{StaticResource FontDefault}" />
 		</StackPanel>

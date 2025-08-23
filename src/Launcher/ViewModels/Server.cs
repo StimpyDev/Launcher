@@ -38,6 +38,9 @@ public partial class Server : ObservableObject
     private bool isOnline;
 
     [ObservableProperty]
+    private Server? activeServer;
+
+    [ObservableProperty]
     private bool isRefreshing = false;
 
     [ObservableProperty]
@@ -135,26 +138,17 @@ public partial class Server : ObservableObject
             return;
         }
 
-        var clientManifest = await GetClientManifestAsync();
+        var workingDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client");
 
-        StatusMessage = App.GetText("Text.Server.VerifyClientFiles");
-
-        if (clientManifest is null)
-            return;
-
-        if (!await VerifyClientFilesAsync(clientManifest))
+        if (!Directory.Exists(workingDirectory))
         {
-
-            App.AddNotification("Failed to verify client files, please try again", true);
-
-            _logger.Warn("Failed to verify client files");
-
-            return;
+            await VerifyFiles();
         }
 
-        StatusMessage = string.Empty;
-
-        await App.ShowPopupAsync(new Login(this));
+        else
+        {
+            await App.ShowPopupAsync(new Login(this));
+        }
     }
 
     [RelayCommand]
@@ -183,6 +177,28 @@ public partial class Server : ObservableObject
         }
     }
 
+    public async Task VerifyFiles()
+    {
+        var clientManifest = await GetClientManifestAsync();
+
+        StatusMessage = App.GetText("Text.Server.VerifyClientFiles");
+
+        if (clientManifest is null)
+            return;
+
+        if (!await VerifyClientFilesAsync(clientManifest))
+        {
+            App.AddNotification("Failed to verify client files, please try again", true);
+
+            _logger.Warn("Failed to verify client files");
+
+            return;
+        }
+
+        StatusMessage = string.Empty;
+
+        await App.ShowPopupAsync(new Login(this));
+    }
     private async Task<bool> RefreshServerInfoAsync()
     {
         try

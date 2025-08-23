@@ -5,17 +5,11 @@ using System.Collections.Generic;
 
 namespace Launcher;
 
-public class NLogSink : ILogSink
+public class NLogSink(LogEventLevel minimumLevel, IList<string>? areas = null) : ILogSink
 {
-    private readonly LogEventLevel _level;
-    private readonly HashSet<string>? _areas;
+    private readonly LogEventLevel _level = minimumLevel;
+    private readonly HashSet<string>? _areas = areas?.Count > 0 ? [.. areas] : null;
     private ConcurrentDictionary<string, NLog.Logger> _loggerCache = new();
-
-    public NLogSink(LogEventLevel minimumLevel, IList<string>? areas = null)
-    {
-        _level = minimumLevel;
-        _areas = areas?.Count > 0 ? [.. areas] : null;
-    }
 
     public bool IsEnabled(LogEventLevel level, string area)
     {

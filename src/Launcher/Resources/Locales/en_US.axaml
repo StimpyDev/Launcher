@@ -80,9 +80,9 @@
 	
 	<x:String x:Key="Text.Delete_Server.Confirm" xml:space="preserve">Are you sure you want to delete the server? This cannot be undone.</x:String>
 	
-	<x:String x:Key="Text.ServerStatus" xml:space="preserve">Status: </x:String>
+	<x:String x:Key="Text.ServerStatus" xml:space="preserve">Server Status: </x:String>
 	
-	<x:String x:Key="Text.OnlinePlayers" xml:space="preserve">Players: </x:String>
+	<x:String x:Key="Text.OnlinePlayers" xml:space="preserve">Player Count: </x:String>
 	
 	<x:String x:Key="Text.ServerStatus.Online" xml:space="preserve">Online</x:String>
 	
@@ -101,5 +101,7 @@
 	<x:String x:Key="Text.Restart.Required.Placeholder" xml:space="preserve">*Restart Required</x:String>
 
 	<x:String x:Key="Text.Restart.Button" xml:space="preserve">Restart Now</x:String>
+
+	<x:String x:Key="Text.Logs" xml:space="preserve">Logs</x:String>
 
 </ResourceDictionary>

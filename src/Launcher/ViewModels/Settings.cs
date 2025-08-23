@@ -1,9 +1,12 @@
 ﻿using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Launcher.Helpers;
 using Launcher.Models;
 using Launcher.Services;
+using NLog;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
 
@@ -28,6 +31,8 @@ public partial class Settings : ObservableObject
 
     public event EventHandler? LocaleChanged;
     public event EventHandler? DiscordActivityChanged;
+
+    private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
     partial void OnLocaleChanged(LocaleType value)
     {
@@ -68,5 +73,32 @@ public partial class Settings : ObservableObject
     public void Save()
     {
         XmlHelper.TrySerialize(_instance, _savePath);
+    }
+
+    [RelayCommand]
+    public void OpenLogs()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo()
+            {
+                Verb = "open",
+                UseShellExecute = true,
+                WorkingDirectory = Path.Combine(Directory.GetCurrentDirectory(), "logs"),
+                FileName = Path.Combine(Directory.GetCurrentDirectory(), "logs")
+            });
+        }
+        catch (Exception ex)
+        {
+            UIThreadHelper.Invoke(() =>
+            {
+                App.AddNotification($"""
+                                     An exception was thrown while opening logs.
+                                     Exception: {ex}
+                                     """, true);
+
+                _logger.Error(ex.ToString());
+            });
+        }
     }
 }
