@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Launcher.Helpers;
 using Launcher.Models;
+using NLog;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ public partial class DeleteServer : Popup
     [ObservableProperty]
     private ServerInfo info;
 
+    private readonly Logger _logger = LogManager.GetCurrentClassLogger();
     public DeleteServer(ServerInfo info)
     {
         Info = info;
@@ -43,6 +45,8 @@ public partial class DeleteServer : Popup
                                      An exception was thrown while deleting server.
                                      Exception: {ex}
                                      """, true);
+
+                _logger.Error(ex.ToString());
             });
 
             return true;
