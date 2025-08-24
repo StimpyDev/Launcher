@@ -139,17 +139,26 @@ public partial class Server : ObservableObject
             return;
         }
 
-        var workingDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client");
+        var clientManifest = await GetClientManifestAsync();
 
-        if (!Directory.Exists(workingDirectory))
+        StatusMessage = App.GetText("Text.Server.VerifyClientFiles");
+
+        if (clientManifest is null)
+            return;
+
+        if (!await VerifyClientFilesAsync(clientManifest))
         {
-            await VerifyFiles();
+
+            App.AddNotification("Failed to verify client files, please try again", true);
+
+            _logger.Warn("Failed to verify client files");
+
+            return;
         }
 
-        else
-        {
-            await App.ShowPopupAsync(new Login(this));
-        }
+        StatusMessage = string.Empty;
+
+        await App.ShowPopupAsync(new Login(this));
     }
 
     [RelayCommand]

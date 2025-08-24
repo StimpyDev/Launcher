@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Launcher.Helpers;
 using Launcher.Models;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -39,6 +40,7 @@ public partial class Login : Popup
     [ObservableProperty]
     private bool rememberPassword;
 
+    private readonly Logger _logger = LogManager.GetCurrentClassLogger();
     public bool AutoFocusUsername => string.IsNullOrEmpty(Username);
     public bool AutoFocusPassword => !string.IsNullOrEmpty(Username) && string.IsNullOrEmpty(Password);
 
@@ -167,6 +169,8 @@ public partial class Login : Popup
                                      An exception was thrown while logging in.
                                      Exception: {ex}
                                      """, true);
+           
+            _logger.Error(ex.ToString());
         }
 
         return false;

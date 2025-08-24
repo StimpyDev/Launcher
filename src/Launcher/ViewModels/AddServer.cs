@@ -2,6 +2,7 @@
 using Launcher.Extensions;
 using Launcher.Helpers;
 using Launcher.Models;
+using NLog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
@@ -17,6 +18,7 @@ public partial class AddServer : Popup
     [CustomValidation(typeof(AddServer), nameof(ValidateServerUrl))]
     private string serverUrl = string.Empty;
 
+    private readonly Logger _logger = LogManager.GetCurrentClassLogger();
     public AddServer()
     {
         View = new Views.AddServer()
@@ -102,6 +104,8 @@ public partial class AddServer : Popup
                                      An exception was thrown while getting server manifest.
                                      Exception: {ex}
                                      """, true);
+
+                _logger.Error(ex.ToString());
             });
         }
 

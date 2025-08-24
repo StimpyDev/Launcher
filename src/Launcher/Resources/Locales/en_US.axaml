@@ -104,6 +104,6 @@
 
 	<x:String x:Key="Text.Logs" xml:space="preserve">Logs</x:String>
 
-	<x:String x:Key="Text.IsRunning" xml:space="preserve">Client is running...</x:String>
+	<x:String x:Key="Text.IsRunning" xml:space="preserve">Client Is Running...</x:String>
 
 </ResourceDictionary>

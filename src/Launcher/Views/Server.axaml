@@ -70,7 +70,7 @@
 		</StackPanel>
 		<!--Client Running-->
 		<StackPanel VerticalAlignment="Bottom" Grid.Row="3" Margin="0,0,0,10" HorizontalAlignment="Center">
-			<TextBlock Text="{StaticResource Text.IsRunning}" FontSize="13" FontWeight="Medium" IsVisible="{Binding Process, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+			<TextBlock Text="{StaticResource Text.IsRunning}" FontSize="13" FontWeight="Medium" FontFamily="{StaticResource FontDefault}" IsVisible="{Binding Process, Converter={x:Static ObjectConverters.IsNotNull}}"/>
 		</StackPanel>
 		<!-- Client Folder -->
 		<StackPanel Grid.Row="3" HorizontalAlignment="Right" Effect="drop-shadow(2 2 2 #40000000)" Margin="0,0,-40,10" VerticalAlignment="Bottom">
