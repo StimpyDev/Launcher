@@ -38,6 +38,9 @@ public partial class Server : ObservableObject
     private bool isOnline;
 
     [ObservableProperty]
+    private Server? activeServer;
+
+    [ObservableProperty]
     private bool isRefreshing = false;
 
     [ObservableProperty]
