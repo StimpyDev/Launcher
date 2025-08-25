@@ -20,27 +20,27 @@
 		<!-- Title -->
 		<StackPanel Effect="drop-shadow(1 1 1 #40000000)" Grid.Row="1">
 			<StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-				<TextBlock FontSize="24" Margin="-20,40,0,0" Text="{Binding Info.Name, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" />
+				<TextBlock FontSize="24" Margin="0,40,0,0" Text="{Binding Info.Name, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" />
 			</StackPanel>
 		</StackPanel>
 		<!-- Refresh Status -->
 		<StackPanel Effect="drop-shadow(1 1 1 #40000000)" Grid.Row="1" >
-			<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,35,200,0">
+			<StackPanel Orientation="Vertical" HorizontalAlignment="Center" Margin="0,35,180,0">
 				<Button Classes="no_background" Margin="5" Command="{Binding RefreshServerStatusCommand}">
 					<Path Width="18" Height="18" Classes.rotating="{Binding IsRefreshing}" Data="{StaticResource Icons.Loading}" Stretch="Fill" />
 				</Button>
 			</StackPanel>
 		</StackPanel>
 		<!-- Server Status / Player Count -->
-		<StackPanel Grid.Row="2" Effect="drop-shadow(1 1 1 #40000000)" Margin="30,50,50,60">
+		<StackPanel Grid.Row="2" Effect="drop-shadow(1 1 1 #40000000)" Margin="0,53,0,0">
 			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 				<StackPanel Spacing="2.5" Orientation="Horizontal">
 					<TextBlock Text="{StaticResource Text.ServerStatus}" FontFamily="{StaticResource FontDefault}" FontSize="15" />
-					<TextBlock Text="{Binding Status, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" FontSize="15" Margin="-3,1,0,0" Foreground="{Binding ServerStatusFill}" />
+					<TextBlock Text="{Binding Status, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" FontSize="15" Foreground="{Binding ServerStatusFill}" />
 				</StackPanel>
 			</StackPanel>
 		</StackPanel>
-		<StackPanel Grid.Row="2" Margin="40,35,40,40">
+		<StackPanel Grid.Row="2" Margin="10,37,0,0">
 			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 				<TextBlock Text="{StaticResource Text.OnlinePlayers}" FontFamily="{StaticResource FontDefault}" FontSize="15" />
 				<TextBlock Text="{Binding OnlinePlayers, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" Width="30" FontSize="15" />
@@ -48,7 +48,7 @@
 		</StackPanel>
 		<!-- Server Description -->
 		<StackPanel Grid.Row="2" Effect="drop-shadow(1 1 1 #40000000)">
-			<StackPanel VerticalAlignment="Stretch" Margin="0,80,0,0" Width="650">
+			<StackPanel VerticalAlignment="Stretch" Margin="0,88,0,0" Width="650">
 				<Border Padding="15" CornerRadius="5.5" Opacity="0.050" Background="{StaticResource Color.Description}" IsVisible="{Binding Info.Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
 					<ScrollViewer Opacity="200">
 						<md:MarkdownScrollViewer HorizontalAlignment="Center" VerticalAlignment="Center" Margin="45,0,0,0" Markdown="{Binding Info.Description}"/>
@@ -58,14 +58,14 @@
 		</StackPanel>
 		<!-- Server Play / Update Status -->
 		<StackPanel Grid.Row="3">
-			<StackPanel Orientation="Horizontal" Margin="0,325,15,0" HorizontalAlignment="Center">
+			<StackPanel Orientation="Horizontal" Margin="0,325,0,0" HorizontalAlignment="Center">
 				<Button Classes="no_background" Cursor="Hand" Command="{Binding PlayCommand}" IsVisible="{Binding Process, Converter={x:Static ObjectConverters.IsNull}}" IsEnabled="{Binding Process, Converter={x:Static ObjectConverters.IsNull}}">
 					<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset3.png" Effect="drop-shadow(3 3 3 #40000000)" Height="60" Margin="0,0,0,85" Stretch="UniformToFill" />
 				</Button>
 			</StackPanel>
 		</StackPanel>
 		<!--Status Info-->
-		<StackPanel VerticalAlignment="Bottom" Grid.Row="3" Margin="0,0,5,75" HorizontalAlignment="Center">
+		<StackPanel VerticalAlignment="Bottom" Grid.Row="3" Margin="0,0,0,75" HorizontalAlignment="Center">
 			<TextBlock Text="{Binding StatusMessage, Mode=OneWay}" FontSize="13" FontWeight="Medium"/>
 		</StackPanel>
 		<!--Client Running-->
