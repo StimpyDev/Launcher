@@ -58,14 +58,14 @@
 		</StackPanel>
 		<!-- Server Play / Update Status -->
 		<StackPanel Grid.Row="3">
-			<StackPanel Orientation="Horizontal" Margin="0,325,0,0" HorizontalAlignment="Center">
+			<StackPanel Orientation="Horizontal" Margin="0,325,15,0" HorizontalAlignment="Center">
 				<Button Classes="no_background" Cursor="Hand" Command="{Binding PlayCommand}" IsVisible="{Binding Process, Converter={x:Static ObjectConverters.IsNull}}" IsEnabled="{Binding Process, Converter={x:Static ObjectConverters.IsNull}}">
 					<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset3.png" Effect="drop-shadow(3 3 3 #40000000)" Height="60" Margin="0,0,0,85" Stretch="UniformToFill" />
 				</Button>
 			</StackPanel>
 		</StackPanel>
 		<!--Status Info-->
-		<StackPanel VerticalAlignment="Bottom" Grid.Row="3" Margin="0,0,0,75" HorizontalAlignment="Center">
+		<StackPanel VerticalAlignment="Bottom" Grid.Row="3" Margin="0,0,5,75" HorizontalAlignment="Center">
 			<TextBlock Text="{Binding StatusMessage, Mode=OneWay}" FontSize="13" FontWeight="Medium"/>
 		</StackPanel>
 		<!--Client Running-->
