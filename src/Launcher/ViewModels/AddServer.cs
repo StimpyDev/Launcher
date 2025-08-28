@@ -55,9 +55,9 @@ public partial class AddServer : Popup
 
             if (!result.Success || result.ServerManifest is null)
             {
-                UIThreadHelper.Invoke(() =>
+                UIThreadHelper.Invoke(async () =>
                 {
-                    App.AddNotification(result.Error, true);
+                    await App.AddNotification(result.Error, true);
                 });
 
                 return false;
@@ -67,9 +67,9 @@ public partial class AddServer : Popup
 
             if (!TryCreateSavePath(serverManifest.Name, out var savePath))
             {
-                UIThreadHelper.Invoke(() =>
+                UIThreadHelper.Invoke(async () =>
                 {
-                    App.AddNotification($"""
+                   await App.AddNotification($"""
                                          Failed to create a save path for server.
                                          """, true);
                 });
@@ -92,15 +92,15 @@ public partial class AddServer : Popup
 
             Settings.Instance.ServerInfoList.Add(serverInfo);
 
-            Settings.Instance.Save();
+            Settings.Save();
 
             return true;
         }
         catch (Exception ex)
         {
-            UIThreadHelper.Invoke(() =>
+            UIThreadHelper.Invoke(async () =>
             {
-                App.AddNotification($"""
+                await App.AddNotification($"""
                                      An exception was thrown while getting server manifest.
                                      Exception: {ex}
                                      """, true);

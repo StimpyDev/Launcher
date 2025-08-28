@@ -132,7 +132,7 @@ public partial class Server : ObservableObject
     {
         if (Process is not null)
         {
-            App.AddNotification("Unable to play, the game is already open", true);
+            await App.AddNotification("Unable to play, the game is already open", true);
 
             _logger.Warn("Unable to play, the game is already open");
 
@@ -149,7 +149,7 @@ public partial class Server : ObservableObject
         if (!await VerifyClientFilesAsync(clientManifest))
         {
 
-            App.AddNotification("Failed to verify client files, please try again", true);
+            await App.AddNotification("Failed to verify client files, please try again", true);
 
             _logger.Warn("Failed to verify client files");
 
@@ -175,9 +175,9 @@ public partial class Server : ObservableObject
         }
         catch (Exception ex)
         {
-            UIThreadHelper.Invoke(() =>
+            UIThreadHelper.Invoke(async () =>
             {
-                App.AddNotification($"""
+                await App.AddNotification($"""
                                      An exception was thrown while opening the client folder.
                                      Exception: {ex}
                                      """, true);
@@ -198,7 +198,7 @@ public partial class Server : ObservableObject
 
         if (!await VerifyClientFilesAsync(clientManifest))
         {
-            App.AddNotification("Failed to verify client files, please try again", true);
+            await App.AddNotification("Failed to verify client files, please try again", true);
 
             _logger.Warn("Failed to verify client files");
 
@@ -217,9 +217,9 @@ public partial class Server : ObservableObject
 
             if (!result.Success || result.ServerManifest is null)
             {
-                UIThreadHelper.Invoke(() =>
+                UIThreadHelper.Invoke(async () =>
                 {
-                    App.AddNotification(result.Error, true);
+                    await App.AddNotification(result.Error, true);
 
                     _logger.Error(result.Error);
                 });
@@ -239,9 +239,9 @@ public partial class Server : ObservableObject
         }
         catch (Exception ex)
         {
-            UIThreadHelper.Invoke(() =>
+            UIThreadHelper.Invoke(async () =>
             {
-                App.AddNotification($"""
+                await App.AddNotification($"""
                                      An exception was thrown while getting server info.
                                      Exception: {ex}
                                      """, true);
@@ -261,9 +261,9 @@ public partial class Server : ObservableObject
 
             if (!result.Success || result.ClientManifest is null)
             {
-                UIThreadHelper.Invoke(() =>
+                UIThreadHelper.Invoke(async () =>
                 {
-                    App.AddNotification(result.Error, true);
+                    await App.AddNotification(result.Error, true);
 
                     _logger.Error(result.Error);
                 });
@@ -275,9 +275,9 @@ public partial class Server : ObservableObject
         }
         catch (Exception ex)
         {
-            UIThreadHelper.Invoke(() =>
+            UIThreadHelper.Invoke(async () =>
             {
-                App.AddNotification($"""
+                await App.AddNotification($"""
                                      An exception was thrown while getting client info.
                                      Exception: {ex}
                                      """, true);
@@ -350,9 +350,9 @@ public partial class Server : ObservableObject
 
             if (fileStream is null)
             {
-                UIThreadHelper.Invoke(() =>
+                UIThreadHelper.Invoke(async () =>
                 {
-                    App.AddNotification($"""
+                    await App.AddNotification($"""
                                         Failed to get client file.
                                         """, true);
 

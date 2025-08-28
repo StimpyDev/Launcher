@@ -14,6 +14,6 @@ public partial class Settings : Window
     }
     protected override void OnClosing(WindowClosingEventArgs e)
     {
-        ViewModel.Save();
+        ViewModels.Settings.Save();
     }
 }

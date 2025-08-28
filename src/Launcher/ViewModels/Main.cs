@@ -97,21 +97,21 @@ public partial class Main : ObservableObject
     }
 
     [RelayCommand]
-    public async Task CheckForUpdates()
+    public static Task CheckForUpdates()
     {
-        await App.CheckForUpdatesAsync();
+        return App.CheckForUpdatesAsync();
     }
 
     [RelayCommand]
-    public void ShowSettings()
+    public static void ShowSettings()
     {
         App.ShowSettings();
     }
 
     [RelayCommand]
-    public async Task AddServer()
+    public static Task AddServer()
     {
-        await App.ShowPopupAsync(new AddServer());
+        return App.ShowPopupAsync(new AddServer());
     }
 
     [RelayCommand]
@@ -122,7 +122,7 @@ public partial class Main : ObservableObject
 
         await App.ShowPopupAsync(new DeleteServer(ActiveServer.Info));
     }
-    public async void OnReceiveNotification(Notification notification)
+    public async Task OnReceiveNotification(Notification notification)
     {
         Notifications.Add(notification);
 

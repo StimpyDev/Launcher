@@ -39,9 +39,9 @@ public partial class DeleteServer : Popup
         }
         catch (Exception ex)
         {
-            UIThreadHelper.Invoke(() =>
+            UIThreadHelper.Invoke(async () =>
             {
-                App.AddNotification($"""
+                await App.AddNotification($"""
                                      An exception was thrown while deleting server.
                                      Exception: {ex}
                                      """, true);
@@ -54,7 +54,7 @@ public partial class DeleteServer : Popup
 
         Settings.Instance.ServerInfoList.Remove(Info);
 
-        Settings.Instance.Save();
+        Settings.Save();
 
         return true;
     }

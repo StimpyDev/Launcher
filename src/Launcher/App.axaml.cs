@@ -136,7 +136,7 @@ public partial class App : Application
         return string.Format(text, args);
     }
 
-    public static void AddNotification(string message, bool isError = false)
+    public static async Task AddNotification(string message, bool isError = false)
     {
         if (Current is not App app || app._main is null)
             return;
@@ -149,7 +149,7 @@ public partial class App : Application
 
         app._logger.Log(isError ? LogLevel.Error : LogLevel.Info, message);
 
-        app._main.OnReceiveNotification(notice);
+        await app._main.OnReceiveNotification(notice);
     }
 
     public static void ShowSettings()

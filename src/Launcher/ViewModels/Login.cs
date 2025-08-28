@@ -93,7 +93,7 @@ public partial class Login : Popup
             _server.Info.Username = null;
         }
 
-        Settings.Instance.Save();
+        Settings.Save();
     }
 
     partial void OnRememberPasswordChanged(bool value)
@@ -105,7 +105,7 @@ public partial class Login : Popup
             _server.Info.Password = null;
         }
 
-        Settings.Instance.Save();
+        Settings.Save();
     }
 
     public override async Task<bool> ProcessAsync()
@@ -113,13 +113,13 @@ public partial class Login : Popup
         if (RememberUsername)
         {
             _server.Info.Username = Username;
-            Settings.Instance.Save();
+            Settings.Save();
         }
 
         if (RememberPassword)
         {
             _server.Info.Password = Password;
-            Settings.Instance.Save();
+            Settings.Save();
         }
 
         try
@@ -138,14 +138,14 @@ public partial class Login : Popup
 
             if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
             {
-                App.AddNotification(App.GetText("Text.Login.Unauthorized"), true);
+              await App.AddNotification(App.GetText("Text.Login.Unauthorized"), true);
                 Password = string.Empty;
                 return false;
             }
 
             if (!httpResponse.IsSuccessStatusCode)
             {
-                App.AddNotification($"""
+                await App.AddNotification($"""
                                      Failed to login. Http Error: {httpResponse.ReasonPhrase}
                                      """, true);
 
@@ -156,7 +156,7 @@ public partial class Login : Popup
 
             if (string.IsNullOrEmpty(loginResponse?.SessionId))
             {
-                App.AddNotification("Invalid login api response.", true);
+                await App.AddNotification("Invalid login api response.", true);
                 Password = string.Empty;
                 return false;
             }
@@ -165,7 +165,7 @@ public partial class Login : Popup
         }
         catch (Exception ex)
         {
-            App.AddNotification($"""
+            await App.AddNotification($"""
                                      An exception was thrown while logging in.
                                      Exception: {ex}
                                      """, true);

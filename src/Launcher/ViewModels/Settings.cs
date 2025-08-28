@@ -70,7 +70,7 @@ public partial class Settings : ObservableObject
         }
     }
 
-    public void Save()
+    public static void Save()
     {
         XmlHelper.TrySerialize(_instance, _savePath);
     }
@@ -90,9 +90,9 @@ public partial class Settings : ObservableObject
         }
         catch (Exception ex)
         {
-            UIThreadHelper.Invoke(() =>
+            UIThreadHelper.Invoke(async () =>
             {
-                App.AddNotification($"""
+                await App.AddNotification($"""
                                      An exception was thrown while opening logs.
                                      Exception: {ex}
                                      """, true);
