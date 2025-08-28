@@ -124,6 +124,9 @@ public partial class Main : ObservableObject
     }
     public async Task OnReceiveNotification(Notification notification)
     {
+        if (Notifications.Count == 1)
+            return;
+
         Notifications.Add(notification);
 
         // Automatically dismisses notification after 5 seconds.
