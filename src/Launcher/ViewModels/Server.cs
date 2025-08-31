@@ -11,6 +11,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -297,8 +298,7 @@ public partial class Server : ObservableObject
         var filesToDownload = GetFilesToDownloadRecursively(clientManifest.RootFolder);
 
         bool success = true;
-
-        var downloadResults = new List<bool>();
+        var downloadResults = new ConcurrentBag<bool>();
 
         if (Settings.Instance.ParallelDownload)
         {
@@ -309,13 +309,15 @@ public partial class Server : ObservableObject
 
             await Parallel.ForEachAsync(filesToDownload, parallelOptions, async (file, ct) =>
             {
-                var result = await DownloadFileAsync(file.Path, file.FileName, ct);
-
-                var downloadResults = new ConcurrentBag<bool>();
-
-                lock (downloadResults)
+                try
                 {
+                    var result = await DownloadFileAsync(file.Path, file.FileName, ct);
                     downloadResults.Add(result);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Error downloading file {FileName} in parallel", file.FileName);
+                    downloadResults.Add(false);
                 }
             });
 
@@ -324,7 +326,6 @@ public partial class Server : ObservableObject
         else
         {
             success = true;
-
             foreach (var file in filesToDownload)
             {
                 if (!await DownloadFileAsync(file.Path, file.FileName))
@@ -335,7 +336,6 @@ public partial class Server : ObservableObject
         }
 
         _logger.Info("End - Verify Client Files");
-
         return success;
     }
 
