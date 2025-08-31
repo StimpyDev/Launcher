@@ -176,7 +176,7 @@ public partial class Login : Popup
         return false;
     }
 
-    private void LaunchClient(string sessionId, string? serverArguments)
+    private async void LaunchClient(string sessionId, string? serverArguments)
     {
         StatusMessage = App.GetText("Text.IsRunning");
 
@@ -215,6 +215,16 @@ public partial class Login : Popup
         _server.Process.EnableRaisingEvents = true;
 
         _server.Process.Exited += _server.ClientProcessExited;
-        _server.Process.Start();
+
+        try
+        {
+            _server.Process.Start();
+        }
+        catch (Exception ex)
+        {
+            await App.AddNotification($"Failed to start the client: {ex.Message}", true);
+
+            _logger.Error(ex.ToString());
+        }
     }
 }
