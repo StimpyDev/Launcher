@@ -162,7 +162,8 @@ public partial class Login : Popup
                 Password = string.Empty;
                 return false;
             }
-           await LaunchClientAsync(loginResponse.SessionId, loginResponse.LaunchArguments);
+
+            await LaunchClientAsync(loginResponse.SessionId, loginResponse.LaunchArguments);
             return true;
         }
         catch (Exception ex)
@@ -226,6 +227,7 @@ public partial class Login : Popup
         {
             _server.Process.Start();
         }
+
         catch (Exception ex)
         {
             await App.AddNotification($"Failed to start the client: {ex.Message}", true);

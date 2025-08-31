@@ -60,7 +60,6 @@ public partial class Main : ObservableObject
 
     public void OnLoad()
     {
-        Servers.Clear();
         foreach (var serverInfo in Settings.Instance.ServerInfoList)
         {
             var server = new Server(serverInfo, this);
