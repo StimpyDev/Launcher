@@ -3,13 +3,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace Launcher;
-
 public class NLogSink(LogEventLevel minimumLevel, IList<string>? areas = null) : ILogSink
 {
     private readonly LogEventLevel _level = minimumLevel;
-    private readonly HashSet<string>? _areas = areas?.Count > 0 ? [.. areas] : null;
-    private ConcurrentDictionary<string, NLog.Logger> _loggerCache = new();
+    private readonly HashSet<string>? _areas = areas != null && areas.Count > 0 ? [.. areas] : null;
+    private readonly ConcurrentDictionary<string, NLog.ILogger> _loggerCache = new();
 
     public bool IsEnabled(LogEventLevel level, string area)
     {
@@ -36,18 +34,11 @@ public class NLogSink(LogEventLevel minimumLevel, IList<string>? areas = null) :
 
     public NLog.ILogger Resolve(Type? source, string? area)
     {
-        var loggerName = source?.ToString() ?? area;
-
+        var loggerName = source?.FullName ?? area ?? typeof(NLogSink).FullName;
         if (string.IsNullOrEmpty(loggerName))
-            loggerName = typeof(NLogSink).ToString();
+            loggerName = typeof(NLogSink).FullName;
 
-        if (!_loggerCache.TryGetValue(loggerName, out var logger))
-        {
-            logger = NLog.LogManager.GetLogger(loggerName);
-            _loggerCache.TryAdd(loggerName, logger);
-        }
-
-        return logger;
+        return _loggerCache.GetOrAdd(loggerName, name => NLog.LogManager.GetLogger(name));
     }
 
     private static NLog.LogLevel LogLevelToNLogLevel(LogEventLevel level)

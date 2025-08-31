@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -8,6 +7,8 @@ using Launcher.Models;
 using Launcher.ViewModels;
 using NLog;
 using NuGet.Versioning;
+using System;
+using System.Threading.Tasks;
 using Velopack;
 using Velopack.Sources;
 
@@ -60,41 +61,45 @@ public partial class App : Application
         if (Current is not App app || app._main is null)
             return;
 
-        if (_updateManager.IsInstalled)
+        try
         {
-            // Checking For Updates
-            app._main.IsRefreshing = true;
-            app._main.Message = GetText("Text.Main.CheckingForUpdates");
-            var updateInfo = await _updateManager.CheckForUpdatesAsync();
-
-            if (updateInfo is null)
+            if (_updateManager.IsInstalled)
             {
-                // No Updates Found
-                app._main.Message = GetText("Text.Main.NoUpdatesFound");
+                app._main.IsRefreshing = true;
+                app._main.Message = GetText("Text.Main.CheckingForUpdates");
+                var updateInfo = await _updateManager.CheckForUpdatesAsync();
 
-                await Task.Delay(700);
-
-                app._main.Message = string.Empty;
-                app._main.IsRefreshing = false;
-            }
-
-            else if (updateInfo is not null)
-            {
-                await _updateManager.DownloadUpdatesAsync(updateInfo, (p) =>
+                if (updateInfo is null)
                 {
-                    // Downloading Update
-                    app._main.Message = GetText("Text.Main.Downloading", updateInfo.TargetFullRelease.Version, p);
-                });
+                    app._main.Message = GetText("Text.Main.NoUpdatesFound");
+                    await Task.Delay(700);
+                    app._main.Message = string.Empty;
+                }
+                else
+                {
+                    await _updateManager.DownloadUpdatesAsync(updateInfo, (p) =>
+                    {
+                        app._main.Message = GetText("Text.Main.Downloading", updateInfo.TargetFullRelease.Version, p);
+                    });
 
-                // Relaunches the launcher to complete the update
-                app._main.Message = GetText("Text.Main.Relaunching");
-
-                await Task.Delay(500);
-
-                _updateManager.ApplyUpdatesAndRestart(updateInfo);
-
-                return;
+                    app._main.Message = GetText("Text.Main.Relaunching");
+                    await Task.Delay(500);
+                    _updateManager.ApplyUpdatesAndRestart(updateInfo);
+                }
             }
+        }
+
+        catch (Exception ex)
+        {
+            app._logger.Error(ex, "Error checking for updates");
+
+            await AddNotification(GetText("Text.Main.UpdateError"), true);
+        }
+
+        finally
+        {
+            if (app._main != null)
+                app._main.IsRefreshing = false;
         }
     }
 

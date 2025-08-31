@@ -7,6 +7,7 @@ using Launcher.Helpers;
 using Launcher.Models;
 using NLog;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -162,7 +163,7 @@ public partial class Server : ObservableObject
     }
 
     [RelayCommand]
-    public void OpenClientFolder()
+    public async Task OpenClientFolder()
     {
         try
         {
@@ -175,7 +176,7 @@ public partial class Server : ObservableObject
         }
         catch (Exception ex)
         {
-            UIThreadHelper.Invoke(async () =>
+            await UIThreadHelper.InvokeAsync(async () =>
             {
                 await App.AddNotification($"""
                                      An exception was thrown while opening the client folder.
@@ -217,7 +218,7 @@ public partial class Server : ObservableObject
 
             if (!result.Success || result.ServerManifest is null)
             {
-                UIThreadHelper.Invoke(async () =>
+                await UIThreadHelper.InvokeAsync(async () =>
                 {
                     await App.AddNotification(result.Error, true);
 
@@ -239,7 +240,7 @@ public partial class Server : ObservableObject
         }
         catch (Exception ex)
         {
-            UIThreadHelper.Invoke(async () =>
+            await UIThreadHelper.InvokeAsync(async () =>
             {
                 await App.AddNotification($"""
                                      An exception was thrown while getting server info.
@@ -261,7 +262,7 @@ public partial class Server : ObservableObject
 
             if (!result.Success || result.ClientManifest is null)
             {
-                UIThreadHelper.Invoke(async () =>
+                await UIThreadHelper.InvokeAsync(async () =>
                 {
                     await App.AddNotification(result.Error, true);
 
@@ -275,7 +276,7 @@ public partial class Server : ObservableObject
         }
         catch (Exception ex)
         {
-            UIThreadHelper.Invoke(async () =>
+            await UIThreadHelper.InvokeAsync(async () =>
             {
                 await App.AddNotification($"""
                                      An exception was thrown while getting client info.
@@ -295,7 +296,9 @@ public partial class Server : ObservableObject
 
         var filesToDownload = GetFilesToDownloadRecursively(clientManifest.RootFolder);
 
-        var success = true;
+        bool success = true;
+
+        var downloadResults = new List<bool>();
 
         if (Settings.Instance.ParallelDownload)
         {
@@ -306,14 +309,28 @@ public partial class Server : ObservableObject
 
             await Parallel.ForEachAsync(filesToDownload, parallelOptions, async (file, ct) =>
             {
-                success = await DownloadFileAsync(file.Path, file.FileName);
+                var result = await DownloadFileAsync(file.Path, file.FileName, ct);
+
+                var downloadResults = new ConcurrentBag<bool>();
+
+                lock (downloadResults)
+                {
+                    downloadResults.Add(result);
+                }
             });
+
+            success = !downloadResults.Contains(false);
         }
         else
         {
+            success = true;
+
             foreach (var file in filesToDownload)
             {
-                success = await DownloadFileAsync(file.Path, file.FileName);
+                if (!await DownloadFileAsync(file.Path, file.FileName))
+                {
+                    success = false;
+                }
             }
         }
 
@@ -322,7 +339,7 @@ public partial class Server : ObservableObject
         return success;
     }
 
-    private async Task<bool> DownloadFileAsync(string path, string fileName)
+    private async Task<bool> DownloadFileAsync(string path, string fileName, CancellationToken cancellationToken = default)
     {
         var downloadFilePath = Path.Combine(path, fileName);
 
@@ -346,11 +363,11 @@ public partial class Server : ObservableObject
                 }
             };
 
-            using var fileStream = await downloadService.DownloadFileTaskAsync(clientFileUri);
+            using var fileStream = await downloadService.DownloadFileTaskAsync(clientFileUri, cancellationToken);
 
             if (fileStream is null)
             {
-                UIThreadHelper.Invoke(async () =>
+                await UIThreadHelper.InvokeAsync(async () =>
                 {
                     await App.AddNotification($"""
                                         Failed to get client file.
@@ -370,7 +387,7 @@ public partial class Server : ObservableObject
 
             using var writeStream = File.Create(filePath);
 
-            await fileStream.CopyToAsync(writeStream);
+            await fileStream.CopyToAsync(writeStream, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -402,11 +419,10 @@ public partial class Server : ObservableObject
             if (File.Exists(filePath))
             {
                 using var readStream = File.OpenRead(filePath);
-
                 if (file.Size == readStream.Length)
                 {
+                    readStream.Position = 0;
                     var hash = XXHash.Hash64(readStream);
-
                     if (file.Hash == hash)
                         continue;
                 }

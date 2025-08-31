@@ -26,8 +26,9 @@ public partial class Main : ObservableObject
 
     [ObservableProperty]
     private SemanticVersion version = App.CurrentVersion;
-    public AvaloniaList<Server> Servers { get; set; } = [];
-    public AvaloniaList<Notification> Notifications { get; set; } = [];
+
+    public AvaloniaList<Server> Servers { get; set; } = new AvaloniaList<Server>();
+    public AvaloniaList<Notification> Notifications { get; set; } = new AvaloniaList<Notification>();
 
     public Main()
     {
@@ -35,18 +36,12 @@ public partial class Main : ObservableObject
         if (Avalonia.Controls.Design.IsDesignMode)
         {
             Servers.Clear();
-
             Servers.Add(new Server());
-
             ActiveServer = Servers.FirstOrDefault();
         }
 #endif
 
-        Settings.Instance.DiscordActivityChanged += (s, e) =>
-        {
-            UpdateDiscordActivity();
-        };
-
+        Settings.Instance.DiscordActivityChanged += (s, e) => UpdateDiscordActivity();
         Settings.Instance.ServerInfoList.CollectionChanged += ServerInfoList_CollectionChanged;
     }
 
@@ -55,7 +50,6 @@ public partial class Main : ObservableObject
         if (e.Action == NotifyCollectionChangedAction.Add && e.NewStartingIndex != -1)
         {
             var serverInfo = Settings.Instance.ServerInfoList[e.NewStartingIndex];
-
             Servers.Add(new Server(serverInfo, this));
         }
         else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldStartingIndex != -1)
@@ -66,15 +60,12 @@ public partial class Main : ObservableObject
 
     public void OnLoad()
     {
+        Servers.Clear();
         foreach (var serverInfo in Settings.Instance.ServerInfoList)
         {
             var server = new Server(serverInfo, this);
-
-            // TODO: Check if a client is already open per server
-
             Servers.Add(server);
         }
-
         UpdateDiscordActivity();
     }
 
@@ -97,22 +88,13 @@ public partial class Main : ObservableObject
     }
 
     [RelayCommand]
-    public static Task CheckForUpdates()
-    {
-        return App.CheckForUpdatesAsync();
-    }
+    public Task CheckForUpdates() => App.CheckForUpdatesAsync();
 
     [RelayCommand]
-    public static void ShowSettings()
-    {
-        App.ShowSettings();
-    }
+    public void ShowSettings() => App.ShowSettings();
 
     [RelayCommand]
-    public static Task AddServer()
-    {
-        return App.ShowPopupAsync(new AddServer());
-    }
+    public Task AddServer() => App.ShowPopupAsync(new AddServer());
 
     [RelayCommand]
     public async Task DeleteServer()
@@ -122,6 +104,7 @@ public partial class Main : ObservableObject
 
         await App.ShowPopupAsync(new DeleteServer(ActiveServer.Info));
     }
+
     public async Task OnReceiveNotification(Notification notification)
     {
         if (Notifications.Count == 1)

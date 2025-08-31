@@ -14,62 +14,72 @@ public partial class DeleteServer : Popup
     private ServerInfo info;
 
     private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
     public DeleteServer(ServerInfo info)
     {
         Info = info;
-
         View = new Views.DeleteServer()
         {
             DataContext = this
         };
     }
 
-    public override Task<bool> ProcessAsync()
+    public override async Task<bool> ProcessAsync()
     {
         ProgressDescription = App.GetText("Text.Delete_Server.Loading");
-
-        return Task.Run(OnDeleteServer);
+        return await OnDeleteServerAsync();
     }
 
-    private bool OnDeleteServer()
+    private async Task<bool> OnDeleteServerAsync()
     {
         try
         {
-            ForceDeleteDirectory(Info.SavePath);
+            await ForceDeleteDirectoryAsync(Info.SavePath);
         }
+
         catch (Exception ex)
         {
-            UIThreadHelper.Invoke(async () =>
+            await UIThreadHelper.InvokeAsync(async () =>
             {
-                await App.AddNotification($"""
-                                     An exception was thrown while deleting server.
-                                     Exception: {ex}
-                                     """, true);
-
-                _logger.Error(ex.ToString());
+                await App.AddNotification($"Failed to delete server directory: {ex.Message}", true);
+                _logger.Error(ex, "Error deleting server directory");
             });
-
-            return true;
+            return false;
         }
 
+        // Remove server info
         Settings.Instance.ServerInfoList.Remove(Info);
-
         Settings.Save();
 
         return true;
     }
 
-    private void ForceDeleteDirectory(string path)
+    private async Task ForceDeleteDirectoryAsync(string path)
     {
-        var directory = new DirectoryInfo(path)
+        if (!Directory.Exists(path))
+            return;
+
+        await Task.Run(() =>
         {
-            Attributes = FileAttributes.Normal
-        };
+            try
+            {
+                var directory = new DirectoryInfo(path)
+                {
+                    Attributes = FileAttributes.Normal
+                };
 
-        // Clear all file/directory attributes.
-        foreach (var info in directory.GetFileSystemInfos("*", SearchOption.AllDirectories))
-            info.Attributes = FileAttributes.Normal;
+                foreach (var info in directory.GetFileSystemInfos("*", SearchOption.AllDirectories))
+                {
+                    info.Attributes = FileAttributes.Normal;
+                }
 
-        directory.Delete(true);
+                directory.Delete(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Failed to delete directory: {path}");
+                throw;
+            }
+        });
     }
 }

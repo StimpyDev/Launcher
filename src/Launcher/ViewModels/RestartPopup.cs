@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -14,23 +15,33 @@ namespace Launcher.ViewModels
                 DataContext = this
             };
         }
+
         [RelayCommand]
-        public static async Task RestartLauncher()
+        public async Task RestartLauncherAsync()
         {
-            const string exeName = "Launcher.exe";
+            const string exeName = "Launcher";
             var launcherPath = Directory.GetCurrentDirectory();
-       
 
-            var procces = new Process();
-            await Task.Delay(500);
-
-            procces.StartInfo.FileName = exeName;
-            procces.StartInfo.WorkingDirectory = launcherPath;
-            procces.Start();
-
-            foreach (Process process in Process.GetProcessesByName("Launcher"))
+            try
             {
-                process.Kill();
+                foreach (Process process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(exeName)))
+                {
+                    process.Kill();
+                }
+
+                await Task.Delay(500);
+
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = exeName,
+                    WorkingDirectory = launcherPath
+                };
+
+                Process.Start(startInfo);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error restarting launcher: {ex.Message}");
             }
         }
     }

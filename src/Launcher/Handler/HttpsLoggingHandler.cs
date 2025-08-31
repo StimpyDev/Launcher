@@ -27,7 +27,8 @@ public class HttpLoggingHandler : DelegatingHandler
 
         catch (Exception ex)
         {
-            throw new Exception(ex.ToString());
+            _logger.Error(ex, "HTTP request failed");
+            throw;
         }
     }
 }

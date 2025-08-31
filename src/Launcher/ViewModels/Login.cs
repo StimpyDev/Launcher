@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Avalonia.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Launcher.Helpers;
 using Launcher.Models;
 using NLog;
@@ -87,24 +88,25 @@ public partial class Login : Popup
     partial void OnRememberUsernameChanged(bool value)
     {
         _server.Info.RememberUsername = value;
-
         if (!value)
         {
             _server.Info.Username = null;
         }
-
-        Settings.Save();
+        SaveSettings();
     }
 
     partial void OnRememberPasswordChanged(bool value)
     {
         _server.Info.RememberPassword = value;
-
         if (!value)
         {
             _server.Info.Password = null;
         }
+        SaveSettings();
+    }
 
+    private void SaveSettings()
+    {
         Settings.Save();
     }
 
@@ -113,13 +115,13 @@ public partial class Login : Popup
         if (RememberUsername)
         {
             _server.Info.Username = Username;
-            Settings.Save();
+            SaveSettings();
         }
 
         if (RememberPassword)
         {
             _server.Info.Password = Password;
-            Settings.Save();
+            SaveSettings();
         }
 
         try
@@ -138,7 +140,7 @@ public partial class Login : Popup
 
             if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
             {
-              await App.AddNotification(App.GetText("Text.Login.Unauthorized"), true);
+                await App.AddNotification(App.GetText("Text.Login.Unauthorized"), true);
                 Password = string.Empty;
                 return false;
             }
@@ -160,7 +162,7 @@ public partial class Login : Popup
                 Password = string.Empty;
                 return false;
             }
-            LaunchClient(loginResponse.SessionId, loginResponse.LaunchArguments);
+           await LaunchClientAsync(loginResponse.SessionId, loginResponse.LaunchArguments);
             return true;
         }
         catch (Exception ex)
@@ -169,37 +171,42 @@ public partial class Login : Popup
                                      An exception was thrown while logging in.
                                      Exception: {ex}
                                      """, true);
-           
+
             _logger.Error(ex.ToString());
         }
 
         return false;
     }
 
-    private async void LaunchClient(string sessionId, string? serverArguments)
+    private async Task LaunchClientAsync(string sessionId, string? serverArguments)
     {
         StatusMessage = App.GetText("Text.IsRunning");
-
         const string FileName = "FreeRealms.exe";
 
         var launcherArguments = new List<string>
-        {
-            $"Server={_server.Info.LoginServer}",
-            $"SessionId={sessionId}",
-            $"Internationalization:Locale={Settings.Instance.Locale}"
-        };
+    {
+        $"Server={_server.Info.LoginServer}",
+        $"SessionId={sessionId}",
+        $"Internationalization:Locale={Settings.Instance.Locale}"
+    };
 
         if (!string.IsNullOrEmpty(serverArguments))
             launcherArguments.Add(serverArguments);
 
         var arguments = string.Join(' ', launcherArguments);
-
         var workingDirectory = Path.Combine(Constants.SavePath, _server.Info.SavePath, "Client");
+
+        // Check if the executable exists
+        var executablePath = Path.Combine(workingDirectory, FileName);
+        if (!File.Exists(executablePath))
+        {
+            await App.AddNotification($"Client executable not found: {executablePath}", true);
+            return;
+        }
 
         _server.Process = new Process();
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
-            RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
             _server.Process.StartInfo.FileName = "wine";
             _server.Process.StartInfo.Arguments = $"{FileName} {arguments}";
@@ -213,7 +220,6 @@ public partial class Login : Popup
         _server.Process.StartInfo.UseShellExecute = true;
         _server.Process.StartInfo.WorkingDirectory = workingDirectory;
         _server.Process.EnableRaisingEvents = true;
-
         _server.Process.Exited += _server.ClientProcessExited;
 
         try
@@ -223,7 +229,6 @@ public partial class Login : Popup
         catch (Exception ex)
         {
             await App.AddNotification($"Failed to start the client: {ex.Message}", true);
-
             _logger.Error(ex.ToString());
         }
     }

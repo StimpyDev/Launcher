@@ -55,86 +55,80 @@ public partial class AddServer : Popup
 
             if (!result.Success || result.ServerManifest is null)
             {
-                UIThreadHelper.Invoke(async () =>
-                {
-                    await App.AddNotification(result.Error, true);
-                });
-
+                await App.AddNotification(result.Error, true);
                 return false;
             }
 
             var serverManifest = result.ServerManifest;
 
+            if (string.IsNullOrEmpty(serverManifest.Name))
+            {
+                await App.AddNotification("Server name is missing in manifest.", true);
+                return false;
+            }
+
             if (!TryCreateSavePath(serverManifest.Name, out var savePath))
             {
-                UIThreadHelper.Invoke(async () =>
-                {
-                   await App.AddNotification($"""
-                                         Failed to create a save path for server.
-                                         """, true);
-                });
-
+                await App.AddNotification("Failed to create a save path for server.", true);
                 return false;
             }
 
             var serverInfo = new ServerInfo
             {
                 Url = ServerUrl,
-
                 Name = serverManifest.Name,
                 Description = serverManifest.Description,
-
                 LoginServer = serverManifest.LoginServer,
                 LoginApiUrl = serverManifest.LoginApiUrl,
-
                 SavePath = savePath
             };
 
             Settings.Instance.ServerInfoList.Add(serverInfo);
-
             Settings.Save();
 
             return true;
         }
         catch (Exception ex)
         {
-            UIThreadHelper.Invoke(async () =>
-            {
-                await App.AddNotification($"""
-                                     An exception was thrown while getting server manifest.
-                                     Exception: {ex}
-                                     """, true);
+            await App.AddNotification($"An exception occurred: {ex.Message}", true);
 
-                _logger.Error(ex.ToString());
-            });
+            _logger.Error(ex);
+
+            return false;
         }
-
-        return false;
     }
 
     private bool TryCreateSavePath(string name, out string path)
     {
         path = string.Empty;
-
         try
         {
             var validName = name.ToValidDirectoryName();
 
             var current = validName;
+            int i = 1;
 
-            var i = 1;
-            while (Directory.Exists(Path.Combine(Constants.SavePath, Constants.ServersDirectory, current)))
+            var basePath = Path.Combine(Constants.SavePath, Constants.ServersDirectory);
+            Directory.CreateDirectory(basePath);
+
+            string candidatePath;
+
+            do
+            {
+                candidatePath = Path.Combine(basePath, current);
+                if (!Directory.Exists(candidatePath))
+                {
+                    Directory.CreateDirectory(candidatePath);
+                    path = candidatePath;
+                    return true;
+                }
                 current = $"{validName}_{i++}";
-
-            path = Path.Combine(Constants.SavePath, Constants.ServersDirectory, current);
-
-            Directory.CreateDirectory(path);
+            } while (true);
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.Error(ex, "Failed to create save path");
             return false;
         }
-
-        return true;
     }
 }

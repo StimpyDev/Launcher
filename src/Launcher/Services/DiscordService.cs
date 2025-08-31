@@ -6,9 +6,10 @@ namespace Launcher.Services;
 
 public static class DiscordService
 {
-    private static Lock _lock = new();
+    private static readonly object _lock = new object();
     private static Discord.Discord? _discord;
     private static CancellationTokenSource _cts = new();
+    private static Task? _updateTask;
 
     // OSFR Launcher application owned by OSFR team
     private const long ClientId = 1223728876199608410;
@@ -16,7 +17,10 @@ public static class DiscordService
     public static void Start()
     {
         if (_cts.IsCancellationRequested)
+        {
+            _cts.Dispose();
             _cts = new CancellationTokenSource();
+        }
 
         try
         {
@@ -25,23 +29,43 @@ public static class DiscordService
                 _discord = new Discord.Discord(ClientId, (ulong)Discord.CreateFlags.NoRequireDiscord);
             }
         }
-        catch
+        catch (Exception ex)
         {
-        }
-        finally
-        {
-            Stop();
+            Console.WriteLine($"Error initializing Discord: {ex}");
         }
 
-        Task.Factory.StartNew(UpdateAsync, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        // Start the update loop only if not already running
+        if (_updateTask == null || _updateTask.IsCompleted)
+        {
+            _updateTask = Task.Factory.StartNew(UpdateAsync, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        }
     }
 
     public static void Stop()
     {
         _cts.Cancel();
 
-        _discord?.Dispose();
-        _discord = null;
+        lock (_lock)
+        {
+            _discord?.Dispose();
+            _discord = null;
+        }
+
+        // Optionally wait for the update task to complete
+        if (_updateTask != null)
+        {
+            try
+            {
+                _updateTask.Wait();
+            }
+            catch (AggregateException ae)
+            {
+                foreach (var e in ae.InnerExceptions)
+                {
+                    Console.WriteLine($"Error stopping Discord update task: {e}");
+                }
+            }
+        }
     }
 
     private static async Task UpdateAsync()
@@ -52,16 +76,31 @@ public static class DiscordService
             {
                 lock (_lock)
                 {
-                    _discord ??= new Discord.Discord(ClientId, (ulong)Discord.CreateFlags.NoRequireDiscord);
+                    if (_discord == null)
+                    {
+                        try
+                        {
+                            _discord = new Discord.Discord(ClientId, (ulong)Discord.CreateFlags.NoRequireDiscord);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error creating Discord instance: {ex}");
+                        }
+                    }
 
-                    _discord.RunCallbacks();
+                    _discord?.RunCallbacks();
                 }
 
-                await Task.Delay(1000 / 60);
+                await Task.Delay(1000 / 60, _cts.Token);
             }
         }
-        catch
+        catch (OperationCanceledException)
         {
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in UpdateAsync: {ex}");
         }
         finally
         {
@@ -92,8 +131,9 @@ public static class DiscordService
             }
         };
 
-        activityManager.UpdateActivity(activity, result =>
+        activityManager.UpdateActivity(activity, _ =>
         {
+
         });
     }
 }

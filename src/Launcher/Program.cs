@@ -56,22 +56,22 @@ internal sealed class Program
         var debuggerTarget = new DebuggerTarget("debugger");
         loggingConfiguration.AddRule(LogLevel.Debug, LogLevel.Fatal, debuggerTarget);
 #endif
+
+        // Ensure logs directory exists
         if (!Directory.Exists("logs"))
-        {
-            var fileTarget = new FileTarget("file")
-            {
-                DeleteOldFileOnStartup = true,
-                FileName = Path.Combine(Directory.GetCurrentDirectory(), "logs", Constants.LogFile)
-            };
-
-            loggingConfiguration.AddRule(LogLevel.Info, LogLevel.Fatal, fileTarget);
-
-            LogManager.Configuration = loggingConfiguration;
-        }
-        else
         {
             Directory.CreateDirectory("logs");
         }
+
+        var fileTarget = new FileTarget("file")
+        {
+            DeleteOldFileOnStartup = true,
+            FileName = Path.Combine(Directory.GetCurrentDirectory(), "logs", Constants.LogFile)
+        };
+
+        loggingConfiguration.AddRule(LogLevel.Info, LogLevel.Fatal, fileTarget);
+
+        LogManager.Configuration = loggingConfiguration;
     }
 
     private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
