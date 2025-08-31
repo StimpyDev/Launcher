@@ -304,7 +304,7 @@ public partial class Server : ObservableObject
         {
             var parallelOptions = new ParallelOptions
             {
-                MaxDegreeOfParallelism = Math.Min(3, Environment.ProcessorCount)
+                MaxDegreeOfParallelism = Math.Min(4, Environment.ProcessorCount * 2)
             };
 
             await Parallel.ForEachAsync(filesToDownload, parallelOptions, async (file, ct) =>
@@ -385,7 +385,7 @@ public partial class Server : ObservableObject
             if (!Directory.Exists(fileDirectory))
                 Directory.CreateDirectory(fileDirectory);
 
-            using var writeStream = File.Create(filePath);
+            using var writeStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 81920, useAsync: true);
 
             await fileStream.CopyToAsync(writeStream, cancellationToken);
         }
