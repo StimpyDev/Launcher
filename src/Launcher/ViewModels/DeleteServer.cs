@@ -34,22 +34,43 @@ public partial class DeleteServer : Popup
     {
         try
         {
-            await ForceDeleteDirectoryAsync(Info.SavePath);
+            await ForceDeleteDirectoryAsync(Info.SavePath).ConfigureAwait(false);
         }
 
         catch (Exception ex)
         {
             await UIThreadHelper.InvokeAsync(async () =>
             {
-                await App.AddNotification($"Failed to delete server directory: {ex.Message}", true);
+                try
+                {
+                    await App.AddNotification($"Failed to delete server directory: {ex.Message}", true).ConfigureAwait(false);
+                }
+                catch (Exception notifyEx)
+                {
+                    _logger.Error(notifyEx, "Error showing notification");
+                }
                 _logger.Error(ex, "Error deleting server directory");
-            });
+
+            }).ConfigureAwait(false);
+
             return false;
         }
 
-        // Remove server info
-        Settings.Instance.ServerInfoList.Remove(Info);
-        Settings.Save();
+        await UIThreadHelper.InvokeAsync(() =>
+        {
+            try
+            {
+                Settings.Instance.ServerInfoList.Remove(Info);
+                Settings.Save();
+            }
+
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error removing server info or saving settings");
+            }
+            return Task.CompletedTask;
+
+        }).ConfigureAwait(false);
 
         return true;
     }
