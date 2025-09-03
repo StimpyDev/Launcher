@@ -31,12 +31,16 @@ public class NLogSink(LogEventLevel minimumLevel, IList<string>? areas = null) :
             logger.Log(LogLevelToNLogLevel(level), messageTemplate, propertyValues);
         }
     }
-
     public NLog.ILogger Resolve(Type? source, string? area)
     {
         var loggerName = source?.FullName ?? area ?? typeof(NLogSink).FullName;
+
         if (string.IsNullOrEmpty(loggerName))
             loggerName = typeof(NLogSink).FullName;
+
+        // Now, explicitly check again
+        if (string.IsNullOrEmpty(loggerName))
+            throw new InvalidOperationException("Logger name cannot be null or empty.");
 
         return _loggerCache.GetOrAdd(loggerName, name => NLog.LogManager.GetLogger(name));
     }
