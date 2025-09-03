@@ -51,7 +51,11 @@ public partial class Server : ObservableObject
     [ObservableProperty]
     public IBrush? serverStatusFill;
 
+    [ObservableProperty]
+    private double fileProgress;
 
+    [ObservableProperty]
+    private bool isFileDownloading;
     public Server()
     {
 #if DESIGNMODE
@@ -259,7 +263,7 @@ public partial class Server : ObservableObject
     {
         try
         {
-            var result = await HttpHelper.GetClientManifestAsync(Info.Url);
+            var result = await HttpHelper.GetClientManifestAsync(Info.Url).ConfigureAwait(false);
 
             if (!result.Success || result.ClientManifest is null)
             {
@@ -341,6 +345,8 @@ public partial class Server : ObservableObject
 
     private async Task<bool> DownloadFileAsync(string path, string fileName, CancellationToken cancellationToken = default)
     {
+        IsFileDownloading = true;
+
         var downloadFilePath = Path.Combine(path, fileName);
         const int maxRetries = 3;
         int attempt = 0;
@@ -384,9 +390,10 @@ public partial class Server : ObservableObject
                 return false;
             }
 
-            var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
-            var filePath = Path.Combine(fileDirectory, fileName);
+                var totalBytes = fileStream.Length;
+                var bytesRead = 0L;
 
+                var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
             if (!Directory.Exists(fileDirectory))
                 Directory.CreateDirectory(fileDirectory);
 
@@ -394,7 +401,23 @@ public partial class Server : ObservableObject
             using var writeStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 81920, useAsync: true);
                 await fileStream.CopyToAsync(writeStream, cancellationToken).ConfigureAwait(false);
 
-                // If download succeeds, set success and break loop
+                var buffer = new byte[81920];
+                int read;
+                while ((read = await fileStream.ReadAsync(buffer.AsMemory(0, buffer.Length), cancellationToken)) > 0)
+                {
+                    await writeStream.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
+                    bytesRead += read;
+
+                    // Update per-file progress:
+                    FileProgress = (double)bytesRead / totalBytes * 100;
+                }
+
+                await UIThreadHelper.InvokeAsync(async () =>
+                {
+                    await Task.Delay(250);
+                    FileProgress = 0;
+                });
+                IsFileDownloading = false;
                 successDownload = true;
         }
         catch (Exception ex)
@@ -410,7 +433,7 @@ public partial class Server : ObservableObject
                     });
             return false;
         }
-                await Task.Delay(1000, cancellationToken).ConfigureAwait(false); // Wait before retry
+                await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
             }
         }
 

@@ -59,21 +59,16 @@
 		<!-- Server Play / Update Status -->
 		<StackPanel Grid.Row="3" Margin="0,20,15,0">
 			<Grid HorizontalAlignment="Center">
-				<Button Classes="no_background" Cursor="Hand" Command="{Binding PlayCommand}" IsVisible="{Binding Process, Converter={x:Static ObjectConverters.IsNull}}" IsEnabled="{Binding Process, Converter={x:Static ObjectConverters.IsNull}}">
+				<Button Classes="no_background" Cursor="Hand" Command="{Binding PlayCommand}" IsVisible="{Binding PlayCommand.IsRunning, Converter={x:Static BoolConverters.Not}}" IsEnabled="{Binding Process, Converter={x:Static ObjectConverters.IsNull}}">
 					<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset3.png" Effect="drop-shadow(3 3 3 #40000000)" Width="180" Stretch="UniformToFill" />
 				</Button>
 			</Grid>
 		</StackPanel>
 
 		<!-- Status Info -->
-		<StackPanel Grid.Row="3" HorizontalAlignment="Center" Margin="0,110,10,0">
+		<StackPanel Grid.Row="3" HorizontalAlignment="Center" Margin="0,140,0,0">
 			<TextBlock Text="{Binding StatusMessage, Mode=OneWay}" FontSize="13" FontWeight="Medium"/>
 		</StackPanel>
-
-		<!-- Client Running -->
-		<Grid Grid.Row="3" HorizontalAlignment="Center" Margin="0,0,0,10" VerticalAlignment="Bottom">
-			<TextBlock Text="{StaticResource Text.IsRunning}" FontSize="13" FontWeight="Medium" FontFamily="{StaticResource FontDefault}" IsVisible="{Binding Process, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-		</Grid>
 
 		<!-- Client Folder -->
 		<StackPanel Grid.Row="3" HorizontalAlignment="Right" Margin="0,169,10,0">
@@ -87,5 +82,22 @@
 				<Path Width="16" Height="16" Data="{StaticResource Icons.Folder}" Stretch="Fill" />
 			</Button>
 		</StackPanel>
+
+		<!-- Wrap the ProgressBar and TextBlock in a Grid to overlay the percentage text -->
+		<Grid Grid.Row="3" HorizontalAlignment="Center" IsVisible="{Binding IsFileDownloading}" VerticalAlignment="Bottom">
+			<ProgressBar Minimum="0" Maximum="100" Value="{Binding FileProgress}" Height="22" Width="450">
+				<ProgressBar.Foreground>
+					<SolidColorBrush Color="#4CAF50"/>
+					<!-- Green color -->
+				</ProgressBar.Foreground>
+			</ProgressBar>
+			<!-- Percentage Text -->
+			<TextBlock Text="{Binding FileProgress, StringFormat={}{0} %}"
+					   HorizontalAlignment="Center"
+					   VerticalAlignment="Center"
+					   FontWeight="Medium"
+					   Foreground="White"/>
+		</Grid>
+		
 	</Grid>
 </UserControl>
