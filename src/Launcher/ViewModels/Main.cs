@@ -27,8 +27,8 @@ public partial class Main : ObservableObject
     [ObservableProperty]
     private SemanticVersion version = App.CurrentVersion;
 
-    public AvaloniaList<Server> Servers { get; set; } = new AvaloniaList<Server>();
-    public AvaloniaList<Notification> Notifications { get; set; } = new AvaloniaList<Notification>();
+    public AvaloniaList<Server> Servers { get; set; } = [];
+    public AvaloniaList<Notification> Notifications { get; set; } = [];
 
     public Main()
     {
@@ -87,13 +87,13 @@ public partial class Main : ObservableObject
     }
 
     [RelayCommand]
-    public Task CheckForUpdates() => App.CheckForUpdatesAsync();
+    public static Task CheckForUpdates() => App.CheckForUpdatesAsync();
 
     [RelayCommand]
-    public void ShowSettings() => App.ShowSettings();
+    public static void ShowSettings() => App.ShowSettings();
 
     [RelayCommand]
-    public Task AddServer() => App.ShowPopupAsync(new AddServer());
+    public static Task AddServer() => App.ShowPopupAsync(new AddServer());
 
     [RelayCommand]
     public async Task DeleteServer()

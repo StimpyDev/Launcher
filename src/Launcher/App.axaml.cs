@@ -130,12 +130,10 @@ public partial class App : Application
     }
     public static string GetText(string key, params object?[] args)
     {
-        if (Current is not App app)
+        if (Current is not App)
             return key;
 
-        var text = Current.FindResource(key) as string;
-
-        if (text is null)
+        if (Current.FindResource(key) is not string text)
             return $"#{key}";
 
         return string.Format(text, args);

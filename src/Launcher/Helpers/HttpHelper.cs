@@ -9,8 +9,8 @@ namespace Launcher.Helpers;
 
 public static class HttpHelper
 {
-    private static Logger _logger = LogManager.GetCurrentClassLogger();
-    private static HttpClient _httpClient = CreateHttpClient();
+    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+    private static readonly HttpClient _httpClient = CreateHttpClient();
 
     public static HttpClient CreateHttpClient()
     {

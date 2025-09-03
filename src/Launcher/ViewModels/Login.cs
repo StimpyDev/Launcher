@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using Launcher.Helpers;
 using Launcher.Models;
-using Launcher.Views;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -66,7 +65,7 @@ public partial class Login : Popup
 
         if (RememberPassword && !string.IsNullOrEmpty(_server.Info.Password))
         {
-            password = _server.Info.Password;
+            Password = _server.Info.Password;
         }
 
         LoginCommand = new AsyncRelayCommand(OnLogin);
