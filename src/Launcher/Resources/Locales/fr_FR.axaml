@@ -94,14 +94,6 @@
 
 	<x:String x:Key="Text.Discord.Idle" xml:space="preserve">Le ralenti dans le lanceur de l'OSFR</x:String>
 
-	<x:String x:Key="Text.Restart" xml:space="preserve">Redémarrage Nécessaire....</x:String>
-
-	<x:String x:Key="Text.Restart.Required" xml:space="preserve">Pour que ces paramètres soient entièrement appliqués, un redémarrage est nécessaire.</x:String>
-
-	<x:String x:Key="Text.Restart.Required.Placeholder" xml:space="preserve">*Redémarrage Requis</x:String>
-	
-	<x:String x:Key="Text.Restart.Button" xml:space="preserve">Redémarrer Maintenant</x:String>
-
 	<x:String x:Key="Text.Logs" xml:space="preserve">Logs</x:String>
 
 	<x:String x:Key="Text.IsRunning" xml:space="preserve">Client Is Running...</x:String>

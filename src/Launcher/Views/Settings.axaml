@@ -30,7 +30,6 @@
 				<CheckBox Content="{DynamicResource Text.Settings.General.DiscordActivity}" IsChecked="{Binding DiscordActivity, Mode=TwoWay}" />
 				<CheckBox Grid.Row="1" Content="{DynamicResource Text.Settings.General.ParallelDownload}" IsChecked="{Binding ParallelDownload, Mode=TwoWay}"/>
 				<TextBlock Grid.Row="2" Text="{DynamicResource Text.Settings.General.Locale}" FontSize="12" />
-				<TextBlock Grid.Row="3" Text="{DynamicResource Text.Restart.Required.Placeholder}" HorizontalAlignment="Center" FontStyle="Oblique" FontSize="10" />
 				<ComboBox Grid.Row="3" MinHeight="31" Padding="8,0" HorizontalAlignment="Stretch" Margin="50,7,0,7" ItemsSource="{Binding Source={x:Static m:Locale.Supported}}" DisplayMemberBinding="{Binding Name, x:DataType=m:Locale}" SelectedItem="{Binding Locale, Mode=TwoWay, Converter={x:Static c:StringConverter.ToLocale}}" />
 				<Button Grid.Row="3" Classes="flat primary" FontFamily="{StaticResource FontDefault}" Command="{Binding OpenLogsCommand}" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNull}}">
 					<Button.Background>

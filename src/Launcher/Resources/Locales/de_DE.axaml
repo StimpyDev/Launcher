@@ -94,16 +94,8 @@
 	
 	<x:String x:Key="Text.Discord.Idle" xml:space="preserve">Leerlauf im OSFR Launcher</x:String>
 
-	<x:String x:Key="Text.Restart" xml:space="preserve">Neustart Erforderlich...</x:String>
-
-	<x:String x:Key="Text.Restart.Required" xml:space="preserve">Damit diese Einstellungen vollständig übernommen werden, ist ein Neustart erforderlich.</x:String>
-
-	<x:String x:Key="Text.Restart.Required.Placeholder" xml:space="preserve">*Neustart Erforderlich</x:String>
-	
-	<x:String x:Key="Text.Restart.Button" xml:space="preserve">Jetzt neu starten</x:String>
-
 	<x:String x:Key="Text.Logs" xml:space="preserve">Logs</x:String>
-	
+
 	<x:String x:Key="Text.IsRunning" xml:space="preserve">Client Is Running...</x:String>
 	
 </ResourceDictionary>
