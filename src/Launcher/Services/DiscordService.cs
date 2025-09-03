@@ -16,6 +16,12 @@ public static class DiscordService
 
     public static void Start()
     {
+        if (!IsDiscordAvailable())
+        {
+            Console.WriteLine("Discord is not available. Service will not start.");
+            return;
+        }
+
         if (_cts.IsCancellationRequested)
         {
             _cts.Dispose();
@@ -32,6 +38,7 @@ public static class DiscordService
         catch (Exception ex)
         {
             Console.WriteLine($"Error initializing Discord: {ex}");
+            return; // Exit if initialization fails
         }
 
         // Start the update loop only if not already running
@@ -68,6 +75,19 @@ public static class DiscordService
         }
     }
 
+    private static bool IsDiscordAvailable()
+    {
+        try
+        {
+            // Attempt to create a Discord client as a test
+            using var testDiscord = new Discord.Discord(ClientId, (ulong)Discord.CreateFlags.NoRequireDiscord);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
     private static async Task UpdateAsync()
     {
         try
@@ -78,6 +98,12 @@ public static class DiscordService
                 {
                     if (_discord == null)
                     {
+                        if (!IsDiscordAvailable())
+                        {
+                            Console.WriteLine("Discord not available during update loop.");
+                            break; // Exit if Discord is unavailable
+                        }
+
                         try
                         {
                             _discord = new Discord.Discord(ClientId, (ulong)Discord.CreateFlags.NoRequireDiscord);
@@ -85,6 +111,7 @@ public static class DiscordService
                         catch (Exception ex)
                         {
                             Console.WriteLine($"Error creating Discord instance: {ex}");
+                            break;
                         }
                     }
 
@@ -96,7 +123,7 @@ public static class DiscordService
         }
         catch (OperationCanceledException)
         {
-
+            // Expected on cancellation
         }
         catch (Exception ex)
         {
@@ -114,6 +141,12 @@ public static class DiscordService
 
         lock (_lock)
         {
+            if (_discord == null)
+            {
+                Console.WriteLine("Cannot update activity: Discord is not initialized.");
+                return;
+            }
+
             activityManager = _discord?.GetActivityManager();
         }
 
@@ -126,14 +159,23 @@ public static class DiscordService
             Details = details,
             Type = Discord.ActivityType.Playing,
             Timestamps =
-            {
-                Start = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-            }
+        {
+            Start = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+        }
         };
 
-        activityManager.UpdateActivity(activity, _ =>
+        try
         {
+            activityManager.UpdateActivity(activity, _ => { });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to update activity: {ex}");
+        }
 
-        });
+        activityManager.UpdateActivity(activity, _ =>
+            {
+
+            });
     }
 }
