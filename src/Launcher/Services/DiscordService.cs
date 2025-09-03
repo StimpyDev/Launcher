@@ -6,7 +6,7 @@ namespace Launcher.Services;
 
 public static class DiscordService
 {
-    private static readonly object _lock = new object();
+    private static readonly Lock _lock = new();
     private static Discord.Discord? _discord;
     private static CancellationTokenSource _cts = new();
     private static Task? _updateTask;

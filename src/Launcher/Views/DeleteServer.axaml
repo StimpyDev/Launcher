@@ -20,7 +20,7 @@
 		</StackPanel>
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 			<StackPanel Margin="5">
-				<Button Classes="flat primary" Click="DeleteServer_Button_Yes" Content="{StaticResource Text.Yes}" FontFamily="{StaticResource FontDefault}">
+				<Button Classes="flat primary" Command="{Binding DeleteServerCommand}" Content="{StaticResource Text.Yes}" FontFamily="{StaticResource FontDefault}">
 					<Button.Background>
 						<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
 							<GradientStop Color="#687AA7" Offset="0.0"/>
@@ -30,7 +30,7 @@
 				</Button>
 			</StackPanel>
 			<StackPanel Margin="5">
-				<Button Classes="flat primary" Click="DeleteServer_Button_No" Content="{StaticResource Text.No}" FontFamily="{StaticResource FontDefault}">
+				<Button Classes="flat primary" Command="{Binding CancelDeleteServerCommand}" Content="{StaticResource Text.No}" FontFamily="{StaticResource FontDefault}">
 					<Button.Background>
 						<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
 							<GradientStop Color="#687AA7" Offset="0.0"/>

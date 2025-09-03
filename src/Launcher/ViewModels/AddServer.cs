@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Launcher.Extensions;
 using Launcher.Helpers;
 using Launcher.Models;
@@ -7,6 +8,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace Launcher.ViewModels;
 
@@ -18,13 +20,28 @@ public partial class AddServer : Popup
     [CustomValidation(typeof(AddServer), nameof(ValidateServerUrl))]
     private string serverUrl = string.Empty;
 
+    public IAsyncRelayCommand AddServerCommand { get; }
+    public ICommand CancelAddServerCommand { get; }
+
     private readonly Logger _logger = LogManager.GetCurrentClassLogger();
     public AddServer()
     {
+        AddServerCommand = new AsyncRelayCommand(OnAddServer);
+        CancelAddServerCommand = new RelayCommand(OnAddServerCancel);
+
         View = new Views.AddServer()
         {
             DataContext = this
         };
+    }
+
+    private async Task OnAddServer()
+    {
+        await App.ProcessPopupAsync();
+    }
+    private void OnAddServerCancel()
+    {
+        App.CancelPopup();
     }
 
     public static ValidationResult? ValidateServerUrl(string serverUrl, ValidationContext context)

@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Launcher.Helpers;
 using Launcher.Models;
 using NLog;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace Launcher.ViewModels;
 
@@ -12,11 +14,16 @@ public partial class DeleteServer : Popup
 {
     [ObservableProperty]
     private ServerInfo info;
+    public IAsyncRelayCommand DeleteServerCommand { get; }
+    public ICommand CancelDeleteServerCommand { get; }
 
     private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
     public DeleteServer(ServerInfo info)
     {
+        DeleteServerCommand = new AsyncRelayCommand(OnDeleteServer);
+        CancelDeleteServerCommand = new RelayCommand(OnDeleteServerCancel);
+
         Info = info;
         View = new Views.DeleteServer()
         {
@@ -24,6 +31,14 @@ public partial class DeleteServer : Popup
         };
     }
 
+    private async Task OnDeleteServer()
+    {
+        await App.ProcessPopupAsync();
+    }
+    private void OnDeleteServerCancel()
+    {
+        App.CancelPopup();
+    }
     public override async Task<bool> ProcessAsync()
     {
         ProgressDescription = App.GetText("Text.Delete_Server.Loading");

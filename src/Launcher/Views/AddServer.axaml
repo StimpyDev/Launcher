@@ -21,7 +21,7 @@
 			<TextBox CaretBrush="Black" v:AutoFocusBehaviour.IsEnabled="True" Foreground="Black" Margin="0,-48,0,0" FontSize="13" FontWeight="SemiBold" Width="254" Height="22" Text="{Binding ServerUrl, Mode=TwoWay}" />
 		</StackPanel>
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
-			<Button Classes="flat primary" Click="AddServer_Button_Add" Content="{StaticResource Text.Add}" FontFamily="{StaticResource FontDefault}" HotKey="Enter">
+			<Button Classes="flat primary" Command="{Binding AddServerCommand}" Content="{StaticResource Text.Add}" FontFamily="{StaticResource FontDefault}" HotKey="Enter">
 				<Button.Background>
 					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
 						<GradientStop Color="#687AA7" Offset="0.0"/>
@@ -29,7 +29,7 @@
 					</LinearGradientBrush>
 				</Button.Background>
 			</Button>
-			<Button Classes="flat primary" Click="AddServer_Button_Cancel" Content="{StaticResource Text.Cancel}" FontFamily="{StaticResource FontDefault}">
+			<Button Classes="flat primary" Command="{Binding CancelAddServerCommand}" Content="{StaticResource Text.Cancel}" FontFamily="{StaticResource FontDefault}">
 				<Button.Background>
 					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
 						<GradientStop Color="#687AA7" Offset="0.0"/>

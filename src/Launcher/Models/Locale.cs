@@ -30,16 +30,10 @@ public enum LocaleType
     nn_NO   // Norwegian Nynorsk (Norway)
 }
 
-public class Locale
+public class Locale(LocaleType type, string name)
 {
-    public string Name { get; set; }
-    public LocaleType Type { get; set; }
-
-    public Locale(LocaleType type, string name)
-    {
-        Type = type;
-        Name = name;
-    }
+    public string Name { get; set; } = name;
+    public LocaleType Type { get; set; } = type;
 
     public static readonly List<Locale> Supported = [
         new Locale(LocaleType.en_US, "English"),

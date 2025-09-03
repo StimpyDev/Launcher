@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Launcher.Helpers;
 using Launcher.Models;
+using Launcher.Views;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -11,6 +13,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace Launcher.ViewModels;
 
@@ -43,6 +46,8 @@ public partial class Login : Popup
     private readonly Logger _logger = LogManager.GetCurrentClassLogger();
     public bool AutoFocusUsername => string.IsNullOrEmpty(Username);
     public bool AutoFocusPassword => !string.IsNullOrEmpty(Username) && string.IsNullOrEmpty(Password);
+    public IAsyncRelayCommand LoginCommand { get; }
+    public ICommand LoginCancelCommand { get; }
 
     public Login(Server server)
     {
@@ -59,16 +64,26 @@ public partial class Login : Popup
             Username = _server.Info.Username;
         }
 
-
         if (RememberPassword && !string.IsNullOrEmpty(_server.Info.Password))
         {
             password = _server.Info.Password;
         }
 
+        LoginCommand = new AsyncRelayCommand(OnLogin);
+        LoginCancelCommand = new RelayCommand(OnLoginCancel);
+
         View = new Views.Login()
         {
             DataContext = this
         };
+    }
+    private async Task OnLogin()
+    {
+        await App.ProcessPopupAsync();
+    }
+    private void OnLoginCancel()
+    {
+        App.CancelPopup();
     }
 
     private void AddSecureWarning()
@@ -179,9 +194,9 @@ public partial class Login : Popup
 
         var launcherArguments = new List<string>
     {
-        $"Server={_server.Info.LoginServer}",
-        $"SessionId={sessionId}",
-        $"Internationalization:Locale={Settings.Instance.Locale}"
+            $"Server={_server.Info.LoginServer}",
+            $"SessionId={sessionId}",
+            $"Internationalization:Locale={Settings.Instance.Locale}"
     };
 
         if (!string.IsNullOrEmpty(serverArguments))

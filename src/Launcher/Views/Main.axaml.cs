@@ -6,7 +6,7 @@ namespace Launcher.Views;
 
 public partial class Main : Window
 {
-    public readonly ViewModels.Main ViewModel = new ViewModels.Main();
+    public readonly ViewModels.Main ViewModel = new();
 
     public Main()
     {

@@ -29,7 +29,7 @@
 		</StackPanel>
 		<CheckBox FontFamily="{StaticResource FontDefault}" HorizontalAlignment="Center" FontSize="14" Content="{DynamicResource Text.Login.RememberPassword}" IsChecked="{Binding RememberPassword}" />
 		<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
-			<Button Classes="flat primary" Click="Login_Button" FontFamily="{StaticResource FontDefault}" Content="{StaticResource Text.Login}" HotKey="Enter">
+			<Button Classes="flat primary" Command="{Binding LoginCommand}" FontFamily="{StaticResource FontDefault}" Content="{StaticResource Text.Login}" HotKey="Enter">
 				<Button.Background>
 					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
 						<GradientStop Color="#687AA7" Offset="0.0"/>
@@ -37,7 +37,7 @@
 					</LinearGradientBrush>
 				</Button.Background>
 			</Button>
-			<Button Classes="flat primary" Click="Login_Button_Cancel" Content="{StaticResource Text.Cancel}" FontFamily="{StaticResource FontDefault}">
+			<Button Classes="flat primary" Command="{Binding LoginCancelCommand}" Content="{StaticResource Text.Cancel}" FontFamily="{StaticResource FontDefault}">
 				<Button.Background>
 					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
 						<GradientStop Color="#687AA7" Offset="0.0"/>
