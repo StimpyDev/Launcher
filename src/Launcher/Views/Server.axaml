@@ -73,7 +73,7 @@
 			<TextBlock Text="{StaticResource Text.IsRunning}" FontSize="13" FontWeight="Medium" FontFamily="{StaticResource FontDefault}" IsVisible="{Binding Process, Converter={x:Static ObjectConverters.IsNotNull}}"/>
 		</StackPanel>
 		<!-- Client Folder -->
-		<StackPanel Grid.Row="3" HorizontalAlignment="Right" Effect="drop-shadow(2 2 2 #40000000)" Margin="0,0,-40,10" VerticalAlignment="Bottom">
+		<StackPanel Grid.Row="3" HorizontalAlignment="Right" Margin="0,0,-40,10" VerticalAlignment="Bottom">
 			<Button Classes="flat primary" CornerRadius="5" Command="{Binding OpenClientFolderCommand}" IsVisible="{Binding ActiveServer, Converter={x:Static ObjectConverters.IsNull}}">
 				<Button.Background>
 					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">

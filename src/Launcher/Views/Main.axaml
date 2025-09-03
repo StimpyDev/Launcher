@@ -47,7 +47,7 @@
 							<GradientStop Color="#3C4C74" Offset="0.8"/>
 						</LinearGradientBrush>
 					</Button.Background>
-					<TextBlock Text="{StaticResource Text.Main.AddServer}" />
+					<TextBlock Text="{DynamicResource Text.Main.AddServer}" />
 				</Button>
 			</StackPanel>
 			<ListBox Grid.Row="1" ItemsSource="{Binding Servers, Mode=TwoWay}" Effect="drop-shadow(2 2 2 #40000000)" Background="Transparent" SelectedItem="{Binding ActiveServer, Mode=TwoWay}" SelectionMode="Toggle">
@@ -73,7 +73,7 @@
 		
 		<!-- Right Server List-->
 		<!--Delete Server -->
-		<StackPanel Grid.Column="1" Effect="drop-shadow(2 2 2 #40000000)" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10,0,0,10">
+		<StackPanel Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10,0,0,10">
 			<StackPanel>
 				<Button Classes="flat primary" Command="{Binding DeleteServerCommand}" IsVisible="{Binding ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}">
 					<Button.Background>

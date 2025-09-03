@@ -1,5 +1,4 @@
-﻿using Avalonia.Controls;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Launcher.Helpers;
 using Launcher.Models;
 using NLog;
@@ -104,12 +103,7 @@ public partial class Login : Popup
         }
         SaveSettings();
     }
-
-    private void SaveSettings()
-    {
-        Settings.Save();
-    }
-
+    private static void SaveSettings() => Settings.Save();
     public override async Task<bool> ProcessAsync()
     {
         if (RememberUsername)
@@ -136,11 +130,12 @@ public partial class Login : Popup
 
             ProgressDescription = App.GetText("Text.Login.Loading");
 
-            var httpResponse = await httpClient.PostAsJsonAsync(_server.Info.LoginApiUrl, loginRequest);
+            // Await network call asynchronously
+            var httpResponse = await httpClient.PostAsJsonAsync(_server.Info.LoginApiUrl, loginRequest).ConfigureAwait(false);
 
             if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
             {
-                await App.AddNotification(App.GetText("Text.Login.Unauthorized"), true);
+                await App.AddNotification(App.GetText("Text.Login.Unauthorized"), true).ConfigureAwait(false);
                 Password = string.Empty;
                 return false;
             }
@@ -148,31 +143,29 @@ public partial class Login : Popup
             if (!httpResponse.IsSuccessStatusCode)
             {
                 await App.AddNotification($"""
-                                     Failed to login. Http Error: {httpResponse.ReasonPhrase}
-                                     """, true);
-
+                                 Failed to login. Http Error: {httpResponse.ReasonPhrase}
+                                 """, true).ConfigureAwait(false);
                 return false;
             }
 
-            var loginResponse = await httpResponse.Content.ReadFromJsonAsync<LoginResponse>();
+            var loginResponse = await httpResponse.Content.ReadFromJsonAsync<LoginResponse>().ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(loginResponse?.SessionId))
             {
-                await App.AddNotification("Invalid login api response.", true);
+                await App.AddNotification("Invalid login api response.", true).ConfigureAwait(false);
                 Password = string.Empty;
                 return false;
             }
 
-            await LaunchClientAsync(loginResponse.SessionId, loginResponse.LaunchArguments);
+            await LaunchClientAsync(loginResponse.SessionId, loginResponse.LaunchArguments).ConfigureAwait(false);
             return true;
         }
         catch (Exception ex)
         {
             await App.AddNotification($"""
-                                     An exception was thrown while logging in.
-                                     Exception: {ex}
-                                     """, true);
-
+                                 An exception was thrown while logging in.
+                                 Exception: {ex}
+                                 """, true).ConfigureAwait(false);
             _logger.Error(ex.ToString());
         }
 

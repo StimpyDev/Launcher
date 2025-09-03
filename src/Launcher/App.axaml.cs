@@ -38,6 +38,11 @@ public partial class App : Application
         {
             SetLocale(Settings.Instance.Locale);
         }
+
+        Settings.Instance.LocaleChanged += (s, e) =>
+        {
+            SetLocale(Settings.Instance.Locale);
+        };
     }
     public override void OnFrameworkInitializationCompleted()
     {
@@ -122,11 +127,6 @@ public partial class App : Application
         app.Resources.MergedDictionaries.Add(targetLocale);
 
         app._activeLocale = targetLocale;
-
-        Settings.Instance.LocaleChanged += async (s, e) =>
-        {
-            await ShowPopupAsync(new RestartPopup());
-        };
     }
     public static string GetText(string key, params object?[] args)
     {

@@ -8,8 +8,8 @@ using NLog;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace Launcher.ViewModels;
 
@@ -39,7 +39,6 @@ public partial class Settings : ObservableObject
     {
         LocaleChanged?.Invoke(this, EventArgs.Empty);
     }
-
     partial void OnDiscordActivityChanged(bool value)
     {
         if (value)
@@ -54,7 +53,7 @@ public partial class Settings : ObservableObject
     {
     }
 
-    private static readonly object _lock = new object();
+    private static readonly Lock _lock = new();
 
     public static Settings Instance
     {
