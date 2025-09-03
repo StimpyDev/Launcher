@@ -354,74 +354,74 @@ public partial class Server : ObservableObject
 
         while (attempt < maxRetries && !successDownload)
         {
-        try
-        {
-            var clientFileUri = UriHelper.JoinUriPaths(Info.Url, "client", path, fileName);
-
-            using var downloadService = new DownloadService(new DownloadConfiguration
+            try
             {
-                RequestConfiguration =
+                var clientFileUri = UriHelper.JoinUriPaths(Info.Url, "client", path, fileName);
+
+                using var downloadService = new DownloadService(new DownloadConfiguration
+                {
+                    RequestConfiguration =
                 {
                     UserAgent = $"{App.GetText("Text.Title")} v{App.CurrentVersion}"
                 }
-            });
+                });
 
-            downloadService.DownloadStarted += (s, e) =>
-            {
-                lock (_listLock)
+                downloadService.DownloadStarted += (s, e) =>
                 {
-                    StatusMessage = App.GetText("Text.Server.DownloadingFile", downloadFilePath);
-                }
-            };
+                    lock (_listLock)
+                    {
+                        StatusMessage = App.GetText("Text.Server.DownloadingFile", downloadFilePath);
+                    }
+                };
 
                 using var fileStream = await downloadService.DownloadFileTaskAsync(clientFileUri, cancellationToken).ConfigureAwait(false);
 
-            if (fileStream is null)
-            {
-                await UIThreadHelper.InvokeAsync(async () =>
+                if (fileStream is null)
                 {
-                    await App.AddNotification($"""
+                    await UIThreadHelper.InvokeAsync(async () =>
+                    {
+                        await App.AddNotification($"""
                                         Failed to get client file.
                                         """, true);
 
-                    _logger.Error("Failed to get client file {path} {filename}", path, fileName);
-                });
+                        _logger.Error("Failed to get client file {path} {filename}", path, fileName);
+                    });
 
-                return false;
-            }
+                    return false;
+                }
 
                 var totalBytes = fileStream.Length;
-                var bytesRead = 0L;
 
                 var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
-            if (!Directory.Exists(fileDirectory))
-                Directory.CreateDirectory(fileDirectory);
+                if (!Directory.Exists(fileDirectory))
+                    Directory.CreateDirectory(fileDirectory);
 
                 var filePath = Path.Combine(fileDirectory, fileName);
-            using var writeStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 81920, useAsync: true);
-                await fileStream.CopyToAsync(writeStream, cancellationToken).ConfigureAwait(false);
-
+                using var writeStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 81920, useAsync: true);
                 var buffer = new byte[81920];
+
                 int read;
+                long totalBytesRead = 0;
+
                 while ((read = await fileStream.ReadAsync(buffer.AsMemory(0, buffer.Length), cancellationToken)) > 0)
                 {
                     await writeStream.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
-                    bytesRead += read;
+                    totalBytesRead += read;
 
-                    // Update per-file progress:
-                    FileProgress = (double)bytesRead / totalBytes * 100;
+                    // Update progress
+                    FileProgress = (double)totalBytesRead / totalBytes * 100;
                 }
 
                 await UIThreadHelper.InvokeAsync(async () =>
                 {
-                    await Task.Delay(250);
+                    await Task.Delay(150);
                     FileProgress = 0;
                 });
                 IsFileDownloading = false;
                 successDownload = true;
-        }
-        catch (Exception ex)
-        {
+            }
+            catch (Exception ex)
+            {
                 attempt++;
                 _logger.Error(ex, "Error downloading {path} {filename}, attempt {Attempt}", path, fileName, attempt);
 
@@ -431,8 +431,8 @@ public partial class Server : ObservableObject
                     {
                         await App.AddNotification($"Failed to download {fileName} after {maxRetries} attempts.", true);
                     });
-            return false;
-        }
+                    return false;
+                }
                 await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
             }
         }
