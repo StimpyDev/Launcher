@@ -342,7 +342,12 @@ public partial class Server : ObservableObject
     private async Task<bool> DownloadFileAsync(string path, string fileName, CancellationToken cancellationToken = default)
     {
         var downloadFilePath = Path.Combine(path, fileName);
+        const int maxRetries = 3;
+        int attempt = 0;
+        bool successDownload = false;
 
+        while (attempt < maxRetries && !successDownload)
+        {
         try
         {
             var clientFileUri = UriHelper.JoinUriPaths(Info.Url, "client", path, fileName);
@@ -363,7 +368,7 @@ public partial class Server : ObservableObject
                 }
             };
 
-            using var fileStream = await downloadService.DownloadFileTaskAsync(clientFileUri, cancellationToken);
+                using var fileStream = await downloadService.DownloadFileTaskAsync(clientFileUri, cancellationToken).ConfigureAwait(false);
 
             if (fileStream is null)
             {
@@ -385,20 +390,31 @@ public partial class Server : ObservableObject
             if (!Directory.Exists(fileDirectory))
                 Directory.CreateDirectory(fileDirectory);
 
+                var filePath = Path.Combine(fileDirectory, fileName);
             using var writeStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 81920, useAsync: true);
+                await fileStream.CopyToAsync(writeStream, cancellationToken).ConfigureAwait(false);
 
-            await fileStream.CopyToAsync(writeStream, cancellationToken);
+                // If download succeeds, set success and break loop
+                successDownload = true;
         }
         catch (Exception ex)
         {
-            _logger.Error("Failed to download {path} {filename}", path, fileName);
+                attempt++;
+                _logger.Error(ex, "Error downloading {path} {filename}, attempt {Attempt}", path, fileName, attempt);
 
-            _logger.Error(ex.ToString());
-
+                if (attempt >= maxRetries)
+                {
+                    await UIThreadHelper.InvokeAsync(async () =>
+                    {
+                        await App.AddNotification($"Failed to download {fileName} after {maxRetries} attempts.", true);
+                    });
             return false;
         }
+                await Task.Delay(1000, cancellationToken).ConfigureAwait(false); // Wait before retry
+            }
+        }
 
-        return true;
+        return successDownload;
     }
 
     private IEnumerable<(string Path, string FileName)> GetFilesToDownloadRecursively(ClientFolder clientFolder, string path = "")
