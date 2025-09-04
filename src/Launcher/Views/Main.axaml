@@ -1,46 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Window
-	xmlns="https://github.com/avaloniaui"
-	xmlns:c="using:Launcher.Controls"
-	xmlns:cv="using:Launcher.Converters"
-	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:m="using:Launcher.Models"
-	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:v="using:Launcher.Views"
-	xmlns:vm="using:Launcher.ViewModels"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
-		mc:Ignorable="d"
-		d:DesignWidth="800"
-		d:DesignHeight="550"
-		x:DataType="vm:Main"
-		x:Class="Launcher.Views.Main"
-		Title="{DynamicResource Text.Title}"
-		Icon="/App.ico"
-		WindowStartupLocation="CenterScreen"
-		CanResize="False"
-		Width="800"
-		Height="550"
-		MinWidth="800"
-		MinHeight="550">
+    xmlns="https://github.com/avaloniaui"
+    xmlns:c="using:Launcher.Controls"
+    xmlns:cv="using:Launcher.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:m="using:Launcher.Models"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:v="using:Launcher.Views"
+    xmlns:vm="using:Launcher.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+    mc:Ignorable="d"
+    d:DesignWidth="800"
+    d:DesignHeight="550"
+    x:DataType="vm:Main"
+    x:Class="Launcher.Views.Main"
+    Title="{DynamicResource Text.Title}"
+    Icon="/App.ico"
+    WindowStartupLocation="CenterScreen"
+    CanResize="False"
+    Width="800"
+    Height="550"
+    MinWidth="800"
+    MinHeight="550">
+
 	<Design.DataContext>
 		<vm:Main />
 	</Design.DataContext>
+
+	<!-- Window Background with AsyncImageLoader -->
 	<Window.Background>
-		<ImageBrush asyncImageLoader:ImageBrushLoader.Source="https://github.com/Open-Source-Free-Realms/Launcher/blob/main/src/Launcher/Assets/background.png?raw=true" AlignmentY="Top" Stretch="UniformToFill" />
+		<ImageBrush
+            asyncImageLoader:ImageBrushLoader.Source="https://github.com/Open-Source-Free-Realms/Launcher/blob/main/src/Launcher/Assets/background.png?raw=true"
+            AlignmentY="Top"
+            Stretch="UniformToFill" />
 	</Window.Background>
+
 	<Grid RowDefinitions="*" ColumnDefinitions="200,*">
-		<!-- Left - Server List -->
+
+		<!-- Left Panel: Server List -->
 		<DockPanel LastChildFill="True" Background="{StaticResource Color.Server}" Opacity="0.050">
-			<TextBlock DockPanel.Dock="Top" Effect="drop-shadow(2 2 2 #40000000)" Opacity="100" HorizontalAlignment="Center" FontFamily="{StaticResource FontDefault}" FontSize="15" Margin="17" Text="{DynamicResource Text.Servers}" />
+			<!-- Header -->
+			<TextBlock
+                DockPanel.Dock="Top"
+                Opacity="100"
+                HorizontalAlignment="Center"
+                FontFamily="{StaticResource FontDefault}"
+                FontSize="15"
+                Margin="17"
+                Text="{DynamicResource Text.Servers}" />
+
+			<!-- Bottom Buttons -->
 			<StackPanel Margin="10" HorizontalAlignment="Center" Orientation="Horizontal" DockPanel.Dock="Bottom">
-				<Button Classes="no_background" Opacity="100" Effect="drop-shadow(2 2 2 #40000000)" Command="{Binding ShowSettingsCommand}" ToolTip.Tip="{StaticResource Text.Settings}">
+				<!-- Settings Button -->
+				<Button
+                    Classes="no_background"
+                    Opacity="100"
+                    Command="{Binding ShowSettingsCommand}"
+                    ToolTip.Tip="{StaticResource Text.Settings}">
 					<Path Width="16" Height="16" Data="{StaticResource Icons.Settings}" Stretch="Fill" />
 				</Button>
-				<Button Classes="no_background" Opacity="100" Effect="drop-shadow(2 2 2 #40000000)" Command="{Binding CheckForUpdatesCommand}" ToolTip.Tip="{StaticResource Text.Main.CheckingForUpdatesToolTip}" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNull}}">
-					<Path Width="16" Height="16" Classes.rotating="{Binding IsRefreshing}" Data="{StaticResource Icons.Loading}" Stretch="Fill" />
+
+				<!-- Check for Updates Button -->
+				<Button
+                    Classes="no_background"
+                    Opacity="100"
+                    Command="{Binding CheckForUpdatesCommand}"
+                    ToolTip.Tip="{StaticResource Text.Main.CheckingForUpdatesToolTip}"
+                    IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNull}}">
+					<Path
+                        Width="16"
+                        Height="16"
+                        Classes.rotating="{Binding IsRefreshing}"
+                        Data="{StaticResource Icons.Loading}"
+                        Stretch="Fill" />
 				</Button>
-				<Button Classes="flat primary" Opacity="100" Effect="drop-shadow(2 2 2 #40000000)" FontFamily="{StaticResource FontDefault}" Command="{Binding AddServerCommand}" >
+
+				<!-- Add Server Button -->
+				<Button
+                    Classes="flat primary"
+                    Opacity="100"
+                    FontFamily="{StaticResource FontDefault}"
+                    Command="{Binding AddServerCommand}">
 					<Button.Background>
 						<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
 							<GradientStop Color="#687AA7" Offset="0.0"/>
@@ -50,19 +91,38 @@
 					<TextBlock Text="{DynamicResource Text.Main.AddServer}" />
 				</Button>
 			</StackPanel>
-			<ListBox Grid.Row="1" ItemsSource="{Binding Servers, Mode=TwoWay}" Effect="drop-shadow(2 2 2 #40000000)" Background="Transparent" SelectedItem="{Binding ActiveServer, Mode=TwoWay}" SelectionMode="Toggle">
+
+			<!-- Server List -->
+			<ListBox
+                Grid.Row="1"
+                ItemsSource="{Binding Servers, Mode=TwoWay}"
+                Background="Transparent"
+                SelectedItem="{Binding ActiveServer, Mode=TwoWay}"
+                SelectionMode="Toggle">
 				<ListBox.ItemTemplate>
 					<DataTemplate x:DataType="vm:Server">
 						<StackPanel>
-							<TextBlock Text="{Binding Info.Name, Mode=OneWay}" FontSize="16" Opacity="100" Width="100" FontFamily="{StaticResource FontDefault}" FontStyle="Oblique"/>
+							<TextBlock
+								Text="{Binding Info.Name, Mode=OneWay}"
+								FontSize="16"
+								Opacity="100"
+								FontFamily="{StaticResource FontDefault}"
+								FontStyle="Oblique"
+								TextWrapping="Wrap"
+                                MaxWidth="150"
+								VerticalAlignment="Center" />
 						</StackPanel>
 					</DataTemplate>
 				</ListBox.ItemTemplate>
+
+				<!-- Pointer Over Style -->
 				<ListBox.Styles>
 					<Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
 						<Setter Property="Cursor" Value="Hand" />
 					</Style>
 				</ListBox.Styles>
+
+				<!-- Selected Item Style -->
 				<ListBox.Styles>
 					<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
 						<Setter Property="Background" Value="{StaticResource Color.FlatButton.PrimaryBackground}" />
@@ -70,44 +130,94 @@
 				</ListBox.Styles>
 			</ListBox>
 		</DockPanel>
-		
-		<!-- Right Server List-->
-		<!--Delete Server -->
+
+		<!-- Right Panel: Server Controls -->
 		<StackPanel Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10,0,0,10">
-			<StackPanel>
-				<Button Classes="flat primary" Command="{Binding DeleteServerCommand}" IsVisible="{Binding ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}">
-					<Button.Background>
-						<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
-							<GradientStop Color="#687AA7" Offset="0.0"/>
-							<GradientStop Color="#3C4C74" Offset="0.8"/>
-						</LinearGradientBrush>
-					</Button.Background>
-					<Path Width="16" Height="15" Data="{StaticResource Icons.Delete}" Stretch="Fill" />
-				</Button>
-			</StackPanel>
+			<!-- Delete Server Button -->
+			<Button
+                Classes="flat primary"
+                Command="{Binding DeleteServerCommand}"
+                IsVisible="{Binding ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}">
+				<Button.Background>
+					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+						<GradientStop Color="#687AA7" Offset="0.0"/>
+						<GradientStop Color="#3C4C74" Offset="0.8"/>
+					</LinearGradientBrush>
+				</Button.Background>
+				<Path Width="16" Height="15" Data="{StaticResource Icons.Delete}" Stretch="Fill" />
+			</Button>
 		</StackPanel>
-		<TextBlock Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Margin="25" FontSize="13" FontFamily="{StaticResource FontDefault}" VerticalAlignment="Bottom" Text="{Binding Message, Mode=OneWay}" />
-		<Label Grid.Row="0" Grid.Column="1" FontFamily="{StaticResource FontDefault}" Margin="5" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0.5" Content="{Binding Version, StringFormat='Version: {0}'}" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNull}}" />
-		<v:Server DataContext="{Binding ActiveServer, Mode=TwoWay}" Grid.Row="0" Grid.Column="1" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+		<!-- Message Display -->
+		<TextBlock
+            Grid.Row="0"
+            Grid.Column="1"
+            HorizontalAlignment="Center"
+            Margin="25"
+            FontSize="13"
+            FontFamily="{StaticResource FontDefault}"
+            VerticalAlignment="Bottom"
+            Text="{Binding Message, Mode=OneWay}" />
+
+		<!-- Version Label -->
+		<Label
+            Grid.Row="0"
+            Grid.Column="1"
+            FontFamily="{StaticResource FontDefault}"
+            Margin="5"
+            FontSize="13"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Bottom"
+            Opacity="0.5"
+            Content="{Binding Version, StringFormat='Version: {0}'}"
+            IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNull}}" />
+
+		<!-- Active Server View -->
+		<v:Server
+            DataContext="{Binding ActiveServer, Mode=TwoWay}"
+            Grid.Row="0"
+            Grid.Column="1"
+            IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
 		<!-- Popups -->
-		<Grid Grid.Row="0" Grid.ColumnSpan="2" IsVisible="{Binding Popup, Converter={x:Static ObjectConverters.IsNotNull}}">
+		<Grid
+            Grid.Row="0"
+            Grid.ColumnSpan="2"
+            IsVisible="{Binding Popup, Converter={x:Static ObjectConverters.IsNotNull}}">
+			<!-- Overlay -->
 			<Border Background="{StaticResource Color.Window}" Opacity="0.5" />
+
+			<!-- Popup Content -->
 			<Grid Width="600" HorizontalAlignment="Center" VerticalAlignment="Center">
 				<ContentControl Content="{Binding Popup}" Opacity="0.9" ClipToBounds="False">
 					<ContentControl.DataTemplates>
 						<DataTemplate DataType="vm:Popup">
-							<Border Margin="8,0,8,8" BorderBrush="{StaticResource Color.Border}" BorderThickness="1" Background="{StaticResource Color.Window}">
+							<Border
+                                Margin="8,0,8,8"
+                                BorderBrush="{StaticResource Color.Border}"
+                                BorderThickness="1"
+                                Background="{StaticResource Color.Window}">
 								<Border.CornerRadius>
 									<OnPlatform Default="10,10,10,10" Linux="0" />
 								</Border.CornerRadius>
+
+								<!-- Popup Content -->
 								<StackPanel Margin="8" Orientation="Vertical">
-									<!-- Popup Widget -->
-									<ContentPresenter Margin="0,8" Content="{Binding View}" IsHitTestVisible="{Binding InProgress, Converter={x:Static BoolConverters.Not}}" />
-									<!-- Running -->
+									<!-- Main View -->
+									<ContentPresenter
+                                        Margin="0,8"
+                                        Content="{Binding View}"
+                                        IsHitTestVisible="{Binding InProgress, Converter={x:Static BoolConverters.Not}}" />
+
+									<!-- Progress Indicator -->
 									<StackPanel Orientation="Vertical" IsVisible="{Binding InProgress}">
 										<Rectangle Height="1" HorizontalAlignment="Stretch" />
 										<StackPanel Orientation="Horizontal" />
-										<TextBlock FontStyle="Italic" Text="{Binding ProgressDescription, Mode=OneWay}" HorizontalAlignment="Center" FontFamily="{StaticResource FontDefault}" />
+										<TextBlock
+                                            FontStyle="Italic"
+                                            Text="{Binding ProgressDescription, Mode=OneWay}"
+                                            HorizontalAlignment="Center"
+                                            FontFamily="{StaticResource FontDefault}" />
 									</StackPanel>
 								</StackPanel>
 							</Border>
@@ -116,30 +226,74 @@
 				</ContentControl>
 			</Grid>
 		</Grid>
-		<!-- Notifications -->
-		<Grid Grid.Row="0" Grid.ColumnSpan="2" Width="400" HorizontalAlignment="Center" VerticalAlignment="Top">
-			<ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-				<ItemsControl ItemsSource="{Binding Notifications}">
-					<ItemsControl.ItemTemplate>
-						<DataTemplate DataType="m:Notification">
-							<Grid Margin="7">
-								<Border Background="{StaticResource Color.Window}" BorderBrush="{StaticResource Color.Border}" BorderThickness="1" CornerRadius="10" Opacity="0.9" />
-								<Grid Margin="7" RowDefinitions="20,Auto,15">
-									<StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding IsError}">
-										<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset2.png" Stretch="None" HorizontalAlignment="Left"/>
-										<TextBlock Margin="5,0,0,0" FontSize="15" FontFamily="{StaticResource FontDefault}" Text="{DynamicResource Text.Main.Error}" />
-									</StackPanel>
-									<StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding !IsError}">
-										<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset2.png" Stretch="None" HorizontalAlignment="Left"/>
-										<TextBlock Margin="5,0,0,0" FontSize="15" FontFamily="{StaticResource FontDefault}" Text="{DynamicResource Text.Main.Error}" />
-									</StackPanel>
-									<TextBox Grid.Row="1" Classes="no_background no_border" IsReadOnly="True" FontSize="13" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" MaxHeight="100" Margin="8" Padding="0" VerticalContentAlignment="Top" Text="{Binding Message, Mode=TwoWay}" />
-								</Grid>
-							</Grid>
-						</DataTemplate>
-					</ItemsControl.ItemTemplate>
-				</ItemsControl>
-			</ScrollViewer>
-		</Grid>
+
+<!-- Notifications -->
+<Grid
+    Grid.Row="0"
+    Grid.ColumnSpan="2"
+    Width="400"
+    HorizontalAlignment="Center"
+    VerticalAlignment="Top"
+    Margin="0,10,0,0">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <ItemsControl ItemsSource="{Binding Notifications}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="m:Notification">
+                    <Grid Margin="7">
+                        <!-- Notification Background -->
+                        <Border
+                            Background="{StaticResource Color.Window}"
+                            BorderBrush="{StaticResource Color.Border}"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Opacity="0.9" />
+
+                        <!-- Notification Content -->
+                        <Grid Margin="7" RowDefinitions="20,Auto,15">
+                            <!-- Error Notification -->
+                            <StackPanel
+                                Grid.Row="0"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                IsVisible="{Binding IsError}">
+                                <asyncImageLoader:AdvancedImage Source="/Assets/fr_asset2.png" Stretch="None" HorizontalAlignment="Left"/>
+                                <TextBlock Margin="5,0,0,0" FontSize="15" FontFamily="{StaticResource FontDefault}" Text="{DynamicResource Text.Main.Error}" />
+                            </StackPanel>
+
+                            <!-- Info Notification -->
+                            <StackPanel
+                                Grid.Row="0"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                IsVisible="{Binding IsError, Converter={StaticResource BoolInverseConverter}}">
+                                <asyncImageLoader:AdvancedImage Source="/Assets/fr_asset2.png" Stretch="None" HorizontalAlignment="Left"/>
+                                <TextBlock Margin="5,0,0,0" FontSize="15" FontFamily="{StaticResource FontDefault}" Text="{DynamicResource Text.Main.Info}" />
+                            </StackPanel>
+
+                            <!-- Message Text -->
+                            <TextBox
+                                Grid.Row="1"
+                                Classes="no_background no_border"
+                                IsReadOnly="True"
+                                FontSize="13"
+                                TextWrapping="Wrap"
+                                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                MaxHeight="100"
+                                Margin="8"
+                                Padding="0"
+                                VerticalContentAlignment="Top"
+                                Text="{Binding Message, Mode=OneWay}" />
+                        </Grid>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
+</Grid>
 	</Grid>
 </Window>

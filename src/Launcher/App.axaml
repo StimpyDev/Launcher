@@ -23,5 +23,6 @@
 	</Application.Styles>
 	<Application.Resources>
 		<FontFamily x:Key="FontDefault">/Assets/Fonts/Maiandra-GD-Regular.otf#Maiandra GD</FontFamily>
+		<local:BoolInverseConverter x:Key="BoolInverseConverter"/>
 	</Application.Resources>
 </Application>

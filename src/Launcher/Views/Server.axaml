@@ -49,15 +49,15 @@
 
 		<!-- Server Description -->
 		<Grid Grid.Row="2">
-			<Border Padding="15" Opacity="0.050" Background="{StaticResource Color.Description}" IsVisible="{Binding Info.Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-				<ScrollViewer Opacity="200" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="45,0,0,0">
+			<Border Padding="15" Width="580" CornerRadius="5" Margin="0,40,0,0" Opacity="0.050" Background="{StaticResource Color.Description}" IsVisible="{Binding Info.Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+				<ScrollViewer Opacity="200" HorizontalAlignment="Center" VerticalAlignment="Center">
 					<md:MarkdownScrollViewer HorizontalAlignment="Center" VerticalAlignment="Center" Markdown="{Binding Info.Description}"/>
 				</ScrollViewer>
 			</Border>
 		</Grid>
 
 		<!-- Server Play / Update Status -->
-		<StackPanel Grid.Row="3" Margin="0,20,15,0">
+		<StackPanel Grid.Row="3" Margin="0,30,20,0">
 			<Grid HorizontalAlignment="Center">
 				<Button Classes="no_background" Cursor="Hand" Command="{Binding PlayCommand}" IsVisible="{Binding PlayCommand.IsRunning, Converter={x:Static BoolConverters.Not}}" IsEnabled="{Binding Process, Converter={x:Static ObjectConverters.IsNull}}">
 					<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset3.png" Effect="drop-shadow(3 3 3 #40000000)" Width="180" Stretch="UniformToFill" />
