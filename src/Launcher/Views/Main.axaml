@@ -137,7 +137,7 @@
 			<Button
                 Classes="flat primary"
                 Command="{Binding DeleteServerCommand}"
-                IsVisible="{Binding ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}">
+                IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}">
 				<Button.Background>
 					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
 						<GradientStop Color="#687AA7" Offset="0.0"/>

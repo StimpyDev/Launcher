@@ -111,8 +111,8 @@ public partial class Main : ObservableObject
 
         Notifications.Add(notification);
 
-        // Automatically dismisses notification after 5 seconds.
-        await Task.Delay(5000);
+        // Automatically dismisses notification after 0.5 seconds.
+        await Task.Delay(500);
         Notifications.Remove(notification);
     }
 }

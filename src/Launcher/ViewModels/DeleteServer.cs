@@ -42,11 +42,11 @@ public partial class DeleteServer : Popup
     public override async Task<bool> ProcessAsync()
     {
         ProgressDescription = App.GetText("Text.Delete_Server.Loading");
-        return await OnDeleteServerAsync();
+        return await OnDeleteServerAsync().ConfigureAwait(false);
     }
 
     private async Task<bool> OnDeleteServerAsync()
-    {
+    { 
         try
         {
             await ForceDeleteDirectoryAsync(Info.SavePath).ConfigureAwait(false);

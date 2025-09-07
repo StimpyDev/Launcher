@@ -60,19 +60,19 @@
 		<StackPanel Grid.Row="3" Margin="0,30,20,0">
 			<Grid HorizontalAlignment="Center">
 				<Button Classes="no_background" Cursor="Hand" Command="{Binding PlayCommand}" IsVisible="{Binding PlayCommand.IsRunning, Converter={x:Static BoolConverters.Not}}" IsEnabled="{Binding Process, Converter={x:Static ObjectConverters.IsNull}}">
-					<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset3.png" Effect="drop-shadow(3 3 3 #40000000)" Width="180" Stretch="UniformToFill" />
+					<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset3.png" Width="180" Stretch="UniformToFill" />
 				</Button>
 			</Grid>
 		</StackPanel>
 
 		<!-- Status Info -->
-		<StackPanel Grid.Row="3" HorizontalAlignment="Center" Margin="0,140,0,0">
+		<StackPanel Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,140,0,20">
 			<TextBlock Text="{Binding StatusMessage, Mode=OneWay}" FontSize="13" FontWeight="Medium"/>
 		</StackPanel>
 
 		<!-- Client Folder -->
 		<StackPanel Grid.Row="3" HorizontalAlignment="Right" Margin="0,169,10,0">
-			<Button Classes="flat primary" CornerRadius="5" Command="{Binding OpenClientFolderCommand}" IsVisible="{Binding ActiveServer, Converter={x:Static ObjectConverters.IsNull}}">
+			<Button Classes="flat primary" CornerRadius="5" Command="{Binding OpenClientFolderCommand}" IsVisible="{Binding OpenClientFolderCommand.IsRunning, Converter={x:Static BoolConverters.Not}}">
 				<Button.Background>
 					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
 						<GradientStop Color="#687AA7" Offset="0.0"/>
@@ -84,7 +84,7 @@
 		</StackPanel>
 
 		<!-- Wrap the ProgressBar and TextBlock in a Grid to overlay the percentage text -->
-		<Grid Grid.Row="3" HorizontalAlignment="Center" IsVisible="{Binding IsFileDownloading}" VerticalAlignment="Bottom">
+		<Grid Grid.Row="3" HorizontalAlignment="Center" IsVisible="{Binding IsDownloading}" VerticalAlignment="Bottom">
 			<ProgressBar Minimum="0" Maximum="100" Value="{Binding FileProgress}" Height="22" Width="450">
 				<ProgressBar.Foreground>
 					<SolidColorBrush Color="#4CAF50"/>
@@ -92,7 +92,7 @@
 				</ProgressBar.Foreground>
 			</ProgressBar>
 			<!-- Percentage Text -->
-			<TextBlock Text="{Binding FileProgress, StringFormat={}{0} %}"
+			<TextBlock Text="{Binding FileProgress,  StringFormat='{}{0:0}%'}"
 					   HorizontalAlignment="Center"
 					   VerticalAlignment="Center"
 					   FontWeight="Medium"

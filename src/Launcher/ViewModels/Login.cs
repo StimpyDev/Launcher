@@ -188,7 +188,6 @@ public partial class Login : Popup
 
     private async Task LaunchClientAsync(string sessionId, string? serverArguments)
     {
-        StatusMessage = App.GetText("Text.IsRunning");
         const string FileName = "FreeRealms.exe";
 
         var launcherArguments = new List<string>
@@ -224,8 +223,6 @@ public partial class Login : Popup
             _server.Process.StartInfo.FileName = FileName;
             _server.Process.StartInfo.Arguments = arguments;
         }
-
-        _server.Process.StartInfo.UseShellExecute = true;
         _server.Process.StartInfo.WorkingDirectory = workingDirectory;
         _server.Process.EnableRaisingEvents = true;
         _server.Process.Exited += _server.ClientProcessExited;
