@@ -6,6 +6,7 @@
     xmlns:m="using:Launcher.Models"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:Launcher.ViewModels"
+	xmlns:avalonia="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     mc:Ignorable="d"
     d:DesignWidth="400"
@@ -36,6 +37,7 @@
 				<!-- Parallel Download Checkbox -->
 				<CheckBox
                     Grid.Row="1"
+                    avalonia:ToolTip.Tip="{DynamicResource Text.Settings.General.ParallelDownload.Tooltip}"
                     Content="{DynamicResource Text.Settings.General.ParallelDownload}"
                     IsChecked="{Binding ParallelDownload, Mode=TwoWay}" />
 

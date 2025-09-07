@@ -61,6 +61,8 @@
 	<x:String x:Key="Text.Settings.General.DiscordActivity" xml:space="preserve">Discord Activity</x:String>
 	
 	<x:String x:Key="Text.Settings.General.ParallelDownload" xml:space="preserve">Parallel Download</x:String>
+
+	<x:String x:Key="Text.Settings.General.ParallelDownload.Tooltip" xml:space="preserve">Downloads files in multiple chunks, will speed up the download, but increases ram usage.</x:String>
 	
 	<x:String x:Key="Text.Add_Server.ServerUrl" xml:space="preserve">Server URL:</x:String>
 	

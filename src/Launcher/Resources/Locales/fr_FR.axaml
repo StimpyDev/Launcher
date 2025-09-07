@@ -62,6 +62,8 @@
 
 	<x:String x:Key="Text.Settings.General.ParallelDownload" xml:space="preserve">Téléchargement Parallèle</x:String>
 
+	<x:String x:Key="Text.Settings.General.ParallelDownload.Tooltip" xml:space="preserve">Télécharge les fichiers en plusieurs morceaux, accélère le téléchargement, mais augmente l'utilisation de la RAM..</x:String>
+
 	<x:String x:Key="Text.Add_Server.ServerUrl" xml:space="preserve">URL du serveur:</x:String>
 
 	<x:String x:Key="Text.Add_Server.Loading" xml:space="preserve">Ajout de serveur...</x:String>
