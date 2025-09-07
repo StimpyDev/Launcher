@@ -223,6 +223,8 @@ public partial class Login : Popup
             _server.Process.StartInfo.FileName = FileName;
             _server.Process.StartInfo.Arguments = arguments;
         }
+
+        _server.Process.StartInfo.UseShellExecute = true;
         _server.Process.StartInfo.WorkingDirectory = workingDirectory;
         _server.Process.EnableRaisingEvents = true;
         _server.Process.Exited += _server.ClientProcessExited;
