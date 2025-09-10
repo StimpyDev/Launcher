@@ -406,7 +406,7 @@ public partial class Server : ObservableObject
             if (!Directory.Exists(fileDirectory))
                 Directory.CreateDirectory(fileDirectory);
 
-            using var fileStream = await downloadService.DownloadFileTaskAsync(clientFileUri).ConfigureAwait(false);
+            await using var fileStream = await downloadService.DownloadFileTaskAsync(clientFileUri).ConfigureAwait(false);
             if (fileStream is null)
             {
                 await UIThreadHelper.InvokeAsync(async () =>
@@ -417,28 +417,21 @@ public partial class Server : ObservableObject
                 return false;
             }
 
-            try
+            await using var writeStream = new FileStream(filePath, new FileStreamOptions
             {
-                using var writeStream = new FileStream(filePath, new FileStreamOptions
-                {
-                    Mode = FileMode.Create,
-                    Access = FileAccess.Write,
-                    Options = FileOptions.SequentialScan
-                });
+                Mode = FileMode.Create,
+                Access = FileAccess.Write,
+                Options = FileOptions.SequentialScan
+            });
 
-                await fileStream.CopyToAsync(writeStream).ConfigureAwait(false);
-                await writeStream.FlushAsync().ConfigureAwait(false);
-            }
-            finally
-            {
-                fileStream.Dispose();
-            }
-
+            await fileStream.CopyToAsync(writeStream).ConfigureAwait(false);
+            await writeStream.FlushAsync().ConfigureAwait(false);
             return true;
         }
+
         catch (Exception ex)
         {
-            _logger.Error(ex, "Failed to download {path} {filename}", path, fileName);
+            _logger.Error(ex, "Error downloading {path} {filename}", path, fileName);
             return false;
         }
         finally
