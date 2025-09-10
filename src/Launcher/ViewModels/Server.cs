@@ -198,31 +198,6 @@ public partial class Server : ObservableObject
             });
         }
     }
-
-    public async Task VerifyFiles()
-    {
-        var clientManifest = await GetClientManifestAsync().ConfigureAwait(false);
-
-        StatusMessage = App.GetText("Text.Server.VerifyClientFiles");
-
-        if (clientManifest is null)
-            return;
-
-        if (!await VerifyClientFilesAsync(clientManifest).ConfigureAwait(false))
-        {
-            await App.AddNotification("Failed to verify client files, please try again", true);
-
-            _logger.Warn("Failed to verify client files");
-
-            return;
-        }
-
-        await UIThreadHelper.InvokeAsync(async () =>
-        {
-            StatusMessage = string.Empty;
-            await App.ShowPopupAsync(new Login(this));
-        });
-    }
     private async Task<bool> RefreshServerInfoAsync()
     {
         try
@@ -321,19 +296,34 @@ public partial class Server : ObservableObject
             return true;
         }
 
-        bool success = true;
+        int success = 1;
+        var cts = new CancellationTokenSource();
         int processorCount = Environment.ProcessorCount;
 
         var maxDegreeOfParallelism = Math.Min(4, processorCount);
-        var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+        var parallelOptions = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = Math.Min(4, Environment.ProcessorCount),
+            CancellationToken = cts.Token
+        };
 
         if (Settings.Instance.ParallelDownload)
         {
             await Parallel.ForEachAsync(filesToDownload, parallelOptions, async (file, ct) =>
             {
-                if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
+                try
                 {
-                    Interlocked.Exchange(ref success, false);
+                    if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
+                    {
+                        Interlocked.Exchange(ref success, 0);
+                        cts.Cancel();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error($"Error downloading file {file.FileName}: {ex.Message}");
+                    Interlocked.Exchange(ref success, 0);
+                    cts.Cancel();
                 }
             }).ConfigureAwait(false);
         }
@@ -341,14 +331,22 @@ public partial class Server : ObservableObject
         {
             foreach (var file in filesToDownload)
             {
-                if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
+                try
                 {
-                    Interlocked.Exchange(ref success, false);
+                    if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
+                    {
+                        Interlocked.Exchange(ref success, 0);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error($"Error downloading file {file.FileName}: {ex.Message}");
+                    Interlocked.Exchange(ref success, 0);
                 }
             }
         }
         _logger.Info("End - Verify Client Files");
-        return success;
+        return success == 1;
     }
 
     private async Task<bool> DownloadFileAsync(string path, string fileName)
