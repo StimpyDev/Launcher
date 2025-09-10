@@ -1,28 +1,34 @@
 <Application
-	xmlns="https://github.com/avaloniaui"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Launcher.App"
-	xmlns:local="using:Launcher"
-             RequestedThemeVariant="Dark">
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Launcher.App"
+    xmlns:local="using:Launcher"
+    RequestedThemeVariant="Dark">
+
 	<Application.Resources>
 		<ResourceDictionary>
+			<!-- Merged Resource Dictionaries -->
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceInclude Source="/Resources/Icons.axaml"/>
 				<ResourceInclude Source="/Resources/Colors.axaml"/>
 			</ResourceDictionary.MergedDictionaries>
+
+			<!-- Localized Resources -->
 			<ResourceInclude x:Key="de_DE" Source="/Resources/Locales/de_DE.axaml"/>
 			<ResourceInclude x:Key="en_US" Source="/Resources/Locales/en_US.axaml"/>
 			<ResourceInclude x:Key="fr_FR" Source="/Resources/Locales/fr_FR.axaml"/>
 			<ResourceInclude x:Key="es_ES" Source="/Resources/Locales/es_ES.axaml"/>
+
+			<!-- Additional Resources -->
+			<FontFamily x:Key="FontDefault">/Assets/Fonts/Maiandra-GD-Regular.otf#Maiandra GD</FontFamily>
+			<local:BoolInverseConverter x:Key="BoolInverseConverter"/>
 		</ResourceDictionary>
 	</Application.Resources>
+
 	<Application.Styles>
 		<FluentTheme/>
 		<StyleInclude Source="/Resources/Styles.axaml" />
 		<StyleInclude Source="avares://AsyncImageLoader.Avalonia/AdvancedImage.axaml" />
 	</Application.Styles>
-	<Application.Resources>
-		<FontFamily x:Key="FontDefault">/Assets/Fonts/Maiandra-GD-Regular.otf#Maiandra GD</FontFamily>
-		<local:BoolInverseConverter x:Key="BoolInverseConverter"/>
-	</Application.Resources>
+
 </Application>

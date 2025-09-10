@@ -70,6 +70,8 @@
 
 	<x:String x:Key="Text.Server.VerifyClientFiles" xml:space="preserve">Verificación de archivos de cliente...</x:String>
 
+	<x:String x:Key="Text.Server.FilesUpToDate" xml:space="preserve">Todos los archivos del cliente están actualizados. No es necesario descargarlos.</x:String>
+
 	<x:String x:Key="Text.Login.Loading" xml:space="preserve">Inicio de sesión...</x:String>
 
 	<x:String x:Key="Text.Add_Server.InvalidServerUrl1" xml:space="preserve">Formato de url no válido. {0}</x:String>

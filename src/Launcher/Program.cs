@@ -11,74 +11,83 @@ using System;
 using System.IO;
 using Velopack;
 
-namespace Launcher;
-
-internal sealed class Program
+namespace Launcher
 {
-    [STAThread]
-    internal static void Main(string[] args)
+    internal sealed class Program
     {
-        SetupNLog();
-
-        AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-
-        VelopackApp.Build().Run();
-
-        if (Settings.Instance.DiscordActivity)
-            DiscordService.Start();
-
-        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
-
-        LogManager.Shutdown();
-    }
-
-    internal static AppBuilder BuildAvaloniaApp()
-    {
-        var builder = AppBuilder.Configure<App>();
-
-        builder.WithInterFont();
-        builder.UsePlatformDetect();
-
-#if DEBUG
-        builder.LogToTrace();
-#endif
-
-        builder.LogToNLog(LogEventLevel.Error);
-
-        return builder;
-    }
-
-    private static void SetupNLog()
-    {
-        var loggingConfiguration = new LoggingConfiguration();
-
-#if DEBUG
-        var debuggerTarget = new DebuggerTarget("debugger");
-        loggingConfiguration.AddRule(LogLevel.Debug, LogLevel.Fatal, debuggerTarget);
-#endif
-
-        // Ensure logs directory exists
-        if (!Directory.Exists("logs"))
+        [STAThread]
+        internal static void Main(string[] args)
         {
-            Directory.CreateDirectory("logs");
+            SetupNLog();
+
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
+            VelopackApp.Build().Run();
+
+            if (Settings.Instance.DiscordActivity)
+            {
+                DiscordService.Start();
+            }
+
+            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+
+            LogManager.Shutdown();
         }
 
-        var fileTarget = new FileTarget("file")
+        internal static AppBuilder BuildAvaloniaApp()
         {
-            DeleteOldFileOnStartup = true,
-            FileName = Path.Combine(Directory.GetCurrentDirectory(), "logs", Constants.LogFile)
-        };
+            var builder = AppBuilder.Configure<App>()
+                .WithInterFont()
+                .UsePlatformDetect();
 
-        loggingConfiguration.AddRule(LogLevel.Info, LogLevel.Fatal, fileTarget);
+#if DEBUG
+            builder.LogToTrace();
+#endif
 
-        LogManager.Configuration = loggingConfiguration;
-    }
+            builder.LogToNLog(LogEventLevel.Error);
 
-    private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-    {
-        var logger = LogManager.GetCurrentClassLogger();
+            return builder;
+        }
 
-        if (e.ExceptionObject is Exception exception)
-            logger.Log(LogLevel.Fatal, exception.ToString());
+        private static void SetupNLog()
+        {
+            var config = new LoggingConfiguration();
+
+#if DEBUG
+            var debuggerTarget = new DebuggerTarget("debugger");
+            config.AddRule(LogLevel.Debug, LogLevel.Fatal, debuggerTarget);
+#endif
+
+            // Ensure logs directory exists
+            var logsDir = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+            if (!Directory.Exists(logsDir))
+            {
+                Directory.CreateDirectory(logsDir);
+            }
+
+            var fileTarget = new FileTarget("file")
+            {
+                DeleteOldFileOnStartup = true,
+                FileName = Path.Combine(logsDir, Constants.LogFile)
+            };
+
+            config.AddRule(LogLevel.Info, LogLevel.Fatal, fileTarget);
+
+            LogManager.Configuration = config;
+        }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            var logger = LogManager.GetCurrentClassLogger();
+
+            if (e.ExceptionObject is Exception exception)
+            {
+                logger.Fatal(exception.ToString());
+            }
+            else
+            {
+                logger.Fatal("Unhandled exception of unknown type: {0}", e.ExceptionObject?.ToString() ?? "null");
+            }
+        }
     }
 }

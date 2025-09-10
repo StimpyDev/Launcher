@@ -27,8 +27,8 @@ public partial class Main : ObservableObject
     [ObservableProperty]
     private SemanticVersion version = App.CurrentVersion;
 
-    public AvaloniaList<Server> Servers { get; set; } = [];
-    public AvaloniaList<Notification> Notifications { get; set; } = [];
+    public AvaloniaList<Server> Servers { get; } = [];
+    public AvaloniaList<Notification> Notifications { get; } = [];
 
     public Main()
     {
@@ -36,25 +36,28 @@ public partial class Main : ObservableObject
         if (Avalonia.Controls.Design.IsDesignMode)
         {
             Servers.Clear();
-            Servers.Add(new Server());
-            ActiveServer = Servers.FirstOrDefault();
+            var demoServer = new Server();
+            Servers.Add(demoServer);
+            ActiveServer = demoServer;
         }
 #endif
 
-        Settings.Instance.DiscordActivityChanged += (s, e) => UpdateDiscordActivity();
         Settings.Instance.ServerInfoList.CollectionChanged += ServerInfoList_CollectionChanged;
+        Settings.Instance.DiscordActivityChanged += (_, _) => UpdateDiscordActivity();
     }
 
     private void ServerInfoList_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (e.Action == NotifyCollectionChangedAction.Add && e.NewStartingIndex != -1)
+        switch (e.Action)
         {
-            var serverInfo = Settings.Instance.ServerInfoList[e.NewStartingIndex];
-            Servers.Add(new Server(serverInfo, this));
-        }
-        else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldStartingIndex != -1)
-        {
-            Servers.RemoveAt(e.OldStartingIndex);
+            case NotifyCollectionChangedAction.Add when e.NewStartingIndex != -1:
+                var serverInfo = Settings.Instance.ServerInfoList[e.NewStartingIndex];
+                Servers.Add(new Server(serverInfo, this));
+                break;
+
+            case NotifyCollectionChangedAction.Remove when e.OldStartingIndex != -1:
+                Servers.RemoveAt(e.OldStartingIndex);
+                break;
         }
     }
 
@@ -62,8 +65,7 @@ public partial class Main : ObservableObject
     {
         foreach (var serverInfo in Settings.Instance.ServerInfoList)
         {
-            var server = new Server(serverInfo, this);
-            Servers.Add(server);
+            Servers.Add(new Server(serverInfo, this));
         }
         UpdateDiscordActivity();
     }
@@ -111,8 +113,7 @@ public partial class Main : ObservableObject
 
         Notifications.Add(notification);
 
-        // Automatically dismisses notification after 0.5 seconds.
-        await Task.Delay(500);
+        await Task.Delay(500).ConfigureAwait(false);
         Notifications.Remove(notification);
     }
 }

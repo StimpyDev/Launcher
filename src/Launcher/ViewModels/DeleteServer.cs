@@ -14,6 +14,7 @@ public partial class DeleteServer : Popup
 {
     [ObservableProperty]
     private ServerInfo info;
+
     public IAsyncRelayCommand DeleteServerCommand { get; }
     public ICommand CancelDeleteServerCommand { get; }
 
@@ -21,10 +22,11 @@ public partial class DeleteServer : Popup
 
     public DeleteServer(ServerInfo info)
     {
+        this.Info = info;
+
         DeleteServerCommand = new AsyncRelayCommand(OnDeleteServer);
         CancelDeleteServerCommand = new RelayCommand(OnDeleteServerCancel);
 
-        Info = info;
         View = new Views.DeleteServer()
         {
             DataContext = this
@@ -33,12 +35,14 @@ public partial class DeleteServer : Popup
 
     private async Task OnDeleteServer()
     {
-        await App.ProcessPopupAsync();
+        await App.ProcessPopupAsync().ConfigureAwait(false);
     }
+
     private void OnDeleteServerCancel()
     {
         App.CancelPopup();
     }
+
     public override async Task<bool> ProcessAsync()
     {
         ProgressDescription = App.GetText("Text.Delete_Server.Loading");
@@ -46,12 +50,11 @@ public partial class DeleteServer : Popup
     }
 
     private async Task<bool> OnDeleteServerAsync()
-    { 
+    {
         try
         {
             await ForceDeleteDirectoryAsync(Info.SavePath).ConfigureAwait(false);
         }
-
         catch (Exception ex)
         {
             await UIThreadHelper.InvokeAsync(async () =>
@@ -65,9 +68,7 @@ public partial class DeleteServer : Popup
                     _logger.Error(notifyEx, "Error showing notification");
                 }
                 _logger.Error(ex, "Error deleting server directory");
-
             }).ConfigureAwait(false);
-
             return false;
         }
 
@@ -78,13 +79,11 @@ public partial class DeleteServer : Popup
                 Settings.Instance.ServerInfoList.Remove(Info);
                 Settings.Save();
             }
-
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error removing server info or saving settings");
             }
             return Task.CompletedTask;
-
         }).ConfigureAwait(false);
 
         return true;
@@ -99,17 +98,17 @@ public partial class DeleteServer : Popup
         {
             try
             {
-                var directory = new DirectoryInfo(path)
+                var directoryInfo = new DirectoryInfo(path)
                 {
                     Attributes = FileAttributes.Normal
                 };
 
-                foreach (var info in directory.GetFileSystemInfos("*", SearchOption.AllDirectories))
+                foreach (var info in directoryInfo.GetFileSystemInfos("*", SearchOption.AllDirectories))
                 {
                     info.Attributes = FileAttributes.Normal;
                 }
 
-                directory.Delete(true);
+                directoryInfo.Delete(true);
             }
             catch (Exception ex)
             {

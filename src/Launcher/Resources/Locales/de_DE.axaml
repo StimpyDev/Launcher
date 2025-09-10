@@ -69,6 +69,8 @@
 	<x:String x:Key="Text.Add_Server.Loading" xml:space="preserve">Server Hinzufügen...</x:String>
 	
 	<x:String x:Key="Text.Server.VerifyClientFiles" xml:space="preserve">Überprüfen von Client-Dateien...</x:String>
+
+	<x:String x:Key="Text.Server.FilesUpToDate" xml:space="preserve">Alle Client-Dateien sind aktuell. Kein Download erforderlich.</x:String>
 	
 	<x:String x:Key="Text.Login.Loading" xml:space="preserve">Einloggen...</x:String>
 	

@@ -1,4 +1,5 @@
 ﻿using System;
+using Discord;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,7 +33,7 @@ public static class DiscordService
         {
             lock (_lock)
             {
-                _discord = new Discord.Discord(ClientId, (ulong)Discord.CreateFlags.NoRequireDiscord);
+                _discord = new Discord.Discord(ClientId, (ulong)CreateFlags.NoRequireDiscord);
             }
         }
         catch (Exception ex)
@@ -80,7 +81,7 @@ public static class DiscordService
         try
         {
             // Attempt to create a Discord client as a test
-            using var testDiscord = new Discord.Discord(ClientId, (ulong)Discord.CreateFlags.NoRequireDiscord);
+            using var testDiscord = new Discord.Discord(ClientId, (ulong)CreateFlags.NoRequireDiscord);
             return true;
         }
         catch
@@ -106,7 +107,7 @@ public static class DiscordService
 
                         try
                         {
-                            _discord = new Discord.Discord(ClientId, (ulong)Discord.CreateFlags.NoRequireDiscord);
+                            _discord = new Discord.Discord(ClientId, (ulong)CreateFlags.NoRequireDiscord);
                         }
                         catch (Exception ex)
                         {
@@ -137,7 +138,7 @@ public static class DiscordService
 
     public static void UpdateActivity(string details, string state)
     {
-        Discord.ActivityManager? activityManager;
+        ActivityManager? activityManager;
 
         lock (_lock)
         {
@@ -153,11 +154,11 @@ public static class DiscordService
         if (activityManager is null)
             return;
 
-        var activity = new Discord.Activity
+        var activity = new Activity
         {
             State = state,
             Details = details,
-            Type = Discord.ActivityType.Playing,
+            Type = ActivityType.Playing,
             Timestamps =
         {
             Start = DateTimeOffset.UtcNow.ToUnixTimeSeconds()

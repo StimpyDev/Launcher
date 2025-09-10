@@ -24,6 +24,7 @@ public partial class AddServer : Popup
     public ICommand CancelAddServerCommand { get; }
 
     private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
     public AddServer()
     {
         AddServerCommand = new AsyncRelayCommand(OnAddServer);
@@ -37,8 +38,9 @@ public partial class AddServer : Popup
 
     private async Task OnAddServer()
     {
-        await App.ProcessPopupAsync();
+        await App.ProcessPopupAsync().ConfigureAwait(false);
     }
+
     private void OnAddServerCancel()
     {
         App.CancelPopup();
@@ -55,11 +57,10 @@ public partial class AddServer : Popup
         return ValidationResult.Success;
     }
 
-    public override Task<bool> ProcessAsync()
+    public override async Task<bool> ProcessAsync()
     {
         ProgressDescription = App.GetText("Text.Add_Server.Loading");
-
-        return Task.Run(OnAddServerAsync);
+        return await OnAddServerAsync().ConfigureAwait(false);
     }
 
     private async Task<bool> OnAddServerAsync()
@@ -72,7 +73,7 @@ public partial class AddServer : Popup
 
             if (!result.Success || result.ServerManifest is null)
             {
-                await App.AddNotification(result.Error, true);
+                await App.AddNotification(result.Error, true).ConfigureAwait(false);
                 return false;
             }
 
@@ -80,13 +81,13 @@ public partial class AddServer : Popup
 
             if (string.IsNullOrEmpty(serverManifest.Name))
             {
-                await App.AddNotification("Server name is missing in manifest.", true);
+                await App.AddNotification("Server name is missing in manifest.", true).ConfigureAwait(false);
                 return false;
             }
 
             if (!TryCreateSavePath(serverManifest.Name, out var savePath))
             {
-                await App.AddNotification("Failed to create a save path for server.", true);
+                await App.AddNotification("Failed to create a save path for server.", true).ConfigureAwait(false);
                 return false;
             }
 
@@ -107,10 +108,8 @@ public partial class AddServer : Popup
         }
         catch (Exception ex)
         {
-            await App.AddNotification($"An exception occurred: {ex.Message}", true);
-
+            await App.AddNotification($"An exception occurred: {ex.Message}", true).ConfigureAwait(false);
             _logger.Error(ex);
-
             return false;
         }
     }
@@ -122,8 +121,8 @@ public partial class AddServer : Popup
         {
             var validName = name.ToValidDirectoryName();
 
-            var current = validName;
-            int i = 1;
+            var currentName = validName;
+            int counter = 1;
 
             var basePath = Path.Combine(Constants.SavePath, Constants.ServersDirectory);
             Directory.CreateDirectory(basePath);
@@ -132,14 +131,14 @@ public partial class AddServer : Popup
 
             do
             {
-                candidatePath = Path.Combine(basePath, current);
+                candidatePath = Path.Combine(basePath, currentName);
                 if (!Directory.Exists(candidatePath))
                 {
                     Directory.CreateDirectory(candidatePath);
                     path = candidatePath;
                     return true;
                 }
-                current = $"{validName}_{i++}";
+                currentName = $"{validName}_{counter++}";
             } while (true);
         }
         catch (Exception ex)

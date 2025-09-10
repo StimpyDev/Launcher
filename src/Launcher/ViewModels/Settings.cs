@@ -17,6 +17,7 @@ public partial class Settings : ObservableObject
 {
     private static Settings? _instance = null;
     private static readonly string _savePath = Path.Combine(Constants.SavePath, Constants.SettingsFile);
+    private static readonly Lock _lock = new();
 
     [ObservableProperty]
     private bool discordActivity = true;
@@ -39,6 +40,7 @@ public partial class Settings : ObservableObject
     {
         LocaleChanged?.Invoke(this, EventArgs.Empty);
     }
+
     partial void OnDiscordActivityChanged(bool value)
     {
         if (value)
@@ -51,9 +53,8 @@ public partial class Settings : ObservableObject
 
     private Settings()
     {
-    }
 
-    private static readonly Lock _lock = new();
+    }
 
     public static Settings Instance
     {
@@ -67,14 +68,16 @@ public partial class Settings : ObservableObject
                 if (_instance is null)
                 {
                     if (File.Exists(_savePath))
+                    {
                         XmlHelper.TryDeserialize(_savePath, out _instance);
+                    }
                     _instance ??= new Settings();
                 }
             }
-
             return _instance;
         }
     }
+
     public static void Save()
     {
         XmlHelper.TrySerialize(_instance, _savePath);
@@ -89,28 +92,29 @@ public partial class Settings : ObservableObject
         {
             await UIThreadHelper.InvokeAsync(async () =>
             {
-                await App.AddNotification("Logs directory does not exist.", true);
-            });
+                await App.AddNotification("Logs directory does not exist.", true).ConfigureAwait(false);
+            }).ConfigureAwait(false);
             return;
         }
 
         try
         {
-            Process.Start(new ProcessStartInfo()
+            var startInfo = new ProcessStartInfo()
             {
                 Verb = "open",
                 UseShellExecute = true,
                 WorkingDirectory = logsDir,
                 FileName = logsDir
-            });
+            };
+            Process.Start(startInfo);
         }
         catch (Exception ex)
         {
             await UIThreadHelper.InvokeAsync(async () =>
             {
-                await App.AddNotification($"An exception was thrown while opening logs. Exception: {ex}", true);
+                await App.AddNotification($"An exception was thrown while opening logs. Exception: {ex}", true).ConfigureAwait(false);
                 _logger.Error(ex.ToString());
-            });
+            }).ConfigureAwait(false);
         }
     }
 }

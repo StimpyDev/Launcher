@@ -19,6 +19,7 @@ namespace Launcher.ViewModels;
 public partial class Login : Popup
 {
     private readonly Server _server;
+    private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
     [ObservableProperty]
     private string? warning;
@@ -42,9 +43,9 @@ public partial class Login : Popup
     [ObservableProperty]
     private bool rememberPassword;
 
-    private readonly Logger _logger = LogManager.GetCurrentClassLogger();
     public bool AutoFocusUsername => string.IsNullOrEmpty(Username);
     public bool AutoFocusPassword => !string.IsNullOrEmpty(Username) && string.IsNullOrEmpty(Password);
+
     public IAsyncRelayCommand LoginCommand { get; }
     public ICommand LoginCancelCommand { get; }
 
@@ -55,7 +56,6 @@ public partial class Login : Popup
         AddSecureWarning();
 
         RememberUsername = _server.Info.RememberUsername;
-
         RememberPassword = _server.Info.RememberPassword;
 
         if (RememberUsername && !string.IsNullOrEmpty(_server.Info.Username))
@@ -76,10 +76,12 @@ public partial class Login : Popup
             DataContext = this
         };
     }
+
     private async Task OnLogin()
     {
-        await App.ProcessPopupAsync();
+        await App.ProcessPopupAsync().ConfigureAwait(false);
     }
+
     private void OnLoginCancel()
     {
         App.CancelPopup();
@@ -87,14 +89,12 @@ public partial class Login : Popup
 
     private void AddSecureWarning()
     {
-        if (!Uri.TryCreate(_server.Info.LoginApiUrl, UriKind.Absolute, out var loginApiUrl))
+        if (Uri.TryCreate(_server.Info.LoginApiUrl, UriKind.Absolute, out var loginApiUrl))
         {
-            return;
-        }
-
-        if (loginApiUrl.Scheme != Uri.UriSchemeHttps)
-        {
-            Warning = App.GetText("Text.Login.SecureApiWarning");
+            if (loginApiUrl.Scheme != Uri.UriSchemeHttps)
+            {
+                Warning = App.GetText("Text.Login.SecureApiWarning");
+            }
         }
     }
 
@@ -117,7 +117,9 @@ public partial class Login : Popup
         }
         SaveSettings();
     }
+
     private static void SaveSettings() => Settings.Save();
+
     public override async Task<bool> ProcessAsync()
     {
         if (RememberUsername)
@@ -136,7 +138,7 @@ public partial class Login : Popup
         {
             using var httpClient = HttpHelper.CreateHttpClient();
 
-            var loginRequest = new LoginRequest()
+            var loginRequest = new LoginRequest
             {
                 Username = Username,
                 Password = Password
@@ -144,7 +146,6 @@ public partial class Login : Popup
 
             ProgressDescription = App.GetText("Text.Login.Loading");
 
-            // Await network call asynchronously
             var httpResponse = await httpClient.PostAsJsonAsync(_server.Info.LoginApiUrl, loginRequest).ConfigureAwait(false);
 
             if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
@@ -157,13 +158,12 @@ public partial class Login : Popup
             if (!httpResponse.IsSuccessStatusCode)
             {
                 await App.AddNotification($"""
-                                 Failed to login. Http Error: {httpResponse.ReasonPhrase}
-                                 """, true).ConfigureAwait(false);
+                    Failed to login. Http Error: {httpResponse.ReasonPhrase}
+                    """, true).ConfigureAwait(false);
                 return false;
             }
 
             var loginResponse = await httpResponse.Content.ReadFromJsonAsync<LoginResponse>().ConfigureAwait(false);
-
             if (string.IsNullOrEmpty(loginResponse?.SessionId))
             {
                 await App.AddNotification("Invalid login api response.", true).ConfigureAwait(false);
@@ -177,13 +177,12 @@ public partial class Login : Popup
         catch (Exception ex)
         {
             await App.AddNotification($"""
-                                 An exception was thrown while logging in.
-                                 Exception: {ex}
-                                 """, true).ConfigureAwait(false);
+                An exception was thrown while logging in.
+                Exception: {ex}
+                """, true).ConfigureAwait(false);
             _logger.Error(ex.ToString());
+            return false;
         }
-
-        return false;
     }
 
     private async Task LaunchClientAsync(string sessionId, string? serverArguments)
@@ -191,19 +190,20 @@ public partial class Login : Popup
         const string FileName = "FreeRealms.exe";
 
         var launcherArguments = new List<string>
-    {
+        {
             $"Server={_server.Info.LoginServer}",
             $"SessionId={sessionId}",
             $"Internationalization:Locale={Settings.Instance.Locale}"
-    };
+        };
 
         if (!string.IsNullOrEmpty(serverArguments))
+        {
             launcherArguments.Add(serverArguments);
+        }
 
         var arguments = string.Join(' ', launcherArguments);
         var workingDirectory = Path.Combine(Constants.SavePath, _server.Info.SavePath, "Client");
 
-        // Check if the executable exists
         var executablePath = Path.Combine(workingDirectory, FileName);
         if (!File.Exists(executablePath))
         {
@@ -233,7 +233,6 @@ public partial class Login : Popup
         {
             _server.Process.Start();
         }
-
         catch (Exception ex)
         {
             await App.AddNotification($"Failed to start the client: {ex.Message}", true);

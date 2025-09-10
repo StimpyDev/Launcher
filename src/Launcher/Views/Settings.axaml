@@ -26,7 +26,7 @@
 	<TabControl>
 		<TabItem>
 			<TabItem.Header>
-				<TextBlock Text="{DynamicResource Text.Settings.General}" />
+				<TextBlock Text="{DynamicResource Text.Settings}" />
 			</TabItem.Header>
 			<Grid Margin="10" RowDefinitions="30,30,30,30" ColumnDefinitions="Auto,*">
 				<!-- Discord Activity Checkbox -->
