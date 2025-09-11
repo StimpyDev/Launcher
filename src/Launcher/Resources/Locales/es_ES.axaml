@@ -64,6 +64,8 @@
 
 	<x:String x:Key="Text.Settings.General.ParallelDownload.Tooltip" xml:space="preserve">Descarga archivos en varios fragmentos, acelerará la descarga, pero aumentará el uso de RAM.</x:String>
 
+	<x:String x:Key="Text.Downloading.OnClose" xml:space="preserve">No se puede cerrar la ventana durante la descarga.</x:String>
+	
 	<x:String x:Key="Text.Add_Server.ServerUrl" xml:space="preserve">URL del servidor:</x:String>
 
 	<x:String x:Key="Text.Add_Server.Loading" xml:space="preserve">Añadiendo servidor...</x:String>

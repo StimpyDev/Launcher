@@ -139,8 +139,8 @@ namespace Launcher.ViewModels
         {
             if (Process != null)
             {
-                await App.AddNotification("Unable to play, the game is already open", true);
-                _logger.Warn("Unable to play, the game is already open");
+                await App.AddNotification("Unable to launch, the game is already open.", true);
+                _logger.Warn("Unable to launch, the game is already open.");
                 return;
             }
 
