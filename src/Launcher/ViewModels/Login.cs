@@ -187,6 +187,22 @@ public partial class Login : Popup
 
     private async Task LaunchClientAsync(string sessionId, string? serverArguments)
     {
+        bool dx9Available = D3D9.IsAvailable();
+
+        // Checks if dx9 is installed on the system.
+        if (!dx9Available)
+        {
+            await App.AddNotification("DirectX 9 is not available. Cannot launch the client.", true);
+            await Task.Delay(500);
+            Process.Start(new ProcessStartInfo()
+            {
+                Verb = "open",
+                UseShellExecute = true,
+                FileName = "https://www.microsoft.com/en-us/download/details.aspx?id=8109"
+            });
+            return;
+        }
+
         const string FileName = "FreeRealms.exe";
 
         var launcherArguments = new List<string>
