@@ -21,7 +21,8 @@
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
 
-		<!-- Header TextBlock centered -->
+		<!-- Header TextB
+		centered -->
 		<Grid Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
 			<TextBlock FontSize="18" Text="{DynamicResource Text.Add_Server.ServerUrl}" FontFamily="{StaticResource FontDefault}" />
 		</Grid>

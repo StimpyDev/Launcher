@@ -78,6 +78,8 @@
 
 	<x:String x:Key="Text.Add_Server.InvalidServerUrl2" xml:space="preserve">URL no válida, sólo se admite http/https. {0}</x:String>
 
+	<x:String x:Key="Text.Add_Server.ServerAlreadyExists" xml:space="preserve">El servidor con esta URL ya existe.</x:String>
+
 	<x:String x:Key="Text.Delete_Server" xml:space="preserve">Borrar Servidor</x:String>
 
 	<x:String x:Key="Text.Delete_Server.Loading" xml:space="preserve">Borrar Servidor...</x:String>

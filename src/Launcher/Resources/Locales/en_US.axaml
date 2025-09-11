@@ -77,6 +77,8 @@
 	<x:String x:Key="Text.Add_Server.InvalidServerUrl1" xml:space="preserve">Invalid url format. {0}</x:String>
 	
 	<x:String x:Key="Text.Add_Server.InvalidServerUrl2" xml:space="preserve">Invalid url, only http/https is supported. {0}</x:String>
+
+	<x:String x:Key="Text.Add_Server.ServerAlreadyExists" xml:space="preserve">Server with this URL already exists.</x:String>
 	
 	<x:String x:Key="Text.Delete_Server" xml:space="preserve">Delete Server</x:String>
 	

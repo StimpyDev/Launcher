@@ -7,6 +7,7 @@ using NLog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -68,6 +69,16 @@ public partial class AddServer : Popup
         try
         {
             ServerUrl = ServerUrl.Trim();
+
+            // Check for duplicate server URL
+            bool serverExists = Settings.Instance.ServerInfoList
+                .Any(s => string.Equals(s.Url, ServerUrl, StringComparison.OrdinalIgnoreCase));
+
+            if (serverExists)
+            {
+                await App.AddNotification(App.GetText("Text.Add_Server.ServerAlreadyExists", ServerUrl), true).ConfigureAwait(false);
+                return false;
+            }
 
             var result = await HttpHelper.GetServerManifestAsync(ServerUrl).ConfigureAwait(false);
 
