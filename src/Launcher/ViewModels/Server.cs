@@ -14,465 +14,413 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Launcher.ViewModels;
-
-public partial class Server : ObservableObject
+namespace Launcher.ViewModels
 {
-    private readonly Main _main = null!;
-    private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-
-    [ObservableProperty]
-    private ServerInfo info = null!;
-
-    [ObservableProperty]
-    private string statusMessage = string.Empty;
-
-    [ObservableProperty]
-    private string status = App.GetText("Text.ServerStatus.Offline");
-
-    [ObservableProperty]
-    private int onlinePlayers;
-
-    [ObservableProperty]
-    private bool isOnline;
-
-    [ObservableProperty]
-    private Server? activeServer;
-
-    [ObservableProperty]
-    private bool isRefreshing = false;
-
-    [ObservableProperty]
-    private Process? process;
-
-    [ObservableProperty]
-    public IBrush? serverStatusFill;
-
-    [ObservableProperty]
-    private double fileProgress;
-
-    [ObservableProperty]
-    private bool isDownloading;
-
-    private int _downloadsInProgress = 0;
-    public Server()
+    public partial class Server : ObservableObject
     {
+        private readonly Main _main = null!;
+        private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly Lock _listLock = new();
+
+        [ObservableProperty]
+        private ServerInfo info = null!;
+
+        [ObservableProperty]
+        private string statusMessage = string.Empty;
+
+        [ObservableProperty]
+        private string status = App.GetText("Text.ServerStatus.Offline");
+
+        [ObservableProperty]
+        private int onlinePlayers;
+
+        [ObservableProperty]
+        private bool isOnline;
+
+        [ObservableProperty]
+        private Server? activeServer;
+
+        [ObservableProperty]
+        private bool isRefreshing = false;
+
+        [ObservableProperty]
+        private Process? process;
+
+        [ObservableProperty]
+        public IBrush? serverStatusFill;
+
+        [ObservableProperty]
+        private double fileProgress;
+
+        [ObservableProperty]
+        private bool isDownloading;
+
+        private int _downloadsInProgress = 0;
+        public Server()
+        {
 #if DESIGNMODE
-        if (Avalonia.Controls.Design.IsDesignMode)
-        {
-            Info = new ServerInfo
+            if (Avalonia.Controls.Design.IsDesignMode)
             {
-                Url = "https://example.com",
-
-                Name = "Name",
-                Description = "Description",
-
-                SavePath = "Name",
-
-                LoginServer = "127.0.0.1:20042",
-                LoginApiUrl = "https://example.com"
-            };
-        }
+                Info = new ServerInfo
+                {
+                    Url = "https://example.com",
+                    Name = "Name",
+                    Description = "Description",
+                    SavePath = "Name",
+                    LoginServer = "127.0.0.1:20042",
+                    LoginApiUrl = "https://example.com"
+                };
+            }
 #endif
-    }
-
-    public Server(ServerInfo info, Main main)
-    {
-        Info = info;
-
-        _main = main;
-    }
-
-    public async Task<bool> OnShowAsync()
-    {
-        if (!await RefreshServerInfoAsync().ConfigureAwait(false))
-            return false;
-
-        await RefreshServerStatusAsync().ConfigureAwait(false);
-        return true;
-    }
-
-    public void ClientProcessExited(object? sender, EventArgs e)
-    {
-        Process = null;
-        StatusMessage = string.Empty;
-    }
-
-    [RelayCommand(AllowConcurrentExecutions = false)]
-    public async Task RefreshServerStatusAsync()
-    {
-        IsRefreshing = true;
-        try
-        {
-            var serverStatus = await ServerStatusHelper.GetAsync(Info.LoginServer).ConfigureAwait(false);
-
-            IsOnline = serverStatus.IsOnline;
-
-            await UIThreadHelper.InvokeAsync(() =>
-            {
-                if (serverStatus.IsOnline)
-                {
-                    Status = App.GetText(serverStatus.IsLocked
-                        ? "Text.ServerStatus.Locked"
-                        : "Text.ServerStatus.Online");
-
-                    OnlinePlayers = serverStatus.OnlinePlayers;
-
-                    ServerStatusFill = serverStatus.IsLocked
-                        ? new SolidColorBrush(Color.FromRgb(242, 63, 67))
-                        : new SolidColorBrush(Color.FromRgb(35, 165, 90));
-                }
-                else
-                {
-                    Status = App.GetText("Text.ServerStatus.Offline");
-                    OnlinePlayers = 0;
-                    ServerStatusFill = new SolidColorBrush(Color.FromRgb(242, 63, 67));
-                }
-
-                return Task.CompletedTask;
-            });
-        }
-        finally
-        {
-            IsRefreshing = false;
-        }
-    }
-
-    [RelayCommand(AllowConcurrentExecutions = false)]
-    public async Task PlayAsync()
-    {
-        if (Process != null)
-        {
-            await App.AddNotification("Unable to play, the game is already open", true);
-
-            _logger.Warn("Unable to play, the game is already open");
-
-            return;
         }
 
-        var clientManifest = await GetClientManifestAsync().ConfigureAwait(false);
-
-        if (clientManifest is null)
-            return;
-
-        StatusMessage = App.GetText("Text.Server.VerifyClientFiles");
-
-        if (!await VerifyClientFilesAsync(clientManifest).ConfigureAwait(false))
+        public Server(ServerInfo info, Main main)
         {
-            await App.AddNotification("Failed to verify client files, please try again", true);
-
-            _logger.Warn("Failed to verify client files");
-
-            return;
+            Info = info;
+            _main = main;
         }
 
-        await UIThreadHelper.InvokeAsync(async () =>
+        public async Task<bool> OnShowAsync()
         {
-            StatusMessage = string.Empty;
-            await App.ShowPopupAsync(new Login(this));
-        });
-    }
-
-    [RelayCommand]
-    public async Task OpenClientFolder()
-    {
-        try
-        {
-            Process.Start(new ProcessStartInfo()
-            {
-                Verb = "open",
-                UseShellExecute = true,
-                FileName = Path.Combine(Constants.SavePath, Info.SavePath, "Client")
-            });
-        }
-        catch (Exception ex)
-        {
-            await UIThreadHelper.InvokeAsync(async () =>
-            {
-                await App.AddNotification($"""
-                                     An exception was thrown while opening the client folder.
-                                     Exception: {ex}
-                                     """, true);
-
-                _logger.Error(ex.ToString());
-            });
-        }
-    }
-    private async Task<bool> RefreshServerInfoAsync()
-    {
-        try
-        {
-            var result = await HttpHelper.GetServerManifestAsync(Info.Url).ConfigureAwait(false);
-
-            if (!result.Success || result.ServerManifest is null)
-            {
-                await UIThreadHelper.InvokeAsync(async () =>
-                {
-                    await App.AddNotification(result.Error, true);
-
-                    _logger.Error(result.Error);
-                });
-
+            if (!await RefreshServerInfoAsync().ConfigureAwait(false))
                 return false;
-            }
 
-            var serverManifest = result.ServerManifest;
-
-            Info.Name = serverManifest.Name;
-            Info.Description = serverManifest.Description;
-
-            Info.LoginServer = serverManifest.LoginServer;
-            Info.LoginApiUrl = serverManifest.LoginApiUrl;
-
+            await RefreshServerStatusAsync().ConfigureAwait(false);
             return true;
         }
-        catch (Exception ex)
+
+        public void ClientProcessExited(object? sender, EventArgs e)
         {
+            Process = null;
+            StatusMessage = string.Empty;
+        }
+
+        [RelayCommand(AllowConcurrentExecutions = false)]
+        public async Task RefreshServerStatusAsync()
+        {
+            IsRefreshing = true;
+            try
+            {
+                var serverStatus = await ServerStatusHelper.GetAsync(Info.LoginServer).ConfigureAwait(false);
+                IsOnline = serverStatus.IsOnline;
+
+                await UIThreadHelper.InvokeAsync(() =>
+                {
+                    if (serverStatus.IsOnline)
+                    {
+                        Status = App.GetText(serverStatus.IsLocked
+                            ? "Text.ServerStatus.Locked"
+                            : "Text.ServerStatus.Online");
+
+                        OnlinePlayers = serverStatus.OnlinePlayers;
+
+                        ServerStatusFill = serverStatus.IsLocked
+                            ? new SolidColorBrush(Color.FromRgb(242, 63, 67))
+                            : new SolidColorBrush(Color.FromRgb(35, 165, 90));
+                    }
+                    else
+                    {
+                        Status = App.GetText("Text.ServerStatus.Offline");
+                        OnlinePlayers = 0;
+                        ServerStatusFill = new SolidColorBrush(Color.FromRgb(242, 63, 67));
+                    }
+
+                    return Task.CompletedTask;
+                });
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
+        }
+
+        [RelayCommand(AllowConcurrentExecutions = false)]
+        public async Task PlayAsync()
+        {
+            if (Process != null)
+            {
+                await App.AddNotification("Unable to play, the game is already open", true);
+                _logger.Warn("Unable to play, the game is already open");
+                return;
+            }
+
+            var clientManifest = await GetClientManifestAsync().ConfigureAwait(false);
+            if (clientManifest is null)
+                return;
+
+            StatusMessage = App.GetText("Text.Server.VerifyClientFiles");
+
+            if (!await VerifyClientFilesAsync(clientManifest).ConfigureAwait(false))
+            {
+                await App.AddNotification("Failed to verify client files, please try again", true);
+                _logger.Warn("Failed to verify client files");
+                return;
+            }
+
             await UIThreadHelper.InvokeAsync(async () =>
             {
-                await App.AddNotification($"""
-                                     An exception was thrown while getting server info.
-                                     Exception: {ex}
-                                     """, true);
-
-                _logger.Error(ex.ToString());
+                StatusMessage = string.Empty;
+                await App.ShowPopupAsync(new Login(this));
             });
         }
 
-        return false;
-    }
-
-    private async Task<ClientManifest?> GetClientManifestAsync()
-    {
-        try
+        [RelayCommand]
+        public async Task OpenClientFolder()
         {
-            var result = await HttpHelper.GetClientManifestAsync(Info.Url).ConfigureAwait(false);
-
-            if (!result.Success || result.ClientManifest is null)
+            try
+            {
+                Process.Start(new ProcessStartInfo()
+                {
+                    Verb = "open",
+                    UseShellExecute = true,
+                    FileName = Path.Combine(Constants.SavePath, Info.SavePath, "Client")
+                });
+            }
+            catch (Exception ex)
             {
                 await UIThreadHelper.InvokeAsync(async () =>
                 {
-                    await App.AddNotification(result.Error, true);
+                    await App.AddNotification($"""
+                        An exception was thrown while opening the client folder.
+                        Exception: {ex}
+                        """, true);
+                    _logger.Error(ex.ToString());
+                });
+            }
+        }
+        private async Task<bool> RefreshServerInfoAsync()
+        {
+            try
+            {
+                var result = await HttpHelper.GetServerManifestAsync(Info.Url).ConfigureAwait(false);
+                if (!result.Success || result.ServerManifest is null)
+                {
+                    await UIThreadHelper.InvokeAsync(async () =>
+                    {
+                        await App.AddNotification(result.Error, true);
+                        _logger.Error(result.Error);
+                    });
+                    return false;
+                }
+                var serverManifest = result.ServerManifest;
+                Info.Name = serverManifest.Name;
+                Info.Description = serverManifest.Description;
+                Info.LoginServer = serverManifest.LoginServer;
+                Info.LoginApiUrl = serverManifest.LoginApiUrl;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await UIThreadHelper.InvokeAsync(async () =>
+                {
+                    await App.AddNotification($"""
+                        An exception was thrown while getting server info.
+                        Exception: {ex}
+                        """, true);
+                    _logger.Error(ex.ToString());
+                });
+            }
+            return false;
+        }
 
-                    _logger.Error(result.Error);
+        private async Task<ClientManifest?> GetClientManifestAsync()
+        {
+            try
+            {
+                var result = await HttpHelper.GetClientManifestAsync(Info.Url).ConfigureAwait(false);
+                if (!result.Success || result.ClientManifest is null)
+                {
+                    await UIThreadHelper.InvokeAsync(async () =>
+                    {
+                        await App.AddNotification(result.Error, true);
+                        _logger.Error(result.Error);
+                    });
+                    return null;
+                }
+                return result.ClientManifest;
+            }
+            catch (Exception ex)
+            {
+                await UIThreadHelper.InvokeAsync(async () =>
+                {
+                    await App.AddNotification($"""
+                        An exception was thrown while getting client info.
+                        Exception: {ex}
+                        """, true);
+                    _logger.Error(ex.ToString());
+                });
+            }
+            return null;
+        }
+
+        private async Task<bool> VerifyClientFilesAsync(ClientManifest clientManifest)
+        {
+            _logger.Info("Start - Verify Client Files");
+            var filesToDownload = GetFilesToDownloadRecursively(clientManifest.RootFolder).ToList();
+
+            if (filesToDownload.Count == 0)
+            {
+                await UIThreadHelper.InvokeAsync(async () =>
+                {
+                    StatusMessage = App.GetText("Text.Server.FilesUpToDate");
+                    await Task.Delay(2000);
+                    StatusMessage = string.Empty;
+                }).ConfigureAwait(false);
+                _logger.Info("All client files are up-to-date. No downloads necessary.");
+                return true;
+            }
+
+            int success = 1;
+            var parallelOptions = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = Math.Min(4, Environment.ProcessorCount),
+            };
+
+            if (Settings.Instance.ParallelDownload)
+            {
+                await Parallel.ForEachAsync(filesToDownload, parallelOptions, async (file, ct) =>
+                {
+                    try
+                    {
+                        if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
+                        {
+                            Interlocked.Exchange(ref success, 0);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error($"Error downloading file {file.FileName}: {ex.Message}");
+                    }
+                }).ConfigureAwait(false);
+            }
+            else
+            {
+                foreach (var file in filesToDownload)
+                {
+                    try
+                    {
+                        if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
+                        {
+                            Interlocked.Exchange(ref success, 0);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error($"Error downloading file {file.FileName}: {ex.Message}");
+                    }
+                }
+            }
+            _logger.Info("End - Verify Client Files");
+            return success == 1;
+        }
+
+        private async Task<bool> DownloadFileAsync(string path, string fileName)
+        {
+            var downloadFilePath = Path.Combine(path, fileName);
+            Interlocked.Increment(ref _downloadsInProgress);
+            IsDownloading = _downloadsInProgress > 0;
+
+            try
+            {
+                var clientFileUri = UriHelper.JoinUriPaths(Info.Url, "client", path, fileName);
+
+                using var downloadService = new DownloadService(new DownloadConfiguration
+                {
+                    RequestConfiguration = { UserAgent = $"{App.GetText("Text.Title")} v{App.CurrentVersion}" }
                 });
 
-                return null;
-            }
-
-            return result.ClientManifest;
-        }
-        catch (Exception ex)
-        {
-            await UIThreadHelper.InvokeAsync(async () =>
-            {
-                await App.AddNotification($"""
-                                     An exception was thrown while getting client info.
-                                     Exception: {ex}
-                                     """, true);
-
-                _logger.Error(ex.ToString());
-            });
-        }
-
-        return null;
-    }
-
-    private async Task<bool> VerifyClientFilesAsync(ClientManifest clientManifest)
-    {
-        _logger.Info("Start - Verify Client Files");
-
-        var filesToDownload = GetFilesToDownloadRecursively(clientManifest.RootFolder).ToList();
-
-        if (filesToDownload.Count == 0)
-        {
-            await UIThreadHelper.InvokeAsync(async () =>
-            {
-                StatusMessage = App.GetText("Text.Server.FilesUpToDate");
-                await Task.Delay(2000);
-                StatusMessage = string.Empty;
-            }).ConfigureAwait(false);
-            _logger.Info("All client files are up-to-date. No downloads necessary.");
-            return true;
-        }
-
-        int success = 1;
-        var cts = new CancellationTokenSource();
-        int processorCount = Environment.ProcessorCount;
-
-        var maxDegreeOfParallelism = Math.Min(4, processorCount);
-        var parallelOptions = new ParallelOptions
-        {
-            MaxDegreeOfParallelism = Math.Min(4, Environment.ProcessorCount),
-            CancellationToken = cts.Token
-        };
-
-        if (Settings.Instance.ParallelDownload)
-        {
-            await Parallel.ForEachAsync(filesToDownload, parallelOptions, async (file, ct) =>
-            {
-                try
+                downloadService.DownloadStarted += (s, e) =>
                 {
-                    if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
-                    {
-                        Interlocked.Exchange(ref success, 0);
-                        cts.Cancel();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error($"Error downloading file {file.FileName}: {ex.Message}");
-                    Interlocked.Exchange(ref success, 0);
-                    cts.Cancel();
-                }
-            }).ConfigureAwait(false);
-        }
-        else
-        {
-            foreach (var file in filesToDownload)
-            {
-                try
-                {
-                    if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
-                    {
-                        Interlocked.Exchange(ref success, 0);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error($"Error downloading file {file.FileName}: {ex.Message}");
-                    Interlocked.Exchange(ref success, 0);
-                }
-            }
-        }
-        _logger.Info("End - Verify Client Files");
-        return success == 1;
-    }
-
-    private async Task<bool> DownloadFileAsync(string path, string fileName)
-    {
-        var downloadFilePath = Path.Combine(path, fileName);
-        Interlocked.Increment(ref _downloadsInProgress);
-        IsDownloading = _downloadsInProgress > 0;
-
-        try
-        {
-            var clientFileUri = UriHelper.JoinUriPaths(Info.Url, "client", path, fileName);
-
-            using var downloadService = new DownloadService(new DownloadConfiguration
-            {
-                RequestConfiguration = { UserAgent = $"{App.GetText("Text.Title")} v{App.CurrentVersion}" }
-            });
-
-            downloadService.DownloadStarted += async (s, e) =>
-            {
-                try
-                {
-                    await UIThreadHelper.InvokeAsync(() =>
+                    lock (_listLock)
                     {
                         FileProgress = 0;
                         StatusMessage = App.GetText("Text.Server.DownloadingFile", Path.Combine(path, fileName));
-                        return Task.CompletedTask;
-                    }).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error(ex, "Error handling DownloadStarted event");
-                }
-            };
+                    }
+                };
 
-            downloadService.DownloadProgressChanged += async (s, e) =>
-            {
-                try
+                downloadService.DownloadProgressChanged += (s, e) =>
                 {
-                    if (e.TotalBytesToReceive > 0)
+                    lock (_listLock)
                     {
-                        await UIThreadHelper.InvokeAsync(() =>
+                        if (e.TotalBytesToReceive > 0)
                         {
                             FileProgress = (double)e.ReceivedBytesSize / e.TotalBytesToReceive * 100;
-                            return Task.CompletedTask;
-                        }).ConfigureAwait(false);
+                        }
                     }
-                }
-                catch (Exception ex)
+                };
+
+                var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
+                var filePath = Path.Combine(fileDirectory, fileName);
+
+                if (!Directory.Exists(fileDirectory))
+                    Directory.CreateDirectory(fileDirectory);
+
+                await using var fileStream = await downloadService.DownloadFileTaskAsync(clientFileUri).ConfigureAwait(false);
+                if (fileStream is null)
                 {
-                    _logger.Error(ex, "Error handling DownloadProgressChanged event");
+                    await UIThreadHelper.InvokeAsync(async () =>
+                    {
+                        await App.AddNotification($"Failed to get client file: {downloadFilePath}", true).ConfigureAwait(false);
+                        _logger.Error("Failed to get client file {path} {filename}", path, fileName);
+                    }).ConfigureAwait(false);
+                    return false;
                 }
-            };
 
-            var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
-            var filePath = Path.Combine(fileDirectory, fileName);
+                await using var writeStream = new FileStream(filePath, new FileStreamOptions
+                {
+                    Mode = FileMode.Create,
+                    Access = FileAccess.Write,
+                    Options = FileOptions.SequentialScan
+                });
 
-            if (!Directory.Exists(fileDirectory))
-                Directory.CreateDirectory(fileDirectory);
-
-            await using var fileStream = await downloadService.DownloadFileTaskAsync(clientFileUri).ConfigureAwait(false);
-            if (fileStream is null)
+                await fileStream.CopyToAsync(writeStream).ConfigureAwait(false);
+                await writeStream.FlushAsync().ConfigureAwait(false);
+                return true;
+            }
+            catch (Exception ex)
             {
-                await UIThreadHelper.InvokeAsync(async () =>
-                {
-                    await App.AddNotification($"Failed to get client file: {downloadFilePath}", true).ConfigureAwait(false);
-                    _logger.Error("Failed to get client file {path} {filename}", path, fileName);
-                }).ConfigureAwait(false);
+                _logger.Error(ex, "Error downloading {path} {filename}", path, fileName);
                 return false;
             }
-
-            await using var writeStream = new FileStream(filePath, new FileStreamOptions
+            finally
             {
-                Mode = FileMode.Create,
-                Access = FileAccess.Write,
-                Options = FileOptions.SequentialScan
-            });
-
-            await fileStream.CopyToAsync(writeStream).ConfigureAwait(false);
-            await writeStream.FlushAsync().ConfigureAwait(false);
-            return true;
-        }
-
-        catch (Exception ex)
-        {
-            _logger.Error(ex, "Error downloading {path} {filename}", path, fileName);
-            return false;
-        }
-        finally
-        {
-            Interlocked.Decrement(ref _downloadsInProgress);
-            IsDownloading = _downloadsInProgress > 0;
-        }
-    }
-
-    private IEnumerable<(string Path, string FileName)> GetFilesToDownloadRecursively(ClientFolder clientFolder, string path = "")
-    {
-        foreach (var folder in clientFolder.Folders)
-        {
-            var folderPath = Path.Combine(path, folder.Name);
-            foreach (var fileToDownload in GetFilesToDownloadRecursively(folder, folderPath))
-                yield return fileToDownload;
-        }
-
-        foreach (var file in clientFolder.Files)
-        {
-            var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
-            var filePath = Path.Combine(fileDirectory, file.Name);
-
-            if (File.Exists(filePath))
-            {
-                using var readStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-                if (file.Size == readStream.Length)
-                {
-                    readStream.Position = 0;
-                    var hash = XXHash.Hash64(readStream);
-                    if (file.Hash == hash)
-                        continue;
-                }
+                Interlocked.Decrement(ref _downloadsInProgress);
+                IsDownloading = _downloadsInProgress > 0;
             }
-            yield return (path, file.Name);
         }
-    }
 
-    partial void OnProcessChanged(Process? value)
-    {
-        _main?.UpdateDiscordActivity();
+        private IEnumerable<(string Path, string FileName)> GetFilesToDownloadRecursively(ClientFolder clientFolder, string path = "")
+        {
+            foreach (var folder in clientFolder.Folders)
+            {
+                var folderPath = Path.Combine(path, folder.Name);
+                foreach (var fileToDownload in GetFilesToDownloadRecursively(folder, folderPath))
+                    yield return fileToDownload;
+            }
+
+            foreach (var file in clientFolder.Files)
+            {
+                var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
+                var filePath = Path.Combine(fileDirectory, file.Name);
+
+                if (File.Exists(filePath))
+                {
+                    using var readStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    if (file.Size == readStream.Length)
+                    {
+                        readStream.Position = 0;
+                        var hash = XXHash.Hash64(readStream);
+                        if (file.Hash == hash)
+                            continue;
+                    }
+                }
+                yield return (path, file.Name);
+            }
+        }
+
+        partial void OnProcessChanged(Process? value)
+        {
+            _main?.UpdateDiscordActivity();
+        }
     }
 }
