@@ -84,8 +84,9 @@
                     Command="{Binding AddServerCommand}">
 					<Button.Background>
 						<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
-							<GradientStop Color="#687AA7" Offset="0.0"/>
-							<GradientStop Color="#3C4C74" Offset="0.8"/>
+							<GradientStop Color="#96B9D9" Offset="0.0"/>
+							<GradientStop Color="#202959" Offset="4.0"/>
+							<GradientStop Color="#37538C" Offset="0.8"/>
 						</LinearGradientBrush>
 					</Button.Background>
 					<TextBlock Text="{DynamicResource Text.Main.AddServer}" />
@@ -133,18 +134,21 @@
 
 		<!-- Right Panel: Server Controls -->
 		<StackPanel Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10,0,0,10">
+			
 			<!-- Delete Server Button -->
 			<Button
                 Classes="flat primary"
                 Command="{Binding DeleteServerCommand}"
-                IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer.IsDownloading, Converter={StaticResource BoolInverseConverter}}">
+				IsEnabled="{Binding ActiveServer.IsDownloading, Converter={x:Static BoolConverters.Not}}"
+				IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}">
 				<Button.Background>
 					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
-						<GradientStop Color="#687AA7" Offset="0.0"/>
-						<GradientStop Color="#3C4C74" Offset="0.8"/>
+						<GradientStop Color="#96B9D9" Offset="0.0"/>
+						<GradientStop Color="#202959" Offset="4.0"/>
+						<GradientStop Color="#37538C" Offset="0.8"/>
 					</LinearGradientBrush>
 				</Button.Background>
-				<Path Width="16" Height="15" Data="{StaticResource Icons.Delete}" Stretch="Fill" />
+				<Path Width="16" Height="15" Data="{StaticResource Icons.Delete}" IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer.IsDownloading, Converter={StaticResource BoolInverseConverter}}" Stretch="Fill" />
 			</Button>
 		</StackPanel>
 

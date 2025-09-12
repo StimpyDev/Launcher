@@ -54,7 +54,7 @@ namespace Launcher.ViewModels
         private double fileProgress;
 
         [ObservableProperty]
-        private bool isDownloading;
+        private bool isDownloading = false;
 
         private int _downloadsInProgress = 0;
         public Server()
@@ -292,7 +292,7 @@ namespace Launcher.ViewModels
             int success = 1;
             var parallelOptions = new ParallelOptions
             {
-                MaxDegreeOfParallelism = Math.Min(4, Environment.ProcessorCount),
+                MaxDegreeOfParallelism = Math.Min(4, Environment.ProcessorCount * 2),
             };
 
             if (Settings.Instance.ParallelDownload)

@@ -60,16 +60,18 @@
 			<Button Classes="flat primary" Command="{Binding LoginCommand}" FontFamily="{StaticResource FontDefault}" Content="{StaticResource Text.Login}" HotKey="Enter">
 				<Button.Background>
 					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
-						<GradientStop Color="#687AA7" Offset="0.0"/>
-						<GradientStop Color="#3C4C74" Offset="0.8"/>
+						<GradientStop Color="#96B9D9" Offset="0.0"/>
+						<GradientStop Color="#202959" Offset="4.0"/>
+						<GradientStop Color="#37538C" Offset="0.8"/>
 					</LinearGradientBrush>
 				</Button.Background>
 			</Button>
 			<Button Classes="flat primary" Command="{Binding LoginCancelCommand}" Content="{StaticResource Text.Cancel}" FontFamily="{StaticResource FontDefault}">
 				<Button.Background>
 					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
-						<GradientStop Color="#687AA7" Offset="0.0"/>
-						<GradientStop Color="#3C4C74" Offset="0.8"/>
+						<GradientStop Color="#96B9D9" Offset="0.0"/>
+						<GradientStop Color="#202959" Offset="4.0"/>
+						<GradientStop Color="#37538C" Offset="0.8"/>
 					</LinearGradientBrush>
 				</Button.Background>
 			</Button>

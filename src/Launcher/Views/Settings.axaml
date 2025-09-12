@@ -63,12 +63,12 @@
                     Grid.Row="3"
                     Classes="flat primary"
                     FontFamily="{StaticResource FontDefault}"
-                    Command="{Binding OpenLogsCommand}"
-                    IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNull}}">
+                    Command="{Binding OpenLogsCommand}">
 					<Button.Background>
-						<LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-							<GradientStop Color="#687AA7" Offset="0" />
-							<GradientStop Color="#3C4C74" Offset="0.8" />
+						<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+							<GradientStop Color="#96B9D9" Offset="0.0"/>
+							<GradientStop Color="#202959" Offset="4.0"/>
+							<GradientStop Color="#37538C" Offset="0.8"/>
 						</LinearGradientBrush>
 					</Button.Background>
 					<TextBlock Text="{StaticResource Text.Logs}" />

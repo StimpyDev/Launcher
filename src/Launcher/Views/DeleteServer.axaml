@@ -57,9 +57,10 @@
 				Margin="0,0,10,0">
 				<!-- Right margin -->
 				<Button.Background>
-					<LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-						<GradientStop Color="#687AA7" Offset="0.0"/>
-						<GradientStop Color="#3C4C74" Offset="0.8"/>
+					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+						<GradientStop Color="#96B9D9" Offset="0.0"/>
+						<GradientStop Color="#202959" Offset="4.0"/>
+						<GradientStop Color="#37538C" Offset="0.8"/>
 					</LinearGradientBrush>
 				</Button.Background>
 			</Button>
@@ -72,9 +73,10 @@
 				Content="{StaticResource Text.No}"
 				FontFamily="{StaticResource FontDefault}">
 				<Button.Background>
-					<LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-						<GradientStop Color="#687AA7" Offset="0.0"/>
-						<GradientStop Color="#3C4C74" Offset="0.8"/>
+					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+						<GradientStop Color="#96B9D9" Offset="0.0"/>
+						<GradientStop Color="#202959" Offset="4.0"/>
+						<GradientStop Color="#37538C" Offset="0.8"/>
 					</LinearGradientBrush>
 				</Button.Background>
 			</Button>
