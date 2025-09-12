@@ -13,7 +13,13 @@ namespace Launcher
 
         public bool IsEnabled(LogEventLevel level, string area)
         {
-            return level >= _level && (_areas?.Contains(area) ?? true);
+            if (level < _level)
+                return false;
+
+            if (_areas == null)
+                return true;
+
+            return _areas.Contains(area);
         }
 
         public void Log(LogEventLevel level, string area, object? source, string messageTemplate)
@@ -38,7 +44,7 @@ namespace Launcher
         {
             var loggerName = source?.FullName ?? area ?? typeof(NLogSink).FullName;
 
-            if (string.IsNullOrWhiteSpace(loggerName))
+            if (string.IsNullOrEmpty(loggerName))
                 throw new InvalidOperationException("Logger name cannot be null or whitespace.");
 
             return _loggerCache.GetOrAdd(loggerName, name => NLog.LogManager.GetLogger(name));

@@ -8,6 +8,7 @@ using NLog;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -99,22 +100,35 @@ public partial class Settings : ObservableObject
 
         try
         {
-            var startInfo = new ProcessStartInfo()
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Verb = "open",
-                UseShellExecute = true,
-                WorkingDirectory = logsDir,
-                FileName = logsDir
-            };
-            Process.Start(startInfo);
+                var startInfo = new ProcessStartInfo()
+                {
+                    FileName = logsDir,
+                    UseShellExecute = true,
+                    Verb = "open"
+                };
+                Process.Start(startInfo);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start("open", $"\"{logsDir}\"");
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Process.Start("xdg-open", $"\"{logsDir}\"");
+            }
+            else
+            {
+                await UIThreadHelper.InvokeAsync(async () =>
+                {
+                    await App.AddNotification("Unsupported OS for opening directories.", true).ConfigureAwait(false);
+                }).ConfigureAwait(false);
+            }
         }
         catch (Exception ex)
         {
-            await UIThreadHelper.InvokeAsync(async () =>
-            {
-                await App.AddNotification($"An exception was thrown while opening logs. Exception: {ex}", true).ConfigureAwait(false);
-                _logger.Error(ex.ToString());
-            }).ConfigureAwait(false);
+            _logger.Error(ex.ToString());
         }
     }
 }

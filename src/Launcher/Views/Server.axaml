@@ -72,7 +72,7 @@
 
 		<!-- Client Folder -->
 		<StackPanel Grid.Row="3" HorizontalAlignment="Right" Margin="0,169,10,0">
-			<Button Classes="flat primary" CornerRadius="5" Command="{Binding OpenClientFolderCommand}">
+			<Button Classes="flat primary" CornerRadius="5" Command="{Binding OpenClientFolderCommand}" >
 				<Button.Background>
 					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
 						<GradientStop Color="#687AA7" Offset="0.0"/>

@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -169,21 +170,39 @@ namespace Launcher.ViewModels
         {
             try
             {
-                Process.Start(new ProcessStartInfo()
+                string folderPath = Path.Combine(Constants.SavePath, Info.SavePath);
+                string osPlatform = RuntimeInformation.OSDescription;
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    Verb = "open",
-                    UseShellExecute = true,
-                    FileName = Path.Combine(Constants.SavePath, Info.SavePath, "Client")
-                });
+                    Process.Start(new ProcessStartInfo()
+                    {
+                        Verb = "open",
+                        UseShellExecute = true,
+                        FileName = folderPath
+                    });
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    Process.Start("open", folderPath);
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    Process.Start("xdg-open", folderPath);
+                }
+                else
+                {
+                    throw new NotSupportedException($"Unsupported OS: {osPlatform}");
+                }
             }
             catch (Exception ex)
             {
                 await UIThreadHelper.InvokeAsync(async () =>
                 {
                     await App.AddNotification($"""
-                        An exception was thrown while opening the client folder.
-                        Exception: {ex}
-                        """, true);
+                An exception was thrown while opening the client folder.
+                Exception: {ex}
+                """, true);
                     _logger.Error(ex.ToString());
                 });
             }

@@ -189,17 +189,39 @@ public partial class Login : Popup
     {
         bool dx9Available = D3D9.IsAvailable();
 
-        // Checks if dx9 is installed on the system.
         if (!dx9Available)
         {
             await App.AddNotification("DirectX 9 is not available. Cannot launch the client.", true);
             await Task.Delay(500);
-            Process.Start(new ProcessStartInfo()
+
+            string url = "https://www.microsoft.com/en-us/download/details.aspx?id=8109";
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Verb = "open",
-                UseShellExecute = true,
-                FileName = "https://www.microsoft.com/en-us/download/details.aspx?id=8109"
-            });
+                Process.Start(new ProcessStartInfo()
+                {
+                    Verb = "open",
+                    UseShellExecute = true,
+                    FileName = url
+                });
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Process.Start("xdg-open", url);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start("open", url);
+            }
+            else
+            {
+                Process.Start(new ProcessStartInfo()
+                {
+                    Verb = "open",
+                    UseShellExecute = true,
+                    FileName = url
+                });
+            }
             return;
         }
 
