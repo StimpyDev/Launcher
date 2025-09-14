@@ -2,7 +2,7 @@
 using System.Globalization;
 using Avalonia.Data.Converters;
 
-namespace Launcher
+namespace Converters
 {
     public class BoolInverseConverter : IValueConverter
     {

@@ -131,7 +131,7 @@ public partial class Main : ObservableObject
         if (ActiveServer is null)
             return;
 
-        await App.ShowPopupAsync(new DeleteServer(ActiveServer.Info));
+        await App.ShowPopupAsync(new DeleteServer(ActiveServer.Info)).ConfigureAwait(false);
     }
 
     public async Task OnReceiveNotification(Notification notification)

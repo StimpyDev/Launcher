@@ -56,7 +56,14 @@ namespace Launcher.ViewModels
         [ObservableProperty]
         private bool isDownloading = false;
 
-        private int _downloadsInProgress = 0;
+        [ObservableProperty]
+        private int filesDownloaded;
+
+        [ObservableProperty]
+        private int totalFilesToDownload;
+
+        public string FilesDownloadStatus => $"{FilesDownloaded} / {TotalFilesToDownload} files downloaded";
+
         public Server()
         {
 #if DESIGNMODE
@@ -280,6 +287,8 @@ namespace Launcher.ViewModels
         {
             _logger.Info("Start - Verify Client Files");
             var filesToDownload = GetFilesToDownloadRecursively(clientManifest.RootFolder).ToList();
+            TotalFilesToDownload = filesToDownload.Count;
+            FilesDownloaded = 0;
 
             if (filesToDownload.Count == 0)
             {
@@ -305,9 +314,18 @@ namespace Launcher.ViewModels
                 {
                     try
                     {
-                        if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
+                        if (!await DownloadFileAsync(file.Path, file.FileName))
                         {
                             Interlocked.Exchange(ref success, 0);
+                        }
+                        else
+                        {
+                            await UIThreadHelper.InvokeAsync(() =>
+                            {
+                                FilesDownloaded++;
+                                OnPropertyChanged(nameof(FilesDownloadStatus));
+                                return Task.CompletedTask;
+                            });
                         }
                     }
                     catch (Exception ex)
@@ -322,9 +340,18 @@ namespace Launcher.ViewModels
                 {
                     try
                     {
-                        if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
+                        if (!await DownloadFileAsync(file.Path, file.FileName))
                         {
                             Interlocked.Exchange(ref success, 0);
+                        }
+                        else
+                        {
+                            await UIThreadHelper.InvokeAsync(() =>
+                            {
+                                FilesDownloaded++;
+                                OnPropertyChanged(nameof(FilesDownloadStatus));
+                                return Task.CompletedTask;
+                            });
                         }
                     }
                     catch (Exception ex)
@@ -339,9 +366,8 @@ namespace Launcher.ViewModels
 
         private async Task<bool> DownloadFileAsync(string path, string fileName)
         {
+            IsDownloading = true;
             var downloadFilePath = Path.Combine(path, fileName);
-            Interlocked.Increment(ref _downloadsInProgress);
-            IsDownloading = _downloadsInProgress > 0;
 
             try
             {
@@ -356,19 +382,7 @@ namespace Launcher.ViewModels
                 {
                     lock (_listLock)
                     {
-                        FileProgress = 0;
                         StatusMessage = App.GetText("Text.Server.DownloadingFile", Path.Combine(path, fileName));
-                    }
-                };
-
-                downloadService.DownloadProgressChanged += (s, e) =>
-                {
-                    lock (_listLock)
-                    {
-                        if (e.TotalBytesToReceive > 0)
-                        {
-                            FileProgress = (double)e.ReceivedBytesSize / e.TotalBytesToReceive * 100;
-                        }
                     }
                 };
 
@@ -407,8 +421,7 @@ namespace Launcher.ViewModels
             }
             finally
             {
-                Interlocked.Decrement(ref _downloadsInProgress);
-                IsDownloading = _downloadsInProgress > 0;
+                IsDownloading = false;
             }
         }
 

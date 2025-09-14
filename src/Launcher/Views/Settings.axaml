@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Window
     xmlns="https://github.com/avaloniaui"
-    xmlns:c="using:Launcher.Converters"
+    xmlns:c="using:Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:m="using:Launcher.Models"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
