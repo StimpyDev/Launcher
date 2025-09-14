@@ -4,8 +4,10 @@ using CommunityToolkit.Mvvm.Input;
 using Launcher.Models;
 using Launcher.Services;
 using NuGet.Versioning;
+using System;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Launcher.ViewModels;
@@ -23,6 +25,8 @@ public partial class Main : ObservableObject
 
     [ObservableProperty]
     private bool isRefreshing = false;
+
+    private readonly Timer refreshTimer;
 
     [ObservableProperty]
     private SemanticVersion version = App.CurrentVersion;
@@ -42,10 +46,31 @@ public partial class Main : ObservableObject
         }
 #endif
 
+        refreshTimer = new Timer(async _ => await RefreshActiveServerAsync().ConfigureAwait(false), null, 0, 60000);
+
         Settings.Instance.ServerInfoList.CollectionChanged += ServerInfoList_CollectionChanged;
         Settings.Instance.DiscordActivityChanged += (_, _) => UpdateDiscordActivity();
     }
 
+    public async Task RefreshActiveServerAsync()
+    {
+        if (ActiveServer is null)
+            return;
+
+        IsRefreshing = true;
+
+        try
+        {
+            await ActiveServer.RefreshServerStatusAsync().ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+        }
+        finally
+        {
+            IsRefreshing = false;
+        }
+    }
     private void ServerInfoList_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         switch (e.Action)
@@ -56,7 +81,10 @@ public partial class Main : ObservableObject
                 break;
 
             case NotifyCollectionChangedAction.Remove when e.OldStartingIndex != -1:
-                Servers.RemoveAt(e.OldStartingIndex);
+                if (e.OldStartingIndex >= 0 && e.OldStartingIndex < Servers.Count)
+                {
+                    Servers.RemoveAt(e.OldStartingIndex);
+                }
                 break;
         }
     }
@@ -113,7 +141,7 @@ public partial class Main : ObservableObject
 
         Notifications.Add(notification);
 
-        await Task.Delay(500).ConfigureAwait(false);
+        await Task.Delay(1000).ConfigureAwait(false);
         Notifications.Remove(notification);
     }
 }

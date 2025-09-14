@@ -70,16 +70,6 @@ public partial class AddServer : Popup
         {
             ServerUrl = ServerUrl.Trim();
 
-            // Check for duplicate server URL
-            bool serverExists = Settings.Instance.ServerInfoList
-                .Any(s => string.Equals(s.Url, ServerUrl, StringComparison.OrdinalIgnoreCase));
-
-            if (serverExists)
-            {
-                await App.AddNotification(App.GetText("Text.Add_Server.ServerAlreadyExists", ServerUrl), true).ConfigureAwait(false);
-                return false;
-            }
-
             var result = await HttpHelper.GetServerManifestAsync(ServerUrl).ConfigureAwait(false);
 
             if (!result.Success || result.ServerManifest is null)
@@ -99,6 +89,12 @@ public partial class AddServer : Popup
             if (!TryCreateSavePath(serverManifest.Name, out var savePath))
             {
                 await App.AddNotification("Failed to create a save path for server.", true).ConfigureAwait(false);
+                return false;
+            }
+
+            if (Settings.Instance.ServerInfoList.Any(s => string.Equals(s.Name, serverManifest.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                await App.AddNotification(App.GetText("Text.Add_Server.ServerAlreadyExists", ServerUrl), true).ConfigureAwait(false);
                 return false;
             }
 

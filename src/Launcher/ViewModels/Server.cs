@@ -171,42 +171,45 @@ namespace Launcher.ViewModels
         [RelayCommand]
         public async Task OpenClientFolder()
         {
-            try
+            await Task.Run(async () =>
             {
-                string folderPath = Path.Combine(Constants.SavePath, Info.SavePath);
-                string osPlatform = App.GetOSPlatform();
-
-                switch (osPlatform)
+                try
                 {
-                    case "Windows":
-                        Process.Start(new ProcessStartInfo
-                        {
-                            Verb = "open",
-                            UseShellExecute = true,
-                            FileName = folderPath
-                        });
-                        break;
+                    string folderPath = Path.Combine(Constants.SavePath, Info.SavePath);
+                    string osPlatform = App.GetOSPlatform();
 
-                    case "OSX":
-                        Process.Start("open", $"{folderPath}");
-                        break;
+                    switch (osPlatform)
+                    {
+                        case "Windows":
+                            Process.Start(new ProcessStartInfo
+                            {
+                                Verb = "open",
+                                UseShellExecute = true,
+                                FileName = folderPath
+                            });
+                            break;
 
-                    case "Linux":
-                        Process.Start("xdg-open", $"{folderPath}");
-                        break;
+                        case "OSX":
+                            Process.Start("open", $"{folderPath}");
+                            break;
 
-                    default:
-                        throw new NotSupportedException($"Unsupported OS: {RuntimeInformation.OSDescription}");
+                        case "Linux":
+                            Process.Start("xdg-open", $"{folderPath}");
+                            break;
+
+                        default:
+                            throw new NotSupportedException($"Unsupported OS: {RuntimeInformation.OSDescription}");
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                await UIThreadHelper.InvokeAsync(async () =>
+                catch (Exception ex)
                 {
-                    await App.AddNotification($"An exception was thrown while opening the client folder. {ex}", true);
-                    _logger.Error(ex.ToString());
-                });
-            }
+                    await UIThreadHelper.InvokeAsync(async () =>
+                    {
+                        await App.AddNotification($"An exception was thrown while opening the client folder. {ex}", true);
+                        _logger.Error(ex.ToString());
+                    });
+                }
+            });
         }
         private async Task<bool> RefreshServerInfoAsync()
         {

@@ -95,44 +95,47 @@ namespace Launcher.ViewModels
         [RelayCommand]
         public async Task OpenLogsAsync()
         {
-            string osPlatform = App.GetOSPlatform();
-            string logsDir = Path.Combine(Directory.GetCurrentDirectory(), "logs");
-            if (!Directory.Exists(logsDir))
+            await Task.Run(async () =>
             {
-                await UIThreadHelper.InvokeAsync(() => App.AddNotification("Logs directory does not exist.", true));
-                return;
-            }
-
-            try
-            {
-                switch (osPlatform)
+                string osPlatform = App.GetOSPlatform();
+                string logsDir = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+                if (!Directory.Exists(logsDir))
                 {
-                    case "Windows":
-                        Process.Start(new ProcessStartInfo
-                        {
-                            FileName = logsDir,
-                            UseShellExecute = true,
-                            Verb = "open"
-                        });
-                        break;
-
-                    case "OSX":
-                        Process.Start("open", $"{logsDir}");
-                        break;
-
-                    case "Linux":
-                        Process.Start("xdg-open", $"{logsDir}");
-                        break;
-
-                    default:
-                        throw new NotSupportedException($"Unsupported OS: {RuntimeInformation.OSDescription}");
+                    await UIThreadHelper.InvokeAsync(() => App.AddNotification("Logs directory does not exist.", true));
+                    return;
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Error opening logs directory");
-                await UIThreadHelper.InvokeAsync(() => App.AddNotification("Failed to open logs directory.", true));
-            }
+
+                try
+                {
+                    switch (osPlatform)
+                    {
+                        case "Windows":
+                            Process.Start(new ProcessStartInfo
+                            {
+                                FileName = logsDir,
+                                UseShellExecute = true,
+                                Verb = "open"
+                            });
+                            break;
+
+                        case "OSX":
+                            Process.Start("open", $"{logsDir}");
+                            break;
+
+                        case "Linux":
+                            Process.Start("xdg-open", $"{logsDir}");
+                            break;
+
+                        default:
+                            throw new NotSupportedException($"Unsupported OS: {RuntimeInformation.OSDescription}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Error opening logs directory");
+                    await UIThreadHelper.InvokeAsync(() => App.AddNotification("Failed to open logs directory.", true));
+                }
+            });
         }
     }
 }
