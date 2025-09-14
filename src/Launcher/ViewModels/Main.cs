@@ -108,7 +108,7 @@ public partial class Main : ObservableObject
 
     public async Task OnReceiveNotification(Notification notification)
     {
-        if (Notifications.Count >= 2)
+        if (Notifications.Count >= 3)
             return;
 
         Notifications.Add(notification);

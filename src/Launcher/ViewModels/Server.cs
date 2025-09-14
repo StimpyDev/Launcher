@@ -92,8 +92,11 @@ namespace Launcher.ViewModels
 
         public void ClientProcessExited(object? sender, EventArgs e)
         {
-            Process = null;
-            StatusMessage = string.Empty;
+            if (Process != null)
+            {
+                Process.Dispose();
+                Process = null;
+            }
         }
 
         [RelayCommand(AllowConcurrentExecutions = false)]
@@ -171,38 +174,36 @@ namespace Launcher.ViewModels
             try
             {
                 string folderPath = Path.Combine(Constants.SavePath, Info.SavePath);
-                string osPlatform = RuntimeInformation.OSDescription;
+                string osPlatform = App.GetOSPlatform();
 
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                switch (osPlatform)
                 {
-                    Process.Start(new ProcessStartInfo()
-                    {
-                        Verb = "open",
-                        UseShellExecute = true,
-                        FileName = folderPath
-                    });
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    Process.Start("open", folderPath);
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    Process.Start("xdg-open", folderPath);
-                }
-                else
-                {
-                    throw new NotSupportedException($"Unsupported OS: {osPlatform}");
+                    case "Windows":
+                        Process.Start(new ProcessStartInfo
+                        {
+                            Verb = "open",
+                            UseShellExecute = true,
+                            FileName = folderPath
+                        });
+                        break;
+
+                    case "OSX":
+                        Process.Start("open", $"{folderPath}");
+                        break;
+
+                    case "Linux":
+                        Process.Start("xdg-open", $"{folderPath}");
+                        break;
+
+                    default:
+                        throw new NotSupportedException($"Unsupported OS: {RuntimeInformation.OSDescription}");
                 }
             }
             catch (Exception ex)
             {
                 await UIThreadHelper.InvokeAsync(async () =>
                 {
-                    await App.AddNotification($"""
-                An exception was thrown while opening the client folder.
-                Exception: {ex}
-                """, true);
+                    await App.AddNotification($"An exception was thrown while opening the client folder. {ex}", true);
                     _logger.Error(ex.ToString());
                 });
             }

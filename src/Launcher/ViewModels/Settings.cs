@@ -12,123 +12,127 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Launcher.ViewModels;
-
-public partial class Settings : ObservableObject
+namespace Launcher.ViewModels
 {
-    private static Settings? _instance = null;
-    private static readonly string _savePath = Path.Combine(Constants.SavePath, Constants.SettingsFile);
-    private static readonly Lock _lock = new();
-
-    [ObservableProperty]
-    private bool discordActivity = true;
-
-    [ObservableProperty]
-    private bool parallelDownload = true;
-
-    [ObservableProperty]
-    private LocaleType locale = LocaleType.en_US;
-
-    [ObservableProperty]
-    private AvaloniaList<ServerInfo> serverInfoList = [];
-
-    public event EventHandler? LocaleChanged;
-    public event EventHandler? DiscordActivityChanged;
-
-    private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-
-    partial void OnLocaleChanged(LocaleType value)
+    public partial class Settings : ObservableObject
     {
-        LocaleChanged?.Invoke(this, EventArgs.Empty);
-    }
+        private static Settings? _instance;
+        private static readonly string _savePath = Path.Combine(Constants.SavePath, Constants.SettingsFile);
+        private static readonly Lock _lock = new();
 
-    partial void OnDiscordActivityChanged(bool value)
-    {
-        if (value)
-            DiscordService.Start();
-        else
-            DiscordService.Stop();
+        [ObservableProperty]
+        private bool discordActivity = true;
 
-        DiscordActivityChanged?.Invoke(this, EventArgs.Empty);
-    }
+        [ObservableProperty]
+        private bool parallelDownload = true;
 
-    private Settings()
-    {
+        [ObservableProperty]
+        private LocaleType locale = LocaleType.en_US;
 
-    }
+        [ObservableProperty]
+        private AvaloniaList<ServerInfo> serverInfoList = [];
 
-    public static Settings Instance
-    {
-        get
+        public event EventHandler? LocaleChanged;
+        public event EventHandler? DiscordActivityChanged;
+
+        private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
+        partial void OnLocaleChanged(LocaleType value)
         {
-            if (_instance is not null)
-                return _instance;
+            LocaleChanged?.Invoke(this, EventArgs.Empty);
+        }
 
-            lock (_lock)
+        partial void OnDiscordActivityChanged(bool value)
+        {
+            if (value)
+                DiscordService.Start();
+            else
+                DiscordService.Stop();
+
+            DiscordActivityChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private Settings()
+        {
+        }
+
+        public static Settings Instance
+        {
+            get
             {
-                if (_instance is null)
+                if (_instance is not null)
+                    return _instance;
+
+                lock (_lock)
                 {
-                    if (File.Exists(_savePath))
+                    if (_instance is null)
                     {
-                        XmlHelper.TryDeserialize(_savePath, out _instance);
+                        if (File.Exists(_savePath))
+                        {
+                            XmlHelper.TryDeserialize(_savePath, out _instance);
+                        }
+                        _instance ??= new Settings();
                     }
-                    _instance ??= new Settings();
+                }
+                return _instance;
+            }
+        }
+
+        public static void Save()
+        {
+            try
+            {
+                if (_instance != null)
+                {
+                    XmlHelper.TrySerialize(_instance, _savePath);
                 }
             }
-            return _instance;
-        }
-    }
-
-    public static void Save()
-    {
-        XmlHelper.TrySerialize(_instance, _savePath);
-    }
-
-    [RelayCommand]
-    public async Task OpenLogs()
-    {
-        var logsDir = Path.Combine(Directory.GetCurrentDirectory(), "logs");
-
-        if (!Directory.Exists(logsDir))
-        {
-            await UIThreadHelper.InvokeAsync(async () =>
+            catch (Exception)
             {
-                await App.AddNotification("Logs directory does not exist.", true).ConfigureAwait(false);
-            }).ConfigureAwait(false);
-            return;
+            }
         }
 
-        try
+        [RelayCommand]
+        public async Task OpenLogsAsync()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            string osPlatform = App.GetOSPlatform();
+            string logsDir = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+            if (!Directory.Exists(logsDir))
             {
-                var startInfo = new ProcessStartInfo()
+                await UIThreadHelper.InvokeAsync(() => App.AddNotification("Logs directory does not exist.", true));
+                return;
+            }
+
+            try
+            {
+                switch (osPlatform)
                 {
-                    FileName = logsDir,
-                    UseShellExecute = true,
-                    Verb = "open"
-                };
-                Process.Start(startInfo);
+                    case "Windows":
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = logsDir,
+                            UseShellExecute = true,
+                            Verb = "open"
+                        });
+                        break;
+
+                    case "OSX":
+                        Process.Start("open", $"{logsDir}");
+                        break;
+
+                    case "Linux":
+                        Process.Start("xdg-open", $"{logsDir}");
+                        break;
+
+                    default:
+                        throw new NotSupportedException($"Unsupported OS: {RuntimeInformation.OSDescription}");
+                }
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            catch (Exception ex)
             {
-                Process.Start("open", $"\"{logsDir}\"");
+                _logger.Error(ex, "Error opening logs directory");
+                await UIThreadHelper.InvokeAsync(() => App.AddNotification("Failed to open logs directory.", true));
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                Process.Start("xdg-open", $"\"{logsDir}\"");
-            }
-            else
-            {
-                await UIThreadHelper.InvokeAsync(async () =>
-                {
-                    await App.AddNotification("Unsupported OS for opening directories.", true).ConfigureAwait(false);
-                }).ConfigureAwait(false);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.Error(ex.ToString());
         }
     }
 }

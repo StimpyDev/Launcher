@@ -8,6 +8,7 @@ using Launcher.ViewModels;
 using NLog;
 using NuGet.Versioning;
 using System;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Velopack;
 using Velopack.Sources;
@@ -83,6 +84,7 @@ namespace Launcher
                         app._main.Message = GetText("Text.Main.Relaunching");
                         await Task.Delay(500).ConfigureAwait(false);
                         _updateManager.ApplyUpdatesAndRestart(updateInfo);
+                        return;
                     }
                 }
             }
@@ -110,8 +112,10 @@ namespace Launcher
                 return;
             }
 
-            if (app._activeLocale is not null)
+            if (app._activeLocale != null)
+            {
                 app.Resources.MergedDictionaries.Remove(app._activeLocale);
+            }
 
             app.Resources.MergedDictionaries.Add(targetLocale);
             app._activeLocale = targetLocale;
@@ -213,6 +217,17 @@ namespace Launcher
                 return;
 
             app._main.Popup = null;
+        }
+
+        public static string GetOSPlatform()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return "Windows";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return "Linux";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                return "OSX";
+            return "Other";
         }
     }
 }

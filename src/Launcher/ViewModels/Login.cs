@@ -43,6 +43,9 @@ public partial class Login : Popup
     [ObservableProperty]
     private bool rememberPassword;
 
+    private const string ClientExecutableName = "FreeRealms.exe";
+    private const string DirectXDownloadUrl = "https://www.microsoft.com/en-us/download/details.aspx?id=8109";
+
     public bool AutoFocusUsername => string.IsNullOrEmpty(Username);
     public bool AutoFocusPassword => !string.IsNullOrEmpty(Username) && string.IsNullOrEmpty(Password);
 
@@ -188,44 +191,37 @@ public partial class Login : Popup
     private async Task LaunchClientAsync(string sessionId, string? serverArguments)
     {
         bool dx9Available = D3D9.IsAvailable();
+        string osPlatform = App.GetOSPlatform();
 
         if (!dx9Available)
         {
             await App.AddNotification("DirectX 9 is not available. Cannot launch the client.", true);
             await Task.Delay(500);
 
-            string url = "https://www.microsoft.com/en-us/download/details.aspx?id=8109";
+            switch (osPlatform)
+            {
+                case "Windows":
+                    Process.Start(new ProcessStartInfo
+                    {
+                        Verb = "open",
+                        UseShellExecute = true,
+                        FileName = DirectXDownloadUrl
+                    });
+                    break;
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                Process.Start(new ProcessStartInfo()
-                {
-                    Verb = "open",
-                    UseShellExecute = true,
-                    FileName = url
-                });
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                Process.Start("xdg-open", url);
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                Process.Start("open", url);
-            }
-            else
-            {
-                Process.Start(new ProcessStartInfo()
-                {
-                    Verb = "open",
-                    UseShellExecute = true,
-                    FileName = url
-                });
+                case "Linux":
+                    Process.Start("xdg-open", DirectXDownloadUrl);
+                    break;
+
+                case "OSX":
+                    Process.Start("open", DirectXDownloadUrl);
+                    break;
+
+                default:
+                    throw new NotSupportedException($"Unsupported OS: {RuntimeInformation.OSDescription}");
             }
             return;
         }
-
-        const string FileName = "FreeRealms.exe";
 
         var launcherArguments = new List<string>
         {
@@ -242,7 +238,7 @@ public partial class Login : Popup
         var arguments = string.Join(' ', launcherArguments);
         var workingDirectory = Path.Combine(Constants.SavePath, _server.Info.SavePath, "Client");
 
-        var executablePath = Path.Combine(workingDirectory, FileName);
+        var executablePath = Path.Combine(workingDirectory, ClientExecutableName);
         if (!File.Exists(executablePath))
         {
             await App.AddNotification($"Client executable not found: {executablePath}", true);
@@ -251,15 +247,26 @@ public partial class Login : Popup
 
         _server.Process = new Process();
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        switch (osPlatform)
         {
-            _server.Process.StartInfo.FileName = "wine";
-            _server.Process.StartInfo.Arguments = $"{FileName} {arguments}";
-        }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            _server.Process.StartInfo.FileName = FileName;
-            _server.Process.StartInfo.Arguments = arguments;
+            case "Windows":
+                _server.Process.StartInfo.FileName = ClientExecutableName;
+                _server.Process.StartInfo.Arguments = arguments;
+                break;
+
+            case "Linux":
+                _server.Process.StartInfo.FileName = "wine";
+                _server.Process.StartInfo.Arguments = $"{ClientExecutableName} {arguments}";
+                break;
+
+            case "OSX":
+                _server.Process.StartInfo.FileName = "wine";
+                _server.Process.StartInfo.Arguments = $"{ClientExecutableName} {arguments}";
+                break;
+
+            default:
+                await App.AddNotification("Unsupported OS platform for launching client.", true);
+                return;
         }
 
         _server.Process.StartInfo.UseShellExecute = true;
