@@ -78,13 +78,6 @@
 		<!-- Client Folder -->
 		<StackPanel Grid.Row="4" HorizontalAlignment="Right" Margin="0,169,10,0">
 			<Button Classes="no_background" CornerRadius="5" Command="{Binding OpenClientFolderCommand}" >
-				<Button.Background>
-					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
-						<GradientStop Color="#96B9D9" Offset="0.0"/>
-						<GradientStop Color="#202959" Offset="1"/>
-						<GradientStop Color="#37538C" Offset="0.8"/>
-					</LinearGradientBrush>
-				</Button.Background>
 				<Path Width="16" Height="16" Data="{StaticResource Icons.Folder}" Stretch="Fill" />
 			</Button>
 		</StackPanel>
