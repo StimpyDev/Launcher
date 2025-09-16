@@ -18,14 +18,14 @@
 	</Design.DataContext>
 	<Grid RowDefinitions="50,40,250,20" ColumnDefinitions="*,Auto">
 		<!-- Title -->
-		<Grid Grid.Row="1" HorizontalAlignment="Center" Margin="0,0,20,0">
+		<Grid Grid.Row="1" HorizontalAlignment="Center">
 			<Border Effect="drop-shadow(1 1 1 #40000000)">
 				<TextBlock FontSize="24" Text="{Binding Info.Name, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" />
 			</Border>
 		</Grid>
 
 		<!-- Refresh Status -->
-		<Grid Grid.Row="1" HorizontalAlignment="Left" Margin="170,0,0,0">
+		<Grid Grid.Row="1" HorizontalAlignment="Left" Margin="185,0,0,0">
 			<Button Classes="no_background" Margin="5" Command="{Binding RefreshServerStatusCommand}">
 				<Path Width="18" Height="18" Classes.rotating="{Binding IsRefreshing}" Data="{StaticResource Icons.Loading}" Stretch="Fill" />
 			</Button>
@@ -37,11 +37,11 @@
 				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="Auto"/>
 			</Grid.ColumnDefinitions>
-			<StackPanel Orientation="Horizontal" Grid.Column="0" Spacing="2.5" HorizontalAlignment="Center">
+			<StackPanel Orientation="Horizontal" Grid.Column="0" Spacing="2.5" Margin="0,0,10,0" HorizontalAlignment="Center">
 				<TextBlock Text="{StaticResource Text.ServerStatus}" FontFamily="{StaticResource FontDefault}" FontSize="15" />
 				<TextBlock Text="{Binding Status, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" FontSize="15" Foreground="{Binding ServerStatusFill}" />
 			</StackPanel>
-			<StackPanel Orientation="Horizontal" Grid.Column="1" Margin="10,0,0,0" HorizontalAlignment="Center">
+			<StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Center">
 				<TextBlock Text="{StaticResource Text.OnlinePlayers}" FontFamily="{StaticResource FontDefault}" FontSize="15" />
 				<TextBlock Text="{Binding OnlinePlayers, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" Width="30" FontSize="15" />
 			</StackPanel>
@@ -57,7 +57,7 @@
 		</Grid>
 
 		<!-- Server Play / Update Status -->
-		<StackPanel Grid.Row="3" Margin="0,30,20,0">
+		<StackPanel Grid.Row="3" Margin="0,30,0,0">
 			<Grid HorizontalAlignment="Center">
 				<Button Classes="no_background" Cursor="Hand" Command="{Binding PlayCommand}" IsVisible="{Binding PlayCommand.IsRunning, Converter={x:Static BoolConverters.Not}}" >
 					<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset3.png" Width="165" Stretch="UniformToFill" />
@@ -66,13 +66,13 @@
 		</StackPanel>
 
 		<!-- Status Info -->
-		<StackPanel Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,125,0,20">
+		<StackPanel Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,125,0,0">
 			<TextBlock Text="{Binding StatusMessage, Mode=OneWay}" FontSize="13" FontWeight="Medium"/>
 		</StackPanel>
 
 		<!-- Progress info text -->
 		<StackPanel Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Bottom" IsVisible="{Binding IsDownloading}">
-			<TextBlock FontSize="13" FontWeight="Medium" HorizontalAlignment="Center" Text="{Binding FilesDownloadStatus, Mode=OneWay}" />
+			<TextBlock FontSize="13" FontWeight="Medium" Text="{Binding FilesDownloadStatus, Mode=OneWay}" />
 		</StackPanel>
 
 		<!-- Client Folder -->
