@@ -89,7 +89,22 @@
 							<GradientStop Color="#37538C" Offset="0.8"/>
 						</LinearGradientBrush>
 					</Button.Background>
-					<TextBlock Text="{DynamicResource Text.Main.AddServer}" />
+
+					<!-- Wrap the TextBlock inside a Border for colored outline or background -->
+					<Grid>
+						<!-- Outline Text -->
+						<TextBlock Text="{DynamicResource Text.Main.AddServer}"
+								   Foreground="#202959"
+								   FontSize="14"
+							Margin="2,2,2,2"
+							RenderTransformOrigin="0.0,0.0">
+							<TextBlock.RenderTransform>
+								<TranslateTransform X="-2" Y="0"/>
+							</TextBlock.RenderTransform>
+						</TextBlock>
+						<!-- Main Text -->
+						<TextBlock Text="{DynamicResource Text.Main.AddServer}" FontSize="14"/>
+					</Grid>
 				</Button>
 			</StackPanel>
 
@@ -137,17 +152,10 @@
 			
 			<!-- Delete Server Button -->
 			<Button
-                Classes="flat primary"
+                Classes="no_background"
                 Command="{Binding DeleteServerCommand}"
 				IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}">
-				<Button.Background>
-					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
-						<GradientStop Color="#96B9D9" Offset="0.0"/>
-						<GradientStop Color="#202959" Offset="4.0"/>
-						<GradientStop Color="#37538C" Offset="0.8"/>
-					</LinearGradientBrush>
-				</Button.Background>
-				<Path Width="16" Height="15" Data="{StaticResource Icons.Delete}" Stretch="Fill" />
+				<Path Width="17" Height="17" Data="{StaticResource Icons.Delete}" Stretch="Fill" />
 			</Button>
 		</StackPanel>
 
