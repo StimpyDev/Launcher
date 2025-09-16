@@ -342,7 +342,8 @@ namespace Launcher.ViewModels
                     {
                         if (!await DownloadFileAsync(file.Path, file.FileName))
                         {
-                            Interlocked.Exchange(ref success, 0);
+                            success = 0;
+                            break;
                         }
                         else
                         {
