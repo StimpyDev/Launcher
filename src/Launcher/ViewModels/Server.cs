@@ -21,7 +21,6 @@ namespace Launcher.ViewModels
     {
         private readonly Main _main = null!;
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly SemaphoreSlim _semaphore = new(1, 1);
         public string FilesDownloadStatus => $"{FilesDownloaded} / {TotalFilesToDownload} Files Downloaded";
 
         [ObservableProperty]
@@ -338,6 +337,7 @@ namespace Launcher.ViewModels
         private async Task<bool> DownloadFileAsync(string path, string fileName)
         {
             var downloadFilePath = Path.Combine(path, fileName);
+            IsDownloading = true;
 
             try
             {
@@ -349,19 +349,9 @@ namespace Launcher.ViewModels
                     RequestConfiguration = { UserAgent = $"{App.GetText("Text.Title")} v{App.CurrentVersion}" }
                 });
 
-                downloadService.DownloadStarted += async (s, e) =>
-                {
-                    await _semaphore.WaitAsync();
-                    try
+                downloadService.DownloadStarted += (s, e) =>
                     {
                         StatusMessage = App.GetText("Text.Server.DownloadingFile", Path.Combine(path, fileName));
-                        FilesDownloaded++;
-                        OnPropertyChanged(nameof(FilesDownloadStatus));
-                    }
-                    finally
-                    {
-                        _semaphore.Release();
-                    }
                 };
 
                 var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
@@ -390,6 +380,14 @@ namespace Launcher.ViewModels
 
                 await fileStream.CopyToAsync(writeStream).ConfigureAwait(false);
                 await writeStream.FlushAsync().ConfigureAwait(false);
+
+                await UIThreadHelper.InvokeAsync(() =>
+                {
+                    FilesDownloaded++;
+                    OnPropertyChanged(nameof(FilesDownloadStatus));
+                    return Task.CompletedTask;
+                }).ConfigureAwait(false);
+
                 return true;
             }
             catch (Exception ex)
