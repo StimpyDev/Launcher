@@ -66,12 +66,12 @@
 		</StackPanel>
 
 		<!-- Status Info -->
-		<StackPanel Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,125,0,0">
+		<StackPanel Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center">
 			<TextBlock Text="{Binding StatusMessage, Mode=OneWay}" FontSize="13" FontWeight="Medium"/>
 		</StackPanel>
 
 		<!-- Progress info text -->
-		<StackPanel Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Bottom" IsVisible="{Binding IsDownloading}">
+		<StackPanel Grid.Row="3" HorizontalAlignment="Center" Margin="0,115,0,0" IsVisible="{Binding IsDownloading}">
 			<TextBlock FontSize="13" FontWeight="Medium" Text="{Binding FilesDownloadStatus, Mode=OneWay}" />
 		</StackPanel>
 

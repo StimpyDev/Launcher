@@ -21,7 +21,8 @@ namespace Launcher.ViewModels
     {
         private readonly Main _main = null!;
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly Lock _listLock = new();
+        private readonly SemaphoreSlim _semaphore = new(1, 1);
+        public string FilesDownloadStatus => $"{FilesDownloaded} / {TotalFilesToDownload} Files Downloaded";
 
         [ObservableProperty]
         private ServerInfo info = null!;
@@ -61,8 +62,6 @@ namespace Launcher.ViewModels
 
         [ObservableProperty]
         private int totalFilesToDownload;
-
-        public string FilesDownloadStatus => $"{FilesDownloaded} / {TotalFilesToDownload} files downloaded";
 
         public Server()
         {
@@ -287,20 +286,9 @@ namespace Launcher.ViewModels
         {
             _logger.Info("Start - Verify Client Files");
             var filesToDownload = GetFilesToDownloadRecursively(clientManifest.RootFolder).ToList();
+
             TotalFilesToDownload = filesToDownload.Count;
             FilesDownloaded = 0;
-
-            if (filesToDownload.Count == 0)
-            {
-                await UIThreadHelper.InvokeAsync(async () =>
-                {
-                    StatusMessage = App.GetText("Text.Server.FilesUpToDate");
-                    await Task.Delay(2000);
-                    StatusMessage = string.Empty;
-                }).ConfigureAwait(false);
-                _logger.Info("All client files are up-to-date. No downloads necessary.");
-                return true;
-            }
 
             int success = 1;
             var parallelOptions = new ParallelOptions
@@ -317,15 +305,6 @@ namespace Launcher.ViewModels
                         if (!await DownloadFileAsync(file.Path, file.FileName))
                         {
                             Interlocked.Exchange(ref success, 0);
-                        }
-                        else
-                        {
-                            await UIThreadHelper.InvokeAsync(() =>
-                            {
-                                FilesDownloaded++;
-                                OnPropertyChanged(nameof(FilesDownloadStatus));
-                                return Task.CompletedTask;
-                            });
                         }
                     }
                     catch (Exception ex)
@@ -345,15 +324,6 @@ namespace Launcher.ViewModels
                             success = 0;
                             break;
                         }
-                        else
-                        {
-                            await UIThreadHelper.InvokeAsync(() =>
-                            {
-                                FilesDownloaded++;
-                                OnPropertyChanged(nameof(FilesDownloadStatus));
-                                return Task.CompletedTask;
-                            });
-                        }
                     }
                     catch (Exception ex)
                     {
@@ -367,11 +337,11 @@ namespace Launcher.ViewModels
 
         private async Task<bool> DownloadFileAsync(string path, string fileName)
         {
-            IsDownloading = true;
             var downloadFilePath = Path.Combine(path, fileName);
 
             try
             {
+                IsDownloading = true;
                 var clientFileUri = UriHelper.JoinUriPaths(Info.Url, "client", path, fileName);
 
                 using var downloadService = new DownloadService(new DownloadConfiguration
@@ -379,11 +349,18 @@ namespace Launcher.ViewModels
                     RequestConfiguration = { UserAgent = $"{App.GetText("Text.Title")} v{App.CurrentVersion}" }
                 });
 
-                downloadService.DownloadStarted += (s, e) =>
+                downloadService.DownloadStarted += async (s, e) =>
                 {
-                    lock (_listLock)
+                    await _semaphore.WaitAsync();
+                    try
                     {
                         StatusMessage = App.GetText("Text.Server.DownloadingFile", Path.Combine(path, fileName));
+                        FilesDownloaded++;
+                        OnPropertyChanged(nameof(FilesDownloadStatus));
+                    }
+                    finally
+                    {
+                        _semaphore.Release();
                     }
                 };
 
