@@ -71,7 +71,7 @@ public partial class Login : Popup
 
     private async Task OnLogin()
     {
-        await App.ProcessPopupAsync().ConfigureAwait(false);
+        await App.ProcessPopupAsync();
     }
 
     private void OnLoginCancel()

@@ -39,7 +39,7 @@ public partial class AddServer : Popup
 
     private async Task OnAddServer()
     {
-        await App.ProcessPopupAsync().ConfigureAwait(false);
+        await App.ProcessPopupAsync();
     }
 
     private void OnAddServerCancel()
