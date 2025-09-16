@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace Launcher.ViewModels;
-
 public partial class DeleteServer : Popup
 {
     [ObservableProperty]
@@ -22,12 +21,12 @@ public partial class DeleteServer : Popup
 
     public DeleteServer(ServerInfo info)
     {
-        this.Info = info;
+        Info = info;
 
         DeleteServerCommand = new AsyncRelayCommand(OnDeleteServer);
         CancelDeleteServerCommand = new RelayCommand(OnDeleteServerCancel);
 
-        View = new Views.DeleteServer()
+        View = new Views.DeleteServer
         {
             DataContext = this
         };
@@ -35,7 +34,7 @@ public partial class DeleteServer : Popup
 
     private async Task OnDeleteServer()
     {
-        await App.ProcessPopupAsync().ConfigureAwait(false);
+        await App.ProcessPopupAsync();
     }
 
     private void OnDeleteServerCancel()
@@ -53,7 +52,7 @@ public partial class DeleteServer : Popup
     {
         try
         {
-            await ForceDeleteDirectoryAsync(Info.SavePath).ConfigureAwait(false);
+            await ForceDeleteDirectoryAsync(Info.SavePath);
         }
         catch (Exception ex)
         {
@@ -61,14 +60,14 @@ public partial class DeleteServer : Popup
             {
                 try
                 {
-                    await App.AddNotification($"Failed to delete server directory: {ex.Message}", true).ConfigureAwait(false);
+                    await App.AddNotification($"Failed to delete server directory: {ex.Message}", true);
                 }
                 catch (Exception notifyEx)
                 {
                     _logger.Error(notifyEx, "Error showing notification");
                 }
                 _logger.Error(ex, "Error deleting server directory");
-            }).ConfigureAwait(false);
+            });
             return false;
         }
 
@@ -84,11 +83,10 @@ public partial class DeleteServer : Popup
                 _logger.Error(ex, "Error removing server info or saving settings");
             }
             return Task.CompletedTask;
-        }).ConfigureAwait(false);
+        });
 
         return true;
     }
-
     private async Task ForceDeleteDirectoryAsync(string path)
     {
         if (!Directory.Exists(path))

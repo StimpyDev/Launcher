@@ -26,7 +26,7 @@ namespace Launcher.ViewModels
         [ObservableProperty]
         private ServerInfo info = null!;
 
-        [ObservableProperty]
+                [ObservableProperty]
         private string statusMessage = string.Empty;
 
         [ObservableProperty]
@@ -97,11 +97,8 @@ namespace Launcher.ViewModels
 
         public void ClientProcessExited(object? sender, EventArgs e)
         {
-            if (Process != null)
-            {
-                Process.Dispose();
-                Process = null;
-            }
+            Process?.Dispose();
+            Process = null;
         }
 
         [RelayCommand(AllowConcurrentExecutions = false)]
@@ -122,10 +119,10 @@ namespace Launcher.ViewModels
                             : "Text.ServerStatus.Online");
 
                         OnlinePlayers = serverStatus.OnlinePlayers;
-
-                        ServerStatusFill = serverStatus.IsLocked
-                            ? new SolidColorBrush(Color.FromRgb(242, 63, 67))
-                            : new SolidColorBrush(Color.FromRgb(35, 165, 90));
+                        ServerStatusFill = new SolidColorBrush(
+                            serverStatus.IsLocked
+                                ? Color.FromRgb(242, 63, 67)
+                                : Color.FromRgb(35, 165, 90));
                     }
                     else
                     {
@@ -135,7 +132,7 @@ namespace Launcher.ViewModels
                     }
 
                     return Task.CompletedTask;
-                });
+                }).ConfigureAwait(false);
             }
             finally
             {
@@ -148,7 +145,7 @@ namespace Launcher.ViewModels
         {
             if (Process != null)
             {
-                await App.AddNotification("Unable to launch, the game is already open.", true);
+                await App.AddNotification("Unable to launch, the game is already open.", true).ConfigureAwait(false);
                 _logger.Warn("Unable to launch, the game is already open.");
                 return;
             }
@@ -161,60 +158,61 @@ namespace Launcher.ViewModels
 
             if (!await VerifyClientFilesAsync(clientManifest).ConfigureAwait(false))
             {
-                await App.AddNotification("Failed to verify client files, please try again", true);
+                await App.AddNotification("Failed to verify client files, please try again", true).ConfigureAwait(false);
                 _logger.Warn("Failed to verify client files");
+                return;
+            }
+
+            if (!IsOnline)
+            {
+                StatusMessage = string.Empty;
+                await App.AddNotification("Cannot login: The server is offline.", true).ConfigureAwait(false);
                 return;
             }
 
             await UIThreadHelper.InvokeAsync(async () =>
             {
                 StatusMessage = string.Empty;
-                await App.ShowPopupAsync(new Login(this));
-            });
+                await App.ShowPopupAsync(new Login(this)).ConfigureAwait(false);
+            }).ConfigureAwait(false);
         }
 
         [RelayCommand]
         public async Task OpenClientFolder()
         {
-            await Task.Run(async () =>
+            try
             {
-                try
+                string folderPath = Path.Combine(Constants.SavePath, Info.SavePath);
+                string osPlatform = App.GetOSPlatform();
+
+                switch (osPlatform)
                 {
-                    string folderPath = Path.Combine(Constants.SavePath, Info.SavePath);
-                    string osPlatform = App.GetOSPlatform();
-
-                    switch (osPlatform)
-                    {
-                        case "Windows":
-                            Process.Start(new ProcessStartInfo
-                            {
-                                Verb = "open",
-                                UseShellExecute = true,
-                                FileName = folderPath
-                            });
-                            break;
-
-                        case "OSX":
-                            Process.Start("open", $"{folderPath}");
-                            break;
-
-                        case "Linux":
-                            Process.Start("xdg-open", $"{folderPath}");
-                            break;
-
-                        default:
-                            throw new NotSupportedException($"Unsupported OS: {RuntimeInformation.OSDescription}");
-                    }
+                    case "Windows":
+                        Process.Start(new ProcessStartInfo
+                        {
+                            Verb = "open",
+                            UseShellExecute = true,
+                            FileName = folderPath
+                        });
+                        break;
+                    case "OSX":
+                        Process.Start("open", folderPath);
+                        break;
+                    case "Linux":
+                        Process.Start("xdg-open", folderPath);
+                        break;
+                    default:
+                        throw new NotSupportedException($"Unsupported OS: {RuntimeInformation.OSDescription}");
                 }
-                catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                await UIThreadHelper.InvokeAsync(async () =>
                 {
-                    await UIThreadHelper.InvokeAsync(async () =>
-                    {
-                        await App.AddNotification($"An exception was thrown while opening the client folder. {ex}", true);
-                        _logger.Error(ex.ToString());
-                    });
-                }
-            });
+                    await App.AddNotification($"An exception was thrown while opening the client folder. Execption: {ex}", true).ConfigureAwait(false);
+                    _logger.Error(ex.ToString());
+                }).ConfigureAwait(false);
+            }
         }
         private async Task<bool> RefreshServerInfoAsync()
         {
@@ -225,9 +223,9 @@ namespace Launcher.ViewModels
                 {
                     await UIThreadHelper.InvokeAsync(async () =>
                     {
-                        await App.AddNotification(result.Error, true);
+                        await App.AddNotification(result.Error, true).ConfigureAwait(false);
                         _logger.Error(result.Error);
-                    });
+                    }).ConfigureAwait(false);
                     return false;
                 }
                 var serverManifest = result.ServerManifest;
@@ -241,12 +239,9 @@ namespace Launcher.ViewModels
             {
                 await UIThreadHelper.InvokeAsync(async () =>
                 {
-                    await App.AddNotification($"""
-                        An exception was thrown while getting server info.
-                        Exception: {ex}
-                        """, true);
+                    await App.AddNotification($"An exception was thrown while getting server info. Exception: {ex}", true).ConfigureAwait(false);
                     _logger.Error(ex.ToString());
-                });
+                }).ConfigureAwait(false);
             }
             return false;
         }
@@ -260,9 +255,9 @@ namespace Launcher.ViewModels
                 {
                     await UIThreadHelper.InvokeAsync(async () =>
                     {
-                        await App.AddNotification(result.Error, true);
+                        await App.AddNotification(result.Error, true).ConfigureAwait(false);
                         _logger.Error(result.Error);
-                    });
+                    }).ConfigureAwait(false);
                     return null;
                 }
                 return result.ClientManifest;
@@ -271,12 +266,9 @@ namespace Launcher.ViewModels
             {
                 await UIThreadHelper.InvokeAsync(async () =>
                 {
-                    await App.AddNotification($"""
-                        An exception was thrown while getting client info.
-                        Exception: {ex}
-                        """, true);
+                    await App.AddNotification($"An exception was thrown while getting client info. Exception: {ex}", true).ConfigureAwait(false);
                     _logger.Error(ex.ToString());
-                });
+                }).ConfigureAwait(false);
             }
             return null;
         }
@@ -301,7 +293,7 @@ namespace Launcher.ViewModels
                 {
                     try
                     {
-                        if (!await DownloadFileAsync(file.Path, file.FileName))
+                        if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
                         {
                             Interlocked.Exchange(ref success, 0);
                         }
@@ -318,7 +310,7 @@ namespace Launcher.ViewModels
                 {
                     try
                     {
-                        if (!await DownloadFileAsync(file.Path, file.FileName))
+                        if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
                         {
                             success = 0;
                             break;
@@ -341,7 +333,6 @@ namespace Launcher.ViewModels
 
             try
             {
-                IsDownloading = true;
                 var clientFileUri = UriHelper.JoinUriPaths(Info.Url, "client", path, fileName);
 
                 using var downloadService = new DownloadService(new DownloadConfiguration
@@ -350,8 +341,8 @@ namespace Launcher.ViewModels
                 });
 
                 downloadService.DownloadStarted += (s, e) =>
-                    {
-                        StatusMessage = App.GetText("Text.Server.DownloadingFile", Path.Combine(path, fileName));
+                {
+                    StatusMessage = App.GetText("Text.Server.DownloadingFile", Path.Combine(path, fileName));
                 };
 
                 var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);

@@ -21,6 +21,9 @@ public partial class Login : Popup
     private readonly Server _server;
     private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
+    private const string ClientExecutableName = "FreeRealms.exe";
+    private const string DirectXDownloadUrl = "https://www.microsoft.com/en-us/download/details.aspx?id=8109";
+
     [ObservableProperty]
     private string? warning;
 
@@ -43,9 +46,6 @@ public partial class Login : Popup
     [ObservableProperty]
     private bool rememberPassword;
 
-    private const string ClientExecutableName = "FreeRealms.exe";
-    private const string DirectXDownloadUrl = "https://www.microsoft.com/en-us/download/details.aspx?id=8109";
-
     public bool AutoFocusUsername => string.IsNullOrEmpty(Username);
     public bool AutoFocusPassword => !string.IsNullOrEmpty(Username) && string.IsNullOrEmpty(Password);
 
@@ -54,30 +54,19 @@ public partial class Login : Popup
 
     public Login(Server server)
     {
-        _server = server;
+        _server = server ?? throw new ArgumentNullException(nameof(server));
 
         AddSecureWarning();
 
         RememberUsername = _server.Info.RememberUsername;
         RememberPassword = _server.Info.RememberPassword;
-
-        if (RememberUsername && !string.IsNullOrEmpty(_server.Info.Username))
-        {
-            Username = _server.Info.Username;
-        }
-
-        if (RememberPassword && !string.IsNullOrEmpty(_server.Info.Password))
-        {
-            Password = _server.Info.Password;
-        }
+        Username = RememberUsername ? _server.Info.Username ?? string.Empty : string.Empty;
+        Password = RememberPassword ? _server.Info.Password ?? string.Empty : string.Empty;
 
         LoginCommand = new AsyncRelayCommand(OnLogin);
         LoginCancelCommand = new RelayCommand(OnLoginCancel);
 
-        View = new Views.Login()
-        {
-            DataContext = this
-        };
+        View = new Views.Login { DataContext = this };
     }
 
     private async Task OnLogin()
@@ -92,12 +81,10 @@ public partial class Login : Popup
 
     private void AddSecureWarning()
     {
-        if (Uri.TryCreate(_server.Info.LoginApiUrl, UriKind.Absolute, out var loginApiUrl))
+        if (Uri.TryCreate(_server.Info.LoginApiUrl, UriKind.Absolute, out var loginApiUrl)
+            && loginApiUrl.Scheme != Uri.UriSchemeHttps)
         {
-            if (loginApiUrl.Scheme != Uri.UriSchemeHttps)
-            {
-                Warning = App.GetText("Text.Login.SecureApiWarning");
-            }
+            Warning = App.GetText("Text.Login.SecureApiWarning");
         }
     }
 
@@ -105,9 +92,8 @@ public partial class Login : Popup
     {
         _server.Info.RememberUsername = value;
         if (!value)
-        {
             _server.Info.Username = null;
-        }
+
         SaveSettings();
     }
 
@@ -115,9 +101,8 @@ public partial class Login : Popup
     {
         _server.Info.RememberPassword = value;
         if (!value)
-        {
             _server.Info.Password = null;
-        }
+
         SaveSettings();
     }
 
@@ -125,51 +110,32 @@ public partial class Login : Popup
 
     public override async Task<bool> ProcessAsync()
     {
-        if (RememberUsername)
-        {
-            _server.Info.Username = Username;
-            SaveSettings();
-        }
-
-        if (RememberPassword)
-        {
-            _server.Info.Password = Password;
-            SaveSettings();
-        }
+        SaveRememberedCredentials();
 
         try
         {
             using var httpClient = HttpHelper.CreateHttpClient();
-
-            var loginRequest = new LoginRequest
-            {
-                Username = Username,
-                Password = Password
-            };
-
+            var loginRequest = new LoginRequest { Username = Username, Password = Password };
             ProgressDescription = App.GetText("Text.Login.Loading");
 
             var httpResponse = await httpClient.PostAsJsonAsync(_server.Info.LoginApiUrl, loginRequest).ConfigureAwait(false);
 
             if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
             {
-                await App.AddNotification(App.GetText("Text.Login.Unauthorized"), true).ConfigureAwait(false);
-                Password = string.Empty;
+                await HandleUnauthorizedAsync();
                 return false;
             }
 
             if (!httpResponse.IsSuccessStatusCode)
             {
-                await App.AddNotification($"""
-                    Failed to login. Http Error: {httpResponse.ReasonPhrase}
-                    """, true).ConfigureAwait(false);
+                await App.AddNotification($"Failed to login. Http Error: {httpResponse.ReasonPhrase}", true).ConfigureAwait(false);
                 return false;
             }
 
             var loginResponse = await httpResponse.Content.ReadFromJsonAsync<LoginResponse>().ConfigureAwait(false);
             if (string.IsNullOrEmpty(loginResponse?.SessionId))
             {
-                await App.AddNotification("Invalid login api response.", true).ConfigureAwait(false);
+                await App.AddNotification("Invalid login API response.", true).ConfigureAwait(false);
                 Password = string.Empty;
                 return false;
             }
@@ -179,47 +145,36 @@ public partial class Login : Popup
         }
         catch (Exception ex)
         {
-            await App.AddNotification($"""
-                An exception was thrown while logging in.
-                Exception: {ex}
-                """, true).ConfigureAwait(false);
-            _logger.Error(ex.ToString());
+            await App.AddNotification($"An exception was thrown while logging in {ex}", true).ConfigureAwait(false);
+            _logger.Error(ex);
             return false;
         }
     }
 
+    private void SaveRememberedCredentials()
+    {
+        if (RememberUsername)
+        {
+            _server.Info.Username = Username;
+        }
+        if (RememberPassword)
+        {
+            _server.Info.Password = Password;
+        }
+        SaveSettings();
+    }
+
+    private async Task HandleUnauthorizedAsync()
+    {
+        await App.AddNotification(App.GetText("Text.Login.Unauthorized"), true).ConfigureAwait(false);
+        Password = string.Empty;
+    }
+
     private async Task LaunchClientAsync(string sessionId, string? serverArguments)
     {
-        bool dx9Available = D3D9.IsAvailable();
-        string osPlatform = App.GetOSPlatform();
-
-        if (!dx9Available)
+        if (!D3D9.IsAvailable())
         {
-            await App.AddNotification("DirectX 9 is not available. Cannot launch the client.", true);
-            await Task.Delay(500);
-
-            switch (osPlatform)
-            {
-                case "Windows":
-                    Process.Start(new ProcessStartInfo
-                    {
-                        Verb = "open",
-                        UseShellExecute = true,
-                        FileName = DirectXDownloadUrl
-                    });
-                    break;
-
-                case "Linux":
-                    Process.Start("xdg-open", DirectXDownloadUrl);
-                    break;
-
-                case "OSX":
-                    Process.Start("open", DirectXDownloadUrl);
-                    break;
-
-                default:
-                    throw new NotSupportedException($"Unsupported OS: {RuntimeInformation.OSDescription}");
-            }
+            await NotifyDirectX9MissingAsync().ConfigureAwait(false);
             return;
         }
 
@@ -231,47 +186,23 @@ public partial class Login : Popup
         };
 
         if (!string.IsNullOrEmpty(serverArguments))
-        {
             launcherArguments.Add(serverArguments);
-        }
 
         var arguments = string.Join(' ', launcherArguments);
         var workingDirectory = Path.Combine(Constants.SavePath, _server.Info.SavePath, "Client");
-
         var executablePath = Path.Combine(workingDirectory, ClientExecutableName);
+
         if (!File.Exists(executablePath))
         {
-            await App.AddNotification($"Client executable not found: {executablePath}", true);
+            await App.AddNotification($"Client executable not found: {executablePath}", true).ConfigureAwait(false);
             return;
         }
 
-        _server.Process = new Process();
-
-        switch (osPlatform)
+        _server.Process = new Process
         {
-            case "Windows":
-                _server.Process.StartInfo.FileName = ClientExecutableName;
-                _server.Process.StartInfo.Arguments = arguments;
-                break;
-
-            case "Linux":
-                _server.Process.StartInfo.FileName = "wine";
-                _server.Process.StartInfo.Arguments = $"{ClientExecutableName} {arguments}";
-                break;
-
-            case "OSX":
-                _server.Process.StartInfo.FileName = "wine";
-                _server.Process.StartInfo.Arguments = $"{ClientExecutableName} {arguments}";
-                break;
-
-            default:
-                await App.AddNotification("Unsupported OS platform for launching client.", true);
-                return;
-        }
-
-        _server.Process.StartInfo.UseShellExecute = true;
-        _server.Process.StartInfo.WorkingDirectory = workingDirectory;
-        _server.Process.EnableRaisingEvents = true;
+            StartInfo = GetProcessStartInfo(workingDirectory, arguments),
+            EnableRaisingEvents = true
+        };
         _server.Process.Exited += _server.ClientProcessExited;
 
         try
@@ -280,8 +211,62 @@ public partial class Login : Popup
         }
         catch (Exception ex)
         {
-            await App.AddNotification($"Failed to start the client: {ex.Message}", true);
-            _logger.Error(ex.ToString());
+            await App.AddNotification($"Failed to start the client: {ex.Message}", true).ConfigureAwait(false);
+            _logger.Error(ex);
+        }
+    }
+
+    private static ProcessStartInfo GetProcessStartInfo(string workingDirectory, string arguments)
+    {
+        var osPlatform = App.GetOSPlatform();
+        return osPlatform switch
+        {
+            "Windows" => new ProcessStartInfo
+            {
+                FileName = ClientExecutableName,
+                Arguments = arguments,
+                UseShellExecute = true,
+                WorkingDirectory = workingDirectory
+            },
+            "Linux" or "OSX" => new ProcessStartInfo
+            {
+                FileName = "wine",
+                Arguments = $"{ClientExecutableName} {arguments}",
+                UseShellExecute = true,
+                WorkingDirectory = workingDirectory
+            },
+            _ => throw new NotSupportedException($"Unsupported OS: {RuntimeInformation.OSDescription}")
+        };
+    }
+
+    private async Task NotifyDirectX9MissingAsync()
+    {
+        await App.AddNotification("DirectX 9 is not available. Cannot launch the client.", true).ConfigureAwait(false);
+        await Task.Delay(500).ConfigureAwait(false);
+
+        string osPlatform = App.GetOSPlatform();
+        string url = DirectXDownloadUrl;
+
+        try
+        {
+            switch (osPlatform)
+            {
+                case "Windows":
+                    Process.Start(new ProcessStartInfo { Verb = "open", UseShellExecute = true, FileName = url });
+                    break;
+                case "Linux":
+                    Process.Start("xdg-open", url);
+                    break;
+                case "OSX":
+                    Process.Start("open", url);
+                    break;
+                default:
+                    throw new NotSupportedException($"Unsupported OS: {RuntimeInformation.OSDescription}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex);
         }
     }
 }

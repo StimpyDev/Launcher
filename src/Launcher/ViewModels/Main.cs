@@ -4,10 +4,8 @@ using CommunityToolkit.Mvvm.Input;
 using Launcher.Models;
 using Launcher.Services;
 using NuGet.Versioning;
-using System;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Launcher.ViewModels;
@@ -24,9 +22,7 @@ public partial class Main : ObservableObject
     private string message = string.Empty;
 
     [ObservableProperty]
-    private bool isRefreshing = false;
-
-    private readonly Timer refreshTimer;
+    private bool isRefreshing;
 
     [ObservableProperty]
     private SemanticVersion version = App.CurrentVersion;
@@ -46,38 +42,19 @@ public partial class Main : ObservableObject
         }
 #endif
 
-        refreshTimer = new Timer(async _ => await RefreshActiveServerAsync().ConfigureAwait(false), null, 0, 60000);
-
         Settings.Instance.ServerInfoList.CollectionChanged += ServerInfoList_CollectionChanged;
         Settings.Instance.DiscordActivityChanged += (_, _) => UpdateDiscordActivity();
-    }
-
-    public async Task RefreshActiveServerAsync()
-    {
-        if (ActiveServer is null)
-            return;
-
-        IsRefreshing = true;
-
-        try
-        {
-            await ActiveServer.RefreshServerStatusAsync().ConfigureAwait(false);
-        }
-        catch (Exception)
-        {
-        }
-        finally
-        {
-            IsRefreshing = false;
-        }
     }
     private void ServerInfoList_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         switch (e.Action)
         {
-            case NotifyCollectionChangedAction.Add when e.NewStartingIndex != -1:
-                var serverInfo = Settings.Instance.ServerInfoList[e.NewStartingIndex];
-                Servers.Add(new Server(serverInfo, this));
+            case NotifyCollectionChangedAction.Add when e.NewItems is not null:
+                foreach (var item in e.NewItems)
+                {
+                    if (item is ServerInfo serverInfo)
+                        Servers.Add(new Server(serverInfo, this));
+                }
                 break;
 
             case NotifyCollectionChangedAction.Remove when e.OldStartingIndex != -1:
@@ -107,12 +84,11 @@ public partial class Main : ObservableObject
 
         if (serversPlaying.Any())
         {
-            var servers = string.Join(", ", serversPlaying);
-            DiscordService.UpdateActivity(App.GetText("Text.Discord.Playing"), servers);
+            DiscordService.UpdateActivity(App.GetText("Text.Discord.Playing"), string.Join(", ", serversPlaying));
         }
         else
         {
-            DiscordService.UpdateActivity(App.GetText("Text.Discord.Idle"), "");
+            DiscordService.UpdateActivity(App.GetText("Text.Discord.Idle"), string.Empty);
         }
     }
 
@@ -128,7 +104,7 @@ public partial class Main : ObservableObject
     [RelayCommand]
     public async Task DeleteServer()
     {
-        if (ActiveServer is null)
+        if (ActiveServer == null)
             return;
 
         await App.ShowPopupAsync(new DeleteServer(ActiveServer.Info)).ConfigureAwait(false);

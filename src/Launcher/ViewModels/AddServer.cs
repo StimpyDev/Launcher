@@ -15,6 +15,8 @@ namespace Launcher.ViewModels;
 
 public partial class AddServer : Popup
 {
+    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
     [Required]
     [ObservableProperty]
     [NotifyDataErrorInfo]
@@ -24,14 +26,12 @@ public partial class AddServer : Popup
     public IAsyncRelayCommand AddServerCommand { get; }
     public ICommand CancelAddServerCommand { get; }
 
-    private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-
     public AddServer()
     {
         AddServerCommand = new AsyncRelayCommand(OnAddServer);
         CancelAddServerCommand = new RelayCommand(OnAddServerCancel);
 
-        View = new Views.AddServer()
+        View = new Views.AddServer
         {
             DataContext = this
         };
@@ -81,21 +81,16 @@ public partial class AddServer : Popup
             var serverManifest = result.ServerManifest;
 
             if (string.IsNullOrEmpty(serverManifest.Name))
-            {
-                await App.AddNotification("Server name is missing in manifest.", true).ConfigureAwait(false);
-                return false;
-            }
+                return await NotifyAndReturnFalse("Server name is missing in manifest.");
 
             if (!TryCreateSavePath(serverManifest.Name, out var savePath))
-            {
-                await App.AddNotification("Failed to create a save path for server.", true).ConfigureAwait(false);
-                return false;
-            }
+                return await NotifyAndReturnFalse("Failed to create a save path for server.");
 
-            if (Settings.Instance.ServerInfoList.Any(s => string.Equals(s.Name, serverManifest.Name, StringComparison.OrdinalIgnoreCase)))
+            if (Settings.Instance.ServerInfoList.Any(s =>
+                string.Equals(s.Name, serverManifest.Name, StringComparison.OrdinalIgnoreCase)))
             {
-                await App.AddNotification(App.GetText("Text.Add_Server.ServerAlreadyExists", ServerUrl), true).ConfigureAwait(false);
-                return false;
+                return await NotifyAndReturnFalse(
+                    App.GetText("Text.Add_Server.ServerAlreadyExists", ServerUrl));
             }
 
             var serverInfo = new ServerInfo
@@ -115,30 +110,33 @@ public partial class AddServer : Popup
         }
         catch (Exception ex)
         {
-            await App.AddNotification($"An exception occurred: {ex.Message}", true).ConfigureAwait(false);
             _logger.Error(ex);
+            await App.AddNotification($"An exception occurred: {ex.Message}", true).ConfigureAwait(false);
             return false;
         }
     }
 
-    private bool TryCreateSavePath(string name, out string path)
+    private static async Task<bool> NotifyAndReturnFalse(string message)
+    {
+        await App.AddNotification(message, true).ConfigureAwait(false);
+        return false;
+    }
+
+    private static bool TryCreateSavePath(string name, out string path)
     {
         path = string.Empty;
         try
         {
             var validName = name.ToValidDirectoryName();
-
-            var currentName = validName;
-            int counter = 1;
-
             var basePath = Path.Combine(Constants.SavePath, Constants.ServersDirectory);
             Directory.CreateDirectory(basePath);
 
-            string candidatePath;
+            int counter = 1;
+            string currentName = validName;
 
-            do
+            while (true)
             {
-                candidatePath = Path.Combine(basePath, currentName);
+                var candidatePath = Path.Combine(basePath, currentName);
                 if (!Directory.Exists(candidatePath))
                 {
                     Directory.CreateDirectory(candidatePath);
@@ -146,7 +144,7 @@ public partial class AddServer : Popup
                     return true;
                 }
                 currentName = $"{validName}_{counter++}";
-            } while (true);
+            }
         }
         catch (Exception ex)
         {

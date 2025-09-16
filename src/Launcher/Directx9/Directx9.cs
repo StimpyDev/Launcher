@@ -18,9 +18,14 @@ public static partial class D3D9
                 return true;
             }
         }
-        catch
+        catch (DllNotFoundException)
         {
-
+        }
+        catch (EntryPointNotFoundException)
+        {
+        }
+        catch (Exception)
+        {
         }
         return false;
     }
