@@ -57,10 +57,15 @@ public partial class Main : ObservableObject
                 }
                 break;
 
-            case NotifyCollectionChangedAction.Remove when e.OldStartingIndex != -1:
-                if (e.OldStartingIndex >= 0 && e.OldStartingIndex < Servers.Count)
+            case NotifyCollectionChangedAction.Remove when e.OldItems is not null:
+                foreach (var item in e.OldItems)
                 {
-                    Servers.RemoveAt(e.OldStartingIndex);
+                    if (item is ServerInfo removedInfo)
+                    {
+                        var serverToRemove = Servers.FirstOrDefault(s => s.Info == removedInfo);
+                        if (serverToRemove != null)
+                            Servers.Remove(serverToRemove);
+                    }
                 }
                 break;
         }

@@ -102,6 +102,7 @@ public partial class Login : Popup
         _server.Info.RememberPassword = value;
         if (!value)
             _server.Info.Password = null;
+            Password = string.Empty;
 
         SaveSettings();
     }
