@@ -10,7 +10,10 @@ public static class Constants
 
     public const string SaveDirectory = "OSFRLauncher";
     public const string ServersDirectory = "Servers";
-    
+
+    public const string ClientExecutableName = "FreeRealms.exe";
+    public const string DirectXDownloadUrl = "https://www.microsoft.com/en-us/download/details.aspx?id=8109";
+
     public static readonly string SavePath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 SaveDirectory);

@@ -76,7 +76,7 @@ public partial class DeleteServer : Popup
             try
             {
                 Settings.Instance.ServerInfoList.Remove(Info);
-                Settings.Save();
+                Settings.Instance.Save();
             }
             catch (Exception ex)
             {

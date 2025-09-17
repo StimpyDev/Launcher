@@ -3,7 +3,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     x:Class="Launcher.App"
     xmlns:local="using:Launcher"
-	xmlns:c="using:Converters"
     RequestedThemeVariant="Dark">
 
 	<Application.Resources>
@@ -22,7 +21,6 @@
 
 			<!-- Additional Resources -->
 			<FontFamily x:Key="FontDefault">/Assets/Fonts/Maiandra-GD-Regular.otf#Maiandra GD</FontFamily>
-			<c:BoolInverseConverter x:Key="BoolInverseConverter"/>
 		</ResourceDictionary>
 	</Application.Resources>
 

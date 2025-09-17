@@ -3,7 +3,7 @@ using Launcher.Models;
 using System;
 using System.Globalization;
 
-namespace Converters;
+namespace Launcher.Converters;
 
 public static class StringConverter
 {

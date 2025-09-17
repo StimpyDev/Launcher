@@ -10,19 +10,12 @@ public static class DiscordService
     private static readonly Lock _lock = new();
     private static Discord.Discord? _discord;
     private static CancellationTokenSource _cts = new();
-    private static Task? _updateTask;
 
     // OSFR Launcher application owned by OSFR team
     private const long ClientId = 1223728876199608410;
 
     public static void Start()
     {
-        if (!IsDiscordAvailable())
-        {
-            Console.WriteLine("Discord is not available. Service will not start.");
-            return;
-        }
-
         if (_cts.IsCancellationRequested)
         {
             _cts.Dispose();
@@ -41,54 +34,22 @@ public static class DiscordService
             Console.WriteLine($"Error initializing Discord: {ex}");
             return; // Exit if initialization fails
         }
-
-        // Start the update loop only if not already running
-        if (_updateTask == null || _updateTask.IsCompleted)
+        finally
         {
-            _updateTask = Task.Factory.StartNew(UpdateAsync, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            Stop();
         }
+
+        Task.Factory.StartNew(UpdateAsync, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
     }
 
     public static void Stop()
     {
         _cts.Cancel();
 
-        lock (_lock)
-        {
-            _discord?.Dispose();
-            _discord = null;
-        }
-
-        // Optionally wait for the update task to complete
-        if (_updateTask != null)
-        {
-            try
-            {
-                _updateTask.Wait();
-            }
-            catch (AggregateException ae)
-            {
-                foreach (var e in ae.InnerExceptions)
-                {
-                    Console.WriteLine($"Error stopping Discord update task: {e}");
-                }
-            }
-        }
+        _discord?.Dispose();
+        _discord = null;
     }
 
-    private static bool IsDiscordAvailable()
-    {
-        try
-        {
-            // Attempt to create a Discord client as a test
-            using var testDiscord = new Discord.Discord(ClientId, (ulong)CreateFlags.NoRequireDiscord);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
     private static async Task UpdateAsync()
     {
         try
@@ -99,12 +60,6 @@ public static class DiscordService
                 {
                     if (_discord == null)
                     {
-                        if (!IsDiscordAvailable())
-                        {
-                            Console.WriteLine("Discord not available during update loop.");
-                            break; // Exit if Discord is unavailable
-                        }
-
                         try
                         {
                             _discord = new Discord.Discord(ClientId, (ulong)CreateFlags.NoRequireDiscord);
@@ -116,19 +71,11 @@ public static class DiscordService
                         }
                     }
 
-                    _discord?.RunCallbacks();
+                    _discord.RunCallbacks();
                 }
 
                 await Task.Delay(1000 / 60, _cts.Token);
             }
-        }
-        catch (OperationCanceledException)
-        {
-            // Expected on cancellation
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error in UpdateAsync: {ex}");
         }
         finally
         {
@@ -148,7 +95,7 @@ public static class DiscordService
                 return;
             }
 
-            activityManager = _discord?.GetActivityManager();
+            activityManager = _discord.GetActivityManager();
         }
 
         if (activityManager is null)
@@ -173,10 +120,5 @@ public static class DiscordService
         {
             Console.WriteLine($"Failed to update activity: {ex}");
         }
-
-        activityManager.UpdateActivity(activity, _ =>
-            {
-
-            });
     }
 }

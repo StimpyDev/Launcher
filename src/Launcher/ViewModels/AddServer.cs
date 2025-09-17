@@ -86,13 +86,6 @@ public partial class AddServer : Popup
             if (!TryCreateSavePath(serverManifest.Name, out var savePath))
                 return await NotifyAndReturnFalse("Failed to create a save path for server.");
 
-            if (Settings.Instance.ServerInfoList.Any(s =>
-                string.Equals(s.Name, serverManifest.Name, StringComparison.OrdinalIgnoreCase)))
-            {
-                return await NotifyAndReturnFalse(
-                    App.GetText("Text.Add_Server.ServerAlreadyExists", ServerUrl));
-            }
-
             var serverInfo = new ServerInfo
             {
                 Url = ServerUrl,
@@ -104,7 +97,7 @@ public partial class AddServer : Popup
             };
 
             Settings.Instance.ServerInfoList.Add(serverInfo);
-            Settings.Save();
+            Settings.Instance.Save();
 
             return true;
         }

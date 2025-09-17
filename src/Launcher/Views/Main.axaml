@@ -281,7 +281,7 @@
                                 Grid.Row="0"
                                 Orientation="Horizontal"
                                 HorizontalAlignment="Center"
-                                IsVisible="{Binding IsError, Converter={StaticResource BoolInverseConverter}}">
+                                IsVisible="{Binding IsError, Converter={x:Static BoolConverters.Not}}">
                                 <asyncImageLoader:AdvancedImage Source="/Assets/fr_asset2.png" Stretch="None" HorizontalAlignment="Left"/>
                                 <TextBlock Margin="5,0,0,0" FontSize="15" FontFamily="{StaticResource FontDefault}" Text="{DynamicResource Text.Main.Info}" />
                             </StackPanel>

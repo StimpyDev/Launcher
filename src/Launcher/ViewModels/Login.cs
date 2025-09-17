@@ -21,9 +21,6 @@ public partial class Login : Popup
     private readonly Server _server;
     private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-    private const string ClientExecutableName = "FreeRealms.exe";
-    private const string DirectXDownloadUrl = "https://www.microsoft.com/en-us/download/details.aspx?id=8109";
-
     [ObservableProperty]
     private string? warning;
 
@@ -54,7 +51,7 @@ public partial class Login : Popup
 
     public Login(Server server)
     {
-        _server = server ?? throw new ArgumentNullException(nameof(server));
+        _server = server;
 
         AddSecureWarning();
 
@@ -94,7 +91,7 @@ public partial class Login : Popup
         if (!value)
             _server.Info.Username = null;
 
-        SaveSettings();
+        Settings.Instance.Save();
     }
 
     partial void OnRememberPasswordChanged(bool value)
@@ -102,12 +99,9 @@ public partial class Login : Popup
         _server.Info.RememberPassword = value;
         if (!value)
             _server.Info.Password = null;
-            Password = string.Empty;
 
-        SaveSettings();
+        Settings.Instance.Save();
     }
-
-    private static void SaveSettings() => Settings.Save();
 
     public override async Task<bool> ProcessAsync()
     {
@@ -162,7 +156,7 @@ public partial class Login : Popup
         {
             _server.Info.Password = Password;
         }
-        SaveSettings();
+        Settings.Instance.Save();
     }
 
     private async Task HandleUnauthorizedAsync()
@@ -191,7 +185,7 @@ public partial class Login : Popup
 
         var arguments = string.Join(' ', launcherArguments);
         var workingDirectory = Path.Combine(Constants.SavePath, _server.Info.SavePath, "Client");
-        var executablePath = Path.Combine(workingDirectory, ClientExecutableName);
+        var executablePath = Path.Combine(workingDirectory, Constants.ClientExecutableName);
 
         if (!File.Exists(executablePath))
         {
@@ -224,7 +218,7 @@ public partial class Login : Popup
         {
             "Windows" => new ProcessStartInfo
             {
-                FileName = ClientExecutableName,
+                FileName = Constants.ClientExecutableName,
                 Arguments = arguments,
                 UseShellExecute = true,
                 WorkingDirectory = workingDirectory
@@ -232,7 +226,7 @@ public partial class Login : Popup
             "Linux" or "OSX" => new ProcessStartInfo
             {
                 FileName = "wine",
-                Arguments = $"{ClientExecutableName} {arguments}",
+                Arguments = $"{Constants.ClientExecutableName} {arguments}",
                 UseShellExecute = true,
                 WorkingDirectory = workingDirectory
             },
@@ -246,7 +240,7 @@ public partial class Login : Popup
         await Task.Delay(500).ConfigureAwait(false);
 
         string osPlatform = App.GetOSPlatform();
-        string url = DirectXDownloadUrl;
+        string url = Constants.DirectXDownloadUrl;
 
         try
         {

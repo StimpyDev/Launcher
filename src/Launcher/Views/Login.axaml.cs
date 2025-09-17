@@ -1,12 +1,10 @@
 using Avalonia.Controls;
 
-namespace Launcher.Views
+namespace Launcher.Views;
+public partial class Login : UserControl
 {
-    public partial class Login : UserControl
+    public Login()
     {
-        public Login()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }
