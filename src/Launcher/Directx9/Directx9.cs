@@ -9,9 +9,11 @@ public static partial class D3D9
 
     const uint D3D_SDK_VERSION = 0x20;
 
-    [SupportedOSPlatform("windows")]
     public static bool IsAvailable()
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            return false;
+
         try
         {
             IntPtr v = Direct3DCreate9(D3D_SDK_VERSION);
