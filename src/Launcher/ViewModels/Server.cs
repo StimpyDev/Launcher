@@ -287,109 +287,118 @@ namespace Launcher.ViewModels
                 MaxDegreeOfParallelism = Math.Min(4, Environment.ProcessorCount * 2),
             };
 
-            if (Settings.Instance.ParallelDownload)
-            {
-                await Parallel.ForEachAsync(filesToDownload, parallelOptions, async (file, ct) =>
-                {
-                    try
-                    {
-                        if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
-                        {
-                            Interlocked.Exchange(ref success, 0);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Error($"Error downloading file {file.FileName}: {ex.Message}");
-                    }
-                }).ConfigureAwait(false);
-            }
-            else
-            {
-                foreach (var file in filesToDownload)
-                {
-                    try
-                    {
-                        if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
-                        {
-                            success = 0;
-                            break;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Error($"Error downloading file {file.FileName}: {ex.Message}");
-                    }
-                }
-            }
-            _logger.Info("End - Verify Client Files");
-            return success == 1;
-        }
-
-        private async Task<bool> DownloadFileAsync(string path, string fileName)
-        {
-            var downloadFilePath = Path.Combine(path, fileName);
             IsDownloading = true;
 
             try
             {
-                var clientFileUri = UriHelper.JoinUriPaths(Info.Url, "client", path, fileName);
-
-                using var downloadService = new DownloadService(new DownloadConfiguration
+                if (Settings.Instance.ParallelDownload)
                 {
-                    RequestConfiguration = { UserAgent = $"{App.GetText("Text.Title")} v{App.CurrentVersion}" }
-                });
-
-                downloadService.DownloadStarted += (s, e) =>
-                {
-                    StatusMessage = App.GetText("Text.Server.DownloadingFile", Path.Combine(path, fileName));
-                };
-
-                var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
-                var filePath = Path.Combine(fileDirectory, fileName);
-
-                if (!Directory.Exists(fileDirectory))
-                    Directory.CreateDirectory(fileDirectory);
-
-                await using var fileStream = await downloadService.DownloadFileTaskAsync(clientFileUri).ConfigureAwait(false);
-                if (fileStream is null)
-                {
-                    await UIThreadHelper.InvokeAsync(async () =>
+                    await Parallel.ForEachAsync(filesToDownload, parallelOptions, async (file, ct) =>
                     {
-                        await App.AddNotification($"Failed to get client file: {downloadFilePath}", true).ConfigureAwait(false);
-                        _logger.Error("Failed to get client file {path} {filename}", path, fileName);
+                        try
+                        {
+                            if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
+                            {
+                                Interlocked.Exchange(ref success, 0);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error($"Error downloading file {file.FileName}: {ex.Message}");
+                        }
                     }).ConfigureAwait(false);
-                    return false;
                 }
-
-                await using var writeStream = new FileStream(filePath, new FileStreamOptions
+                else
                 {
-                    Mode = FileMode.Create,
-                    Access = FileAccess.Write,
-                    Options = FileOptions.SequentialScan
-                });
-
-                await fileStream.CopyToAsync(writeStream).ConfigureAwait(false);
-                await writeStream.FlushAsync().ConfigureAwait(false);
-
-                await UIThreadHelper.InvokeAsync(() =>
-                {
-                    FilesDownloaded++;
-                    OnPropertyChanged(nameof(FilesDownloadStatus));
-                    return Task.CompletedTask;
-                }).ConfigureAwait(false);
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Error downloading {path} {filename}", path, fileName);
-                return false;
+                    foreach (var file in filesToDownload)
+                    {
+                        try
+                        {
+                            if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
+                            {
+                                success = 0;
+                                break;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error($"Error downloading file {file.FileName}: {ex.Message}");
+                        }
+                    }
+                }
             }
             finally
             {
                 IsDownloading = false;
             }
+
+            _logger.Info("End - Verify Client Files");
+            return success == 1;
+        }
+        private async Task<bool> DownloadFileAsync(string path, string fileName, int maxRetries = 3, int delayMilliseconds = 2000)
+        {
+            var downloadFilePath = Path.Combine(path, fileName);
+
+            for (int attempt = 1; attempt <= maxRetries; attempt++)
+            {
+                try
+                {
+                    var clientFileUri = UriHelper.JoinUriPaths(Info.Url, "client", path, fileName);
+
+                    using var downloadService = new DownloadService(new DownloadConfiguration
+                    {
+                        RequestConfiguration = { UserAgent = $"{App.GetText("Text.Title")} v{App.CurrentVersion}" }
+                    });
+
+                    downloadService.DownloadStarted += (s, e) =>
+                    {
+                        StatusMessage = App.GetText("Text.Server.DownloadingFile", downloadFilePath);
+                    };
+
+                    var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
+                    Directory.CreateDirectory(fileDirectory);
+                    var filePath = Path.Combine(fileDirectory, fileName);
+
+                    await using var fileStream = await downloadService.DownloadFileTaskAsync(clientFileUri).ConfigureAwait(false)
+                        ?? throw new Exception($"Failed to get client file: {downloadFilePath}");
+
+                    await using var writeStream = new FileStream(filePath, new FileStreamOptions
+                    {
+                        Mode = FileMode.Create,
+                        Access = FileAccess.Write,
+                        Options = FileOptions.SequentialScan
+                    });
+
+                    await fileStream.CopyToAsync(writeStream).ConfigureAwait(false);
+                    await writeStream.FlushAsync().ConfigureAwait(false);
+
+                    await UIThreadHelper.InvokeAsync(() =>
+                    {
+                        FilesDownloaded++;
+                        OnPropertyChanged(nameof(FilesDownloadStatus));
+                        return Task.CompletedTask;
+                    }).ConfigureAwait(false);
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warn(ex, "Error downloading {path} {filename} (attempt {attempt}/{maxRetries})", path, fileName, attempt, maxRetries);
+
+                    if (attempt == maxRetries)
+                    {
+                        await UIThreadHelper.InvokeAsync(async () =>
+                        {
+                            await App.AddNotification($"Failed to download file: {downloadFilePath} after {maxRetries} attempts.", true).ConfigureAwait(false);
+                        }).ConfigureAwait(false);
+                        _logger.Error("Exceeded max retries for {path} {filename}", path, fileName);
+                        return false;
+                    }
+                    await Task.Delay(delayMilliseconds).ConfigureAwait(false);
+                }
+            }
+
+            return false;
         }
 
         private IEnumerable<(string Path, string FileName)> GetFilesToDownloadRecursively(ClientFolder clientFolder, string path = "")
