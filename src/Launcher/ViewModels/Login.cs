@@ -193,11 +193,23 @@ public partial class Login : Popup
             return;
         }
 
-        _server.Process = new Process
+        _server.Process = new Process();
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            StartInfo = GetProcessStartInfo(workingDirectory, arguments),
-            EnableRaisingEvents = true
-        };
+            _server.Process.StartInfo.FileName = "wine";
+            _server.Process.StartInfo.Arguments = $"{Constants.ClientExecutableName} {arguments}";
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            _server.Process.StartInfo.FileName = Constants.ClientExecutableName;
+            _server.Process.StartInfo.Arguments = arguments;
+        }
+
+        _server.Process.StartInfo.UseShellExecute = true;
+        _server.Process.StartInfo.WorkingDirectory = workingDirectory;
+        _server.Process.EnableRaisingEvents = true;
+
         _server.Process.Exited += _server.ClientProcessExited;
 
         try
@@ -210,58 +222,37 @@ public partial class Login : Popup
             _logger.Error(ex);
         }
     }
-
-    private static ProcessStartInfo GetProcessStartInfo(string workingDirectory, string arguments)
-    {
-        var osPlatform = App.GetOSPlatform();
-        return osPlatform switch
-        {
-            "Windows" => new ProcessStartInfo
-            {
-                FileName = Constants.ClientExecutableName,
-                Arguments = arguments,
-                UseShellExecute = true,
-                WorkingDirectory = workingDirectory
-            },
-            "Linux" or "OSX" => new ProcessStartInfo
-            {
-                FileName = "wine",
-                Arguments = $"{Constants.ClientExecutableName} {arguments}",
-                UseShellExecute = true,
-                WorkingDirectory = workingDirectory
-            },
-            _ => throw new NotSupportedException($"Unsupported OS: {RuntimeInformation.OSDescription}")
-        };
-    }
-
     private async Task NotifyDirectX9MissingAsync()
     {
         await App.AddNotification("DirectX 9 is not available. Cannot launch the client.", true).ConfigureAwait(false);
         await Task.Delay(500).ConfigureAwait(false);
 
-        string osPlatform = App.GetOSPlatform();
         string url = Constants.DirectXDownloadUrl;
 
         try
         {
-            switch (osPlatform)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                case "Windows":
-                    Process.Start(new ProcessStartInfo { Verb = "open", UseShellExecute = true, FileName = url });
-                    break;
-                case "Linux":
-                    Process.Start("xdg-open", url);
-                    break;
-                case "OSX":
-                    Process.Start("open", url);
-                    break;
-                default:
-                    throw new NotSupportedException($"Unsupported OS: {RuntimeInformation.OSDescription}");
+                Process.Start(new ProcessStartInfo
+                {
+                    Verb = "open",
+                    UseShellExecute = true,
+                    FileName = url
+                });
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Process.Start("xdg-open", url);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start("open", url);
             }
         }
         catch (Exception ex)
         {
             _logger.Error(ex);
+            await App.AddNotification("Failed to open the DirectX download page. Please open this URL manually: " + url, true).ConfigureAwait(false);
         }
     }
 }

@@ -90,42 +90,49 @@ public partial class Settings : ObservableObject
     }
 
     [RelayCommand]
-    public async Task OpenLogsAsync()
+    public async Task OpenLogs()
     {
-        string osPlatform = App.GetOSPlatform();
         string logsDir = Path.Combine(Directory.GetCurrentDirectory(), "logs");
         if (!Directory.Exists(logsDir))
         {
-            await UIThreadHelper.InvokeAsync(() => App.AddNotification("Logs directory does not exist.", true));
+            await UIThreadHelper.InvokeAsync(() =>
+                App.AddNotification("Logs directory does not exist.", true)
+            ).ConfigureAwait(false);
             return;
         }
 
         try
         {
-            switch (osPlatform)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                case "Windows":
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = logsDir,
-                        UseShellExecute = true,
-                        Verb = "open"
-                    });
-                    break;
-                case "OSX":
-                    Process.Start("open", logsDir);
-                    break;
-                case "Linux":
-                    Process.Start("xdg-open", logsDir);
-                    break;
-                default:
-                    throw new NotSupportedException($"Unsupported OS: {RuntimeInformation.OSDescription}");
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = logsDir,
+                    UseShellExecute = true,
+                    Verb = "open"
+                });
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Process.Start("xdg-open", logsDir);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start("open", logsDir);
+            }
+            else
+            {
+                await UIThreadHelper.InvokeAsync(() =>
+                    App.AddNotification("Unknown OS platform. Please open the folder manually: " + logsDir, true)
+                ).ConfigureAwait(false);
             }
         }
         catch (Exception ex)
         {
             _logger.Error(ex, "Error opening logs directory");
-            await UIThreadHelper.InvokeAsync(() => App.AddNotification("Failed to open logs directory.", true));
+            await UIThreadHelper.InvokeAsync(() =>
+                App.AddNotification($"Failed to open logs directory. Error: {ex.Message}", true)
+            ).ConfigureAwait(false);
         }
     }
 }

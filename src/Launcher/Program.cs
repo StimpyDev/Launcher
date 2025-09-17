@@ -21,8 +21,6 @@ internal sealed class Program
 
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-        VelopackApp.Build().Run();
-
         if (Settings.Instance.DiscordActivity)
         {
             DiscordService.Start();
@@ -35,6 +33,8 @@ internal sealed class Program
 
     internal static AppBuilder BuildAvaloniaApp()
     {
+        VelopackApp.Build().Run();
+
         var builder = AppBuilder.Configure<App>()
             .WithInterFont()
             .UsePlatformDetect();

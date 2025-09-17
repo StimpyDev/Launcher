@@ -47,27 +47,15 @@ public partial class Main : ObservableObject
     }
     private void ServerInfoList_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        switch (e.Action)
+        if (e.Action == NotifyCollectionChangedAction.Add && e.NewStartingIndex != -1)
         {
-            case NotifyCollectionChangedAction.Add when e.NewItems is not null:
-                foreach (var item in e.NewItems)
-                {
-                    if (item is ServerInfo serverInfo)
-                        Servers.Add(new Server(serverInfo, this));
-                }
-                break;
+            var serverInfo = Settings.Instance.ServerInfoList[e.NewStartingIndex];
 
-            case NotifyCollectionChangedAction.Remove when e.OldItems is not null:
-                foreach (var item in e.OldItems)
-                {
-                    if (item is ServerInfo removedInfo)
-                    {
-                        var serverToRemove = Servers.FirstOrDefault(s => s.Info == removedInfo);
-                        if (serverToRemove != null)
-                            Servers.Remove(serverToRemove);
-                    }
-                }
-                break;
+            Servers.Add(new Server(serverInfo, this));
+        }
+        else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldStartingIndex != -1)
+        {
+            Servers.RemoveAt(e.OldStartingIndex);
         }
     }
 

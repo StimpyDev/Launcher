@@ -103,7 +103,14 @@ public partial class Server : ObservableObject
     [RelayCommand(AllowConcurrentExecutions = false)]
     public async Task RefreshServerStatusAsync()
     {
-        IsRefreshing = true;
+        await UIThreadHelper.InvokeAsync(() =>
+        {
+            Status = "Refreshing";
+            ServerStatusFill = new SolidColorBrush(Color.FromRgb(204, 204, 0));
+            IsRefreshing = true;
+            return Task.CompletedTask;
+        });
+
         try
         {
             var serverStatus = await ServerStatusHelper.GetAsync(Info.LoginServer).ConfigureAwait(false);
@@ -135,7 +142,11 @@ public partial class Server : ObservableObject
         }
         finally
         {
-            IsRefreshing = false;
+            await UIThreadHelper.InvokeAsync(() =>
+            {
+                IsRefreshing = false;
+                return Task.CompletedTask;
+            });
         }
     }
 
@@ -179,36 +190,39 @@ public partial class Server : ObservableObject
     [RelayCommand]
     public async Task OpenClientFolder()
     {
+        string folderPath = Path.Combine(Constants.SavePath, Info.SavePath);
+
         try
         {
-            string folderPath = Path.Combine(Constants.SavePath, Info.SavePath);
-            string osPlatform = App.GetOSPlatform();
-
-            switch (osPlatform)
+            if (!Directory.Exists(folderPath))
             {
-                case "Windows":
-                    Process.Start(new ProcessStartInfo
-                    {
-                        Verb = "open",
-                        UseShellExecute = true,
-                        FileName = folderPath
-                    });
-                    break;
-                case "OSX":
-                    Process.Start("open", folderPath);
-                    break;
-                case "Linux":
-                    Process.Start("xdg-open", folderPath);
-                    break;
-                default:
-                    throw new NotSupportedException($"Unsupported OS: {RuntimeInformation.OSDescription}");
+                await App.AddNotification($"The client folder does not exist: {folderPath}", true).ConfigureAwait(false);
+                return;
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = folderPath,
+                    UseShellExecute = true,
+                    Verb = "open"
+                });
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Process.Start("xdg-open", folderPath);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start("open", folderPath);
             }
         }
         catch (Exception ex)
         {
             await UIThreadHelper.InvokeAsync(async () =>
             {
-                await App.AddNotification($"An exception was thrown while opening the client folder. Execption: {ex}", true).ConfigureAwait(false);
+                await App.AddNotification($"An exception was thrown while opening the client folder. Exception: {ex.Message}", true).ConfigureAwait(false);
                 _logger.Error(ex.ToString());
             }).ConfigureAwait(false);
         }
