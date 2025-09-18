@@ -100,7 +100,7 @@ public partial class Main : ObservableObject
         if (ActiveServer == null)
             return;
 
-        await App.ShowPopupAsync(new DeleteServer(ActiveServer.Info)).ConfigureAwait(false);
+        await App.ShowPopupAsync(new DeleteServer(ActiveServer.Info));
     }
 
     public async Task OnReceiveNotification(Notification notification)
@@ -110,7 +110,8 @@ public partial class Main : ObservableObject
 
         Notifications.Add(notification);
 
-        await Task.Delay(1000).ConfigureAwait(false);
+        await Task.Delay(1000);
+
         Notifications.Remove(notification);
     }
 }

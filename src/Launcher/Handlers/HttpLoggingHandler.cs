@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
+namespace Launcher.Handlers;
 public class HttpLoggingHandler : DelegatingHandler
 {
     private readonly Logger _logger;

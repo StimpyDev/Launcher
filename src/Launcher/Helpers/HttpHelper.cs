@@ -1,4 +1,5 @@
-﻿using Launcher.Models;
+﻿using Launcher.Handlers;
+using Launcher.Models;
 using NLog;
 using System.Net.Http;
 using System.Net.Mime;

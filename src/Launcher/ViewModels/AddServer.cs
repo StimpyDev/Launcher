@@ -7,7 +7,6 @@ using NLog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -74,7 +73,7 @@ public partial class AddServer : Popup
 
             if (!result.Success || result.ServerManifest is null)
             {
-                await App.AddNotification(result.Error, true).ConfigureAwait(false);
+                await App.AddNotification(result.Error, true);
                 return false;
             }
 
@@ -104,14 +103,14 @@ public partial class AddServer : Popup
         catch (Exception ex)
         {
             _logger.Error(ex);
-            await App.AddNotification($"An exception occurred: {ex.Message}", true).ConfigureAwait(false);
+            await App.AddNotification($"An exception occurred: {ex.Message}", true);
             return false;
         }
     }
 
     private static async Task<bool> NotifyAndReturnFalse(string message)
     {
-        await App.AddNotification(message, true).ConfigureAwait(false);
+        await App.AddNotification(message, true);
         return false;
     }
 

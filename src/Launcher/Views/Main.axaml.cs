@@ -26,7 +26,7 @@ public partial class Main : Window
         if (ViewModel.Servers.Any(s => s.IsDownloading))
         {
             e.Cancel = true;
-            await App.AddNotification(App.GetText("Text.Downloading.OnClose"), true).ConfigureAwait(false);
+            await App.AddNotification(App.GetText("Text.Downloading.OnClose"), true);
         }
         else
         {

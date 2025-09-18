@@ -50,9 +50,6 @@ public partial class Server : ObservableObject
     public IBrush? serverStatusFill;
 
     [ObservableProperty]
-    private double fileProgress;
-
-    [ObservableProperty]
     private bool isDownloading = false;
 
     [ObservableProperty]
@@ -220,11 +217,10 @@ public partial class Server : ObservableObject
         }
         catch (Exception ex)
         {
+            _logger.Error(ex, "Error opening client folder directory");
             await UIThreadHelper.InvokeAsync(async () =>
-            {
-                await App.AddNotification($"An exception was thrown while opening the client folder. Exception: {ex.Message}", true).ConfigureAwait(false);
-                _logger.Error(ex.ToString());
-            }).ConfigureAwait(false);
+                await App.AddNotification($"Failed to open client folder directory. Error: {ex.Message}", true).ConfigureAwait(false)
+            ).ConfigureAwait(false);
         }
     }
     private async Task<bool> RefreshServerInfoAsync()

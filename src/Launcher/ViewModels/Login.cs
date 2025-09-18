@@ -63,7 +63,10 @@ public partial class Login : Popup
         LoginCommand = new AsyncRelayCommand(OnLogin);
         LoginCancelCommand = new RelayCommand(OnLoginCancel);
 
-        View = new Views.Login { DataContext = this };
+        View = new Views.Login 
+        {
+            DataContext = this 
+        };
     }
 
     private async Task OnLogin()
@@ -103,6 +106,19 @@ public partial class Login : Popup
         Settings.Instance.Save();
     }
 
+    private void SaveRememberedCredentials()
+    {
+        if (RememberUsername)
+        {
+            _server.Info.Username = Username;
+        }
+        if (RememberPassword)
+        {
+            _server.Info.Password = Password;
+        }
+        Settings.Instance.Save();
+    }
+
     public override async Task<bool> ProcessAsync()
     {
         SaveRememberedCredentials();
@@ -123,14 +139,14 @@ public partial class Login : Popup
 
             if (!httpResponse.IsSuccessStatusCode)
             {
-                await App.AddNotification($"Failed to login. Http Error: {httpResponse.ReasonPhrase}", true).ConfigureAwait(false);
+                await App.AddNotification($"Failed to login. Http Error: {httpResponse.ReasonPhrase}", true);
                 return false;
             }
 
             var loginResponse = await httpResponse.Content.ReadFromJsonAsync<LoginResponse>().ConfigureAwait(false);
             if (string.IsNullOrEmpty(loginResponse?.SessionId))
             {
-                await App.AddNotification("Invalid login API response.", true).ConfigureAwait(false);
+                await App.AddNotification("Invalid login API response.", true);
                 Password = string.Empty;
                 return false;
             }
@@ -140,28 +156,15 @@ public partial class Login : Popup
         }
         catch (Exception ex)
         {
-            await App.AddNotification($"An exception was thrown while logging in {ex}", true).ConfigureAwait(false);
+            await App.AddNotification($"An exception was thrown while logging in {ex}", true);
             _logger.Error(ex);
             return false;
         }
     }
 
-    private void SaveRememberedCredentials()
-    {
-        if (RememberUsername)
-        {
-            _server.Info.Username = Username;
-        }
-        if (RememberPassword)
-        {
-            _server.Info.Password = Password;
-        }
-        Settings.Instance.Save();
-    }
-
     private async Task HandleUnauthorizedAsync()
     {
-        await App.AddNotification(App.GetText("Text.Login.Unauthorized"), true).ConfigureAwait(false);
+        await App.AddNotification(App.GetText("Text.Login.Unauthorized"), true);
         Password = string.Empty;
     }
 
@@ -189,7 +192,7 @@ public partial class Login : Popup
 
         if (!File.Exists(executablePath))
         {
-            await App.AddNotification($"Client executable not found: {executablePath}", true).ConfigureAwait(false);
+            await App.AddNotification($"Client executable not found: {executablePath}", true);
             return;
         }
 
@@ -218,14 +221,14 @@ public partial class Login : Popup
         }
         catch (Exception ex)
         {
-            await App.AddNotification($"Failed to start the client: {ex.Message}", true).ConfigureAwait(false);
+            await App.AddNotification($"Failed to start the client: {ex.Message}", true);
             _logger.Error(ex);
         }
     }
     private async Task NotifyDirectX9MissingAsync()
     {
-        await App.AddNotification("DirectX 9 is not available. Cannot launch the client.", true).ConfigureAwait(false);
-        await Task.Delay(500).ConfigureAwait(false);
+        await App.AddNotification("DirectX 9 is not available. Cannot launch the client.", true);
+        await Task.Delay(500);
 
         string url = Constants.DirectXDownloadUrl;
 
@@ -252,7 +255,7 @@ public partial class Login : Popup
         catch (Exception ex)
         {
             _logger.Error(ex);
-            await App.AddNotification("Failed to open the DirectX download page. Please open this URL manually: " + url, true).ConfigureAwait(false);
+            await App.AddNotification("Failed to open the DirectX download page. Please open this URL manually: " + url, true);
         }
     }
 }

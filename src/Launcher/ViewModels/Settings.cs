@@ -66,13 +66,11 @@ public partial class Settings : ObservableObject
     public void Save()
     {
         if (_instance == null) return;
-        try
+
+        bool success = XmlHelper.TrySerialize(_instance, _savePath);
+        if (!success)
         {
-            XmlHelper.TrySerialize(_instance, _savePath);
-        }
-        catch (Exception ex)
-        {
-            _logger.Error(ex, "Failed to save settings.");
+            _logger.Error($"Failed to serialize and save settings to '{_savePath}'.");
         }
     }
 
@@ -92,47 +90,42 @@ public partial class Settings : ObservableObject
     [RelayCommand]
     public async Task OpenLogs()
     {
-        string logsDir = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+        string logsDir = Constants.LogsDirectory;
+
         if (!Directory.Exists(logsDir))
         {
-            await UIThreadHelper.InvokeAsync(() =>
-                App.AddNotification("Logs directory does not exist.", true)
-            ).ConfigureAwait(false);
+            await App.AddNotification("Logs directory does not exist.", true);
             return;
         }
 
         try
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            await Task.Run(() =>
             {
-                Process.Start(new ProcessStartInfo
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    FileName = logsDir,
-                    UseShellExecute = true,
-                    Verb = "open"
-                });
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                Process.Start("xdg-open", logsDir);
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                Process.Start("open", logsDir);
-            }
-            else
-            {
-                await UIThreadHelper.InvokeAsync(() =>
-                    App.AddNotification("Unknown OS platform. Please open the folder manually: " + logsDir, true)
-                ).ConfigureAwait(false);
-            }
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = logsDir,
+                        UseShellExecute = true,
+                        Verb = "open"
+                    });
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    Process.Start("xdg-open", logsDir);
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    Process.Start("open", logsDir);
+                }
+            });
         }
         catch (Exception ex)
         {
             _logger.Error(ex, "Error opening logs directory");
-            await UIThreadHelper.InvokeAsync(() =>
-                App.AddNotification($"Failed to open logs directory. Error: {ex.Message}", true)
-            ).ConfigureAwait(false);
+            await App.AddNotification($"Failed to open logs directory. Error: {ex.Message}", true);
         }
     }
 }

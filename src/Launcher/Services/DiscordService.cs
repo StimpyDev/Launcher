@@ -32,11 +32,8 @@ public static class DiscordService
         catch (Exception ex)
         {
             Console.WriteLine($"Error initializing Discord: {ex}");
-            return; // Exit if initialization fails
-        }
-        finally
-        {
             Stop();
+            return; // Exit if initialization fails
         }
 
         Task.Factory.StartNew(UpdateAsync, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
@@ -67,6 +64,7 @@ public static class DiscordService
                         catch (Exception ex)
                         {
                             Console.WriteLine($"Error creating Discord instance: {ex}");
+                            Stop();
                             break;
                         }
                     }
@@ -77,8 +75,9 @@ public static class DiscordService
                 await Task.Delay(1000 / 60, _cts.Token);
             }
         }
-        finally
+        catch (Exception ex)
         {
+            Console.WriteLine($"Error in UpdateAsync: {ex}");
             Stop();
         }
     }
