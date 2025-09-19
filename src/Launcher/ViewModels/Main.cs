@@ -115,27 +115,23 @@ public partial class Main : ObservableObject
 
         try
         {
-            await Task.Run(() =>
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                Process.Start(new ProcessStartInfo
                 {
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = logsDir,
-                        UseShellExecute = true,
-                        Verb = "open"
-                    });
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    Process.Start("xdg-open", logsDir);
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    Process.Start("open", logsDir);
-                }
-            });
+                    FileName = logsDir,
+                    UseShellExecute = true,
+                    Verb = "open"
+                });
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Process.Start("xdg-open", logsDir);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start("open", logsDir);
+            }
         }
         catch (Exception ex)
         {

@@ -200,26 +200,24 @@ public partial class Server : ObservableObject
 
         try
         {
-            await Task.Run(() =>
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                Process.Start(new ProcessStartInfo
                 {
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = folderPath,
-                        UseShellExecute = true,
-                        Verb = "open"
-                    });
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    Process.Start("xdg-open", folderPath);
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    Process.Start("open", folderPath);
-                }
-            });
+                    FileName = folderPath,
+                    UseShellExecute = true,
+                    Verb = "open"
+                });
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Process.Start("xdg-open", folderPath);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start("open", folderPath);
+            }
+
         }
         catch (Exception ex)
         {
@@ -354,7 +352,7 @@ public partial class Server : ObservableObject
         _logger.Info("End - Verify Client Files");
         return success == 1;
     }
-    
+
     private async Task<bool> DownloadFileAsync(DownloadService downloadService, string path, string fileName)
     {
         var downloadFilePath = Path.Combine(path, fileName);
