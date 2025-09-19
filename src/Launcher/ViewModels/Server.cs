@@ -47,7 +47,7 @@ public partial class Server : ObservableObject
     private Process? process;
 
     [ObservableProperty]
-    public IBrush? serverStatusFill;
+    private IBrush? serverStatusFill;
 
     [ObservableProperty]
     private bool isDownloading = false;
@@ -135,7 +135,12 @@ public partial class Server : ObservableObject
                 }
 
                 return Task.CompletedTask;
-            }).ConfigureAwait(false);
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Error refreshing server status.");
+            await App.AddNotification($"Failed to refresh server status: {ex.Message}", true);
         }
         finally
         {
@@ -152,7 +157,7 @@ public partial class Server : ObservableObject
     {
         if (Process != null)
         {
-            await App.AddNotification("Unable to launch, the game is already open.", true).ConfigureAwait(false);
+            await App.AddNotification("Unable to launch, the game is already open.", true);
             _logger.Warn("Unable to launch, the game is already open.");
             return;
         }
@@ -165,7 +170,7 @@ public partial class Server : ObservableObject
 
         if (!await VerifyClientFilesAsync(clientManifest).ConfigureAwait(false))
         {
-            await App.AddNotification("Failed to verify client files, please try again", true).ConfigureAwait(false);
+            await App.AddNotification("Failed to verify client files, please try again", true);
             _logger.Warn("Failed to verify client files");
             return;
         }
@@ -173,15 +178,15 @@ public partial class Server : ObservableObject
         if (!IsOnline)
         {
             StatusMessage = string.Empty;
-            await App.AddNotification("Cannot login: The server is offline.", true).ConfigureAwait(false);
+            await App.AddNotification("Cannot login: The server is offline.", true);
             return;
         }
 
         await UIThreadHelper.InvokeAsync(async () =>
         {
             StatusMessage = string.Empty;
-            await App.ShowPopupAsync(new Login(this)).ConfigureAwait(false);
-        }).ConfigureAwait(false);
+            await App.ShowPopupAsync(new Login(this));
+        });
     }
 
     [RelayCommand]
@@ -189,14 +194,16 @@ public partial class Server : ObservableObject
     {
         string folderPath = Path.Combine(Constants.SavePath, Info.SavePath);
 
-        try
-        {
             if (!Directory.Exists(folderPath))
             {
-                await App.AddNotification($"The client folder does not exist: {folderPath}", true).ConfigureAwait(false);
+            await App.AddNotification($"The client folder does not exist: {folderPath}", true);
                 return;
             }
 
+        try
+        {
+            await Task.Run(() =>
+            {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 Process.Start(new ProcessStartInfo
@@ -214,13 +221,12 @@ public partial class Server : ObservableObject
             {
                 Process.Start("open", folderPath);
             }
+            });
         }
         catch (Exception ex)
         {
             _logger.Error(ex, "Error opening client folder directory");
-            await UIThreadHelper.InvokeAsync(async () =>
-                await App.AddNotification($"Failed to open client folder directory. Error: {ex.Message}", true).ConfigureAwait(false)
-            ).ConfigureAwait(false);
+            await App.AddNotification($"Failed to open client folder directory. Error: {ex.Message}", true);
         }
     }
     private async Task<bool> RefreshServerInfoAsync()
@@ -232,9 +238,9 @@ public partial class Server : ObservableObject
             {
                 await UIThreadHelper.InvokeAsync(async () =>
                 {
-                    await App.AddNotification(result.Error, true).ConfigureAwait(false);
+                    await App.AddNotification(result.Error, true);
                     _logger.Error(result.Error);
-                }).ConfigureAwait(false);
+                });
                 return false;
             }
             var serverManifest = result.ServerManifest;
@@ -248,9 +254,9 @@ public partial class Server : ObservableObject
         {
             await UIThreadHelper.InvokeAsync(async () =>
             {
-                await App.AddNotification($"An exception was thrown while getting server info. Exception: {ex}", true).ConfigureAwait(false);
+                await App.AddNotification($"An exception was thrown while getting server info. Exception: {ex.Message}", true);
                 _logger.Error(ex.ToString());
-            }).ConfigureAwait(false);
+            });
         }
         return false;
     }
@@ -264,20 +270,17 @@ public partial class Server : ObservableObject
             {
                 await UIThreadHelper.InvokeAsync(async () =>
                 {
-                    await App.AddNotification(result.Error, true).ConfigureAwait(false);
+                    await App.AddNotification(result.Error, true);
                     _logger.Error(result.Error);
-                }).ConfigureAwait(false);
+                });
                 return null;
             }
             return result.ClientManifest;
         }
         catch (Exception ex)
         {
-            await UIThreadHelper.InvokeAsync(async () =>
-            {
-                await App.AddNotification($"An exception was thrown while getting client info. Exception: {ex}", true).ConfigureAwait(false);
+            await App.AddNotification($"An exception was thrown while getting client info. Exception: {ex.Message}", true);
                 _logger.Error(ex.ToString());
-            }).ConfigureAwait(false);
         }
         return null;
     }

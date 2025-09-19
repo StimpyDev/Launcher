@@ -10,30 +10,31 @@ public static class DiscordService
     private static readonly Lock _lock = new();
     private static Discord.Discord? _discord;
     private static CancellationTokenSource _cts = new();
+    private static long _activityStartTimestamp = 0;
 
     // OSFR Launcher application owned by OSFR team
     private const long ClientId = 1223728876199608410;
 
     public static void Start()
     {
-        if (_cts.IsCancellationRequested)
+        lock (_lock)
         {
-            _cts.Dispose();
-            _cts = new CancellationTokenSource();
-        }
+            if (_cts.IsCancellationRequested)
+            {
+                _cts.Dispose();
+                _cts = new CancellationTokenSource();
+            }
 
-        try
-        {
-            lock (_lock)
+            try
             {
                 _discord = new Discord.Discord(ClientId, (ulong)CreateFlags.NoRequireDiscord);
             }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error initializing Discord: {ex}");
-            Stop();
-            return; // Exit if initialization fails
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing Discord: {ex}");
+                Stop();
+                return; // Exit if initialization fails
+            }
         }
 
         Task.Factory.StartNew(UpdateAsync, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
@@ -41,10 +42,19 @@ public static class DiscordService
 
     public static void Stop()
     {
-        _cts.Cancel();
+        lock (_lock)
+        {
+            if (!_cts.IsCancellationRequested)
+            {
+                _cts.Cancel();
+                _cts.Dispose();
+                _cts = new CancellationTokenSource();
+            }
 
-        _discord?.Dispose();
-        _discord = null;
+            ClearActivity();
+            _discord?.Dispose();
+            _discord = null;
+        }
     }
 
     private static async Task UpdateAsync()
@@ -57,23 +67,22 @@ public static class DiscordService
                 {
                     if (_discord == null)
                     {
-                        try
-                        {
-                            _discord = new Discord.Discord(ClientId, (ulong)CreateFlags.NoRequireDiscord);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error creating Discord instance: {ex}");
-                            Stop();
-                            break;
-                        }
+                        break;
                     }
-
-                    _discord.RunCallbacks();
                 }
 
-                await Task.Delay(1000 / 60, _cts.Token);
+                _discord.RunCallbacks();
             }
+
+            await Task.Delay(1000 / 60, _cts.Token);
+        }
+        catch (TaskCanceledException)
+        {
+
+        }
+        catch (OperationCanceledException)
+        {
+
         }
         catch (Exception ex)
         {
@@ -100,24 +109,76 @@ public static class DiscordService
         if (activityManager is null)
             return;
 
+        if (_activityStartTimestamp == 0)
+            _activityStartTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
         var activity = new Activity
         {
             State = state,
             Details = details,
             Type = ActivityType.Playing,
-            Timestamps =
-        {
-            Start = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-        }
+            Timestamps = new ActivityTimestamps
+            {
+                Start = _activityStartTimestamp
+            }
         };
 
         try
         {
-            activityManager.UpdateActivity(activity, _ => { });
+            activityManager.UpdateActivity(activity, (result) =>
+            {
+                if (result != Result.Ok)
+                {
+                    Console.WriteLine($"Failed to update activity: {result}");
+                }
+            });
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Failed to update activity: {ex}");
+        }
+    }
+
+    public static void ClearActivity()
+    {
+        ActivityManager? activityManager;
+
+        lock (_lock)
+        {
+            if (_discord == null)
+            {
+                Console.WriteLine("Cannot clear activity: Discord is not initialized.");
+                return;
+            }
+
+            activityManager = _discord.GetActivityManager();
+        }
+
+        if (activityManager is null)
+            return;
+
+        try
+        {
+            activityManager.ClearActivity(result =>
+            {
+                if (result != Result.Ok)
+                {
+                    Console.WriteLine($"Failed to clear activity: {result}");
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to clear activity: {ex}");
+        }
+        _activityStartTimestamp = 0;
+    }
+
+    public static void ResetActivityTimestamp()
+    {
+        lock (_lock)
+        {
+            _activityStartTimestamp = 0;
         }
     }
 }
