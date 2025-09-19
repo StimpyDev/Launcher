@@ -19,7 +19,13 @@ public static class DiscordService
     {
         lock (_lock)
         {
-            if (_cts.IsCancellationRequested)
+            if (_discord != null)
+            {
+                Console.WriteLine("DiscordService already started.");
+                return;
+            }
+
+            if (_cts.IsCancellationRequested || _cts.Token.IsCancellationRequested)
             {
                 _cts.Dispose();
                 _cts = new CancellationTokenSource();
@@ -35,16 +41,16 @@ public static class DiscordService
                 Stop();
                 return; // Exit if initialization fails
             }
-        }
 
-        Task.Factory.StartNew(UpdateAsync, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            Task.Factory.StartNew(UpdateAsync, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        }
     }
 
     public static void Stop()
     {
         lock (_lock)
         {
-            if (!_cts.IsCancellationRequested)
+            if (_cts != null && !_cts.IsCancellationRequested)
             {
                 _cts.Cancel();
                 _cts.Dispose();
@@ -69,12 +75,10 @@ public static class DiscordService
                     {
                         break;
                     }
+                    _discord.RunCallbacks();
                 }
-
-                _discord.RunCallbacks();
+                await Task.Delay(1000 / 60, _cts.Token);
             }
-
-            await Task.Delay(1000 / 60, _cts.Token);
         }
         catch (Exception ex)
         {
@@ -101,8 +105,8 @@ public static class DiscordService
         if (activityManager is null)
             return;
 
-        if (_activityStartTimestamp == 0)
-            _activityStartTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        if (Interlocked.Read(ref _activityStartTimestamp) == 0)
+            Interlocked.Exchange(ref _activityStartTimestamp, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
 
         var activity = new Activity
         {
@@ -163,14 +167,12 @@ public static class DiscordService
         {
             Console.WriteLine($"Failed to clear activity: {ex}");
         }
-        _activityStartTimestamp = 0;
+
+        Interlocked.Exchange(ref _activityStartTimestamp, 0);
     }
 
     public static void ResetActivityTimestamp()
     {
-        lock (_lock)
-        {
-            _activityStartTimestamp = 0;
-        }
+        Interlocked.Exchange(ref _activityStartTimestamp, 0);
     }
 }
