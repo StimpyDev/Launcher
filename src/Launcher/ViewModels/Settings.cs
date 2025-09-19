@@ -65,10 +65,7 @@ public partial class Settings : ObservableObject
 
     public void Save()
     {
-        if (_instance == null) return;
-
-        bool success = XmlHelper.TrySerialize(_instance, _savePath);
-        if (!success)
+        if (!XmlHelper.TrySerialize(_instance, _savePath))
         {
             _logger.Error($"Failed to serialize and save settings to '{_savePath}'.");
         }
