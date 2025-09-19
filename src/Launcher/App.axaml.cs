@@ -8,7 +8,6 @@ using Launcher.ViewModels;
 using NLog;
 using NuGet.Versioning;
 using System;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Velopack;
 using Velopack.Sources;
@@ -71,7 +70,9 @@ public partial class App : Application
                 if (updateInfo is null)
                 {
                     app._main.Message = GetText("Text.Main.NoUpdatesFound");
-                    await Task.Delay(700).ConfigureAwait(false);
+
+                    await Task.Delay(500);
+
                     app._main.Message = string.Empty;
                 }
                 else
@@ -79,10 +80,12 @@ public partial class App : Application
                     await _updateManager.DownloadUpdatesAsync(updateInfo, p =>
                     {
                         app._main.Message = GetText("Text.Main.Downloading", updateInfo.TargetFullRelease.Version, p);
-                    }).ConfigureAwait(false);
+                    });
 
                     app._main.Message = GetText("Text.Main.Relaunching");
-                    await Task.Delay(500).ConfigureAwait(false);
+
+                    await Task.Delay(500);
+
                     _updateManager.ApplyUpdatesAndRestart(updateInfo);
                     return;
                 }
@@ -176,7 +179,7 @@ public partial class App : Application
         app._main.Popup = popup;
 
         if (process)
-            await ProcessPopupAsync().ConfigureAwait(false);
+            await ProcessPopupAsync();
     }
 
     public static async Task ProcessPopupAsync()

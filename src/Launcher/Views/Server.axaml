@@ -8,27 +8,30 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
     mc:Ignorable="d"
-    d:DesignWidth="400"
-    d:DesignHeight="400"
+    d:DesignWidth="650"
+    d:DesignHeight="550"
     x:DataType="vm:Server"
     xmlns:m="using:Launcher.Models"
     x:Class="Launcher.Views.Server">
+	
 	<Design.DataContext>
 		<vm:Server />
 	</Design.DataContext>
+	
 	<Grid RowDefinitions="50,40,250,20" ColumnDefinitions="*,Auto">
+		
+		<!-- Title & Refresh Row -->
+		<Grid Grid.Row="1" ColumnDefinitions="Auto,Auto" Margin="0,0,35,0" VerticalAlignment="Center" HorizontalAlignment="Center">
+			
+			<!-- Refresh Status  -->
+			<Button Grid.Column="0" Classes="no_background" VerticalAlignment="Center" Command="{Binding RefreshServerStatusCommand}">
+				<Path Width="18"  Height="18" Classes.rotating="{Binding IsRefreshing}" Data="{StaticResource Icons.Loading}" Stretch="Fill" />			           
+			</Button>
+		
 		<!-- Title -->
-		<Grid Grid.Row="1" HorizontalAlignment="Center">
-			<Border Effect="drop-shadow(1 1 1 #40000000)">
+			<Border Grid.Column="1">
 				<TextBlock FontSize="24" Text="{Binding Info.Name, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" />
 			</Border>
-		</Grid>
-
-		<!-- Refresh Status -->
-		<Grid Grid.Row="1" HorizontalAlignment="Left" Margin="185,0,0,0">
-			<Button Classes="no_background" Margin="5" Command="{Binding RefreshServerStatusCommand}">
-				<Path Width="18" Height="18" Classes.rotating="{Binding IsRefreshing}" Data="{StaticResource Icons.Loading}" Stretch="Fill" />
-			</Button>
 		</Grid>
 
 		<!-- Server Status / Player Count -->
@@ -70,14 +73,16 @@
 			<TextBlock Text="{Binding StatusMessage, Mode=OneWay}" FontSize="13" FontWeight="Medium"/>
 		</StackPanel>
 
-		<!-- Progress info text -->
-		<StackPanel Grid.Row="3" HorizontalAlignment="Center" Margin="0,115,0,0" IsVisible="{Binding IsDownloading}">
-			<TextBlock FontSize="13" FontWeight="Medium" Text="{Binding FilesDownloadStatus, Mode=OneWay}" />
-		</StackPanel>
-
 		<!-- Client Folder -->
-		<StackPanel Grid.Row="4" HorizontalAlignment="Right" Margin="0,169,10,0">
-			<Button Classes="no_background" CornerRadius="5" Command="{Binding OpenClientFolderCommand}" >
+		<StackPanel Grid.Row="4" HorizontalAlignment="Right" Margin="0,170,15,0">
+			<Button Classes="flat primary" CornerRadius="5" Command="{Binding OpenClientFolderCommand}" >
+				<Button.Background>
+					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+						<GradientStop Color="#96B9D9" Offset="0.0"/>
+						<GradientStop Color="#202959" Offset="4.0"/>
+						<GradientStop Color="#37538C" Offset="0.8"/>
+					</LinearGradientBrush>
+				</Button.Background>
 				<Path Width="16" Height="16" Data="{StaticResource Icons.Folder}" Stretch="Fill" />
 			</Button>
 		</StackPanel>
