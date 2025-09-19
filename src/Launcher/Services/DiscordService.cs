@@ -10,7 +10,6 @@ public static class DiscordService
     private static readonly Lock _lock = new();
     private static Discord.Discord? _discord;
     private static CancellationTokenSource _cts = new();
-    private static long _activityStartTimestamp = 0;
 
     // OSFR Launcher application owned by OSFR team
     private const long ClientId = 1223728876199608410;
@@ -19,12 +18,6 @@ public static class DiscordService
     {
         lock (_lock)
         {
-            if (_discord != null)
-            {
-                Console.WriteLine("DiscordService already started.");
-                return;
-            }
-
             if (_cts.IsCancellationRequested || _cts.Token.IsCancellationRequested)
             {
                 _cts.Dispose();
@@ -39,7 +32,7 @@ public static class DiscordService
             {
                 Console.WriteLine($"Error initializing Discord: {ex}");
                 Stop();
-                return; // Exit if initialization fails
+                return;
             }
 
             Task.Factory.StartNew(UpdateAsync, _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
@@ -57,7 +50,6 @@ public static class DiscordService
                 _cts = new CancellationTokenSource();
             }
 
-            ClearActivity();
             _discord?.Dispose();
             _discord = null;
         }
@@ -105,17 +97,14 @@ public static class DiscordService
         if (activityManager is null)
             return;
 
-        if (Interlocked.Read(ref _activityStartTimestamp) == 0)
-            Interlocked.Exchange(ref _activityStartTimestamp, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
-
         var activity = new Activity
         {
             State = state,
             Details = details,
             Type = ActivityType.Playing,
-            Timestamps = new ActivityTimestamps
+            Timestamps =
             {
-                Start = _activityStartTimestamp
+               Start = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             }
         };
 
@@ -133,46 +122,5 @@ public static class DiscordService
         {
             Console.WriteLine($"Failed to update activity: {ex}");
         }
-    }
-
-    public static void ClearActivity()
-    {
-        ActivityManager? activityManager;
-
-        lock (_lock)
-        {
-            if (_discord == null)
-            {
-                Console.WriteLine("Cannot clear activity: Discord is not initialized.");
-                return;
-            }
-
-            activityManager = _discord.GetActivityManager();
-        }
-
-        if (activityManager is null)
-            return;
-
-        try
-        {
-            activityManager.ClearActivity(result =>
-            {
-                if (result != Result.Ok)
-                {
-                    Console.WriteLine($"Failed to clear activity: {result}");
-                }
-            });
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Failed to clear activity: {ex}");
-        }
-
-        Interlocked.Exchange(ref _activityStartTimestamp, 0);
-    }
-
-    public static void ResetActivityTimestamp()
-    {
-        Interlocked.Exchange(ref _activityStartTimestamp, 0);
     }
 }
