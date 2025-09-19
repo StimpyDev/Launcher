@@ -170,6 +170,7 @@
 			<Button
                 Classes="flat primary"
                 Command="{Binding DeleteServerCommand}"
+				ToolTip.Tip="{StaticResource Text.Server.DeleteServer.Tooltip}"
                 IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}">
 				<Button.Background>
 					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">

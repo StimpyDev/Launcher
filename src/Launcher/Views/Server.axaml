@@ -75,7 +75,7 @@
 
 		<!-- Client Folder -->
 		<StackPanel Grid.Row="4" HorizontalAlignment="Right" Margin="0,170,15,0">
-			<Button Classes="flat primary" CornerRadius="5" Command="{Binding OpenClientFolderCommand}" >
+			<Button Classes="flat primary" ToolTip.Tip="{StaticResource Text.Server.ClientFolder.Tooltip}" CornerRadius="5" Command="{Binding OpenClientFolderCommand}" >
 				<Button.Background>
 					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
 						<GradientStop Color="#96B9D9" Offset="0.0"/>

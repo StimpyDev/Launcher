@@ -28,19 +28,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.3.0" />
+    <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.4.3" />
     <PackageReference Include="HashDepot" Version="3.1.0" />
     <PackageReference Include="System.Private.Uri" Version="4.3.2" />
     <PackageReference Include="Velopack" Version="0.0.1362-gfa48e3c" />
     <PackageReference Include="Downloader" Version="4.0.3" />
-    <PackageReference Include="NLog" Version="6.0.3" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="6.0.3" />
-    <PackageReference Include="Avalonia" Version="11.3.5" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.3.5" />
+    <PackageReference Include="NLog" Version="6.0.4" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="6.0.4" />
+    <PackageReference Include="Avalonia" Version="11.3.6" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.6" />
     <PackageReference Include="Markdown.Avalonia" Version="11.0.3-a1" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.5" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.5" />
-    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.5" Condition="'$(Configuration)' == 'Debug'" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.6" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.6" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.6" Condition="'$(Configuration)' == 'Debug'" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
   </ItemGroup>
 

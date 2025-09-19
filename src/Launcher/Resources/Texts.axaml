@@ -27,6 +27,10 @@
 	<x:String x:Key="Text.Main.Error" xml:space="preserve">Oops :( We hit a roadblock...</x:String>
 	<x:String x:Key="Text.Main.AddServer" xml:space="preserve">Add Server</x:String>
 
+	<!--Server Window -->
+	<x:String x:Key="Text.Server.ClientFolder.Tooltip" xml:space="preserve">Open Client Directory</x:String>
+	<x:String x:Key="Text.Server.DeleteServer.Tooltip" xml:space="preserve">Delete Server</x:String>
+	
 	<!-- Login -->
 	<x:String x:Key="Text.Login" xml:space="preserve">Login</x:String>
 	<x:String x:Key="Text.Login.Username" xml:space="preserve">Username:</x:String>
@@ -62,7 +66,6 @@
 
 	<!-- Settings -->
 	<x:String x:Key="Text.Settings" xml:space="preserve">Settings</x:String>
-	<x:String x:Key="Text.Settings.General" xml:space="preserve">General</x:String>
 	<x:String x:Key="Text.Settings.General.Locale" xml:space="preserve">Game Language: </x:String>
 	<x:String x:Key="Text.Settings.General.Locale.Tooltip" xml:space="preserve">Select your language choice for the game.</x:String>
 	<x:String x:Key="Text.Settings.General.DiscordActivity" xml:space="preserve">Discord Activity</x:String>
