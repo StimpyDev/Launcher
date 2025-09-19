@@ -1,16 +1,12 @@
 ﻿using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Launcher.Helpers;
 using Launcher.Models;
 using Launcher.Services;
 using NLog;
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Launcher.ViewModels;
 public partial class Settings : ObservableObject
@@ -82,47 +78,5 @@ public partial class Settings : ObservableObject
             DiscordService.Stop();
 
         DiscordActivityChanged?.Invoke(this, EventArgs.Empty);
-    }
-
-    [RelayCommand]
-    public async Task OpenLogs()
-    {
-        string logsDir = Constants.LogsDirectory;
-
-        if (!Directory.Exists(logsDir))
-        {
-            await App.AddNotification("Logs directory does not exist.", true);
-            return;
-        }
-
-        try
-        {
-            await Task.Run(() =>
-            {
-
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = logsDir,
-                        UseShellExecute = true,
-                        Verb = "open"
-                    });
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    Process.Start("xdg-open", logsDir);
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    Process.Start("open", logsDir);
-                }
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.Error(ex, "Error opening logs directory");
-            await App.AddNotification($"Failed to open logs directory. Error: {ex.Message}", true);
-        }
     }
 }

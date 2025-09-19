@@ -147,15 +147,38 @@
 			</ListBox>
 		</DockPanel>
 
-		<!-- Right Panel: Server Controls -->
-		<StackPanel Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10,0,0,10">
+		<!-- Right Panel -->
+		<StackPanel Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="15,0,0,10">
+
+			<!-- Log Button -->
+			<Button Grid.Column="1"
+				Classes="flat primary"
+				FontFamily="{StaticResource FontDefault}"
+			    IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNull}}"
+				Command="{Binding OpenLogsCommand}">
+				<Button.Background>
+					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+						<GradientStop Color="#96B9D9" Offset="0.0"/>
+						<GradientStop Color="#202959" Offset="4.0"/>
+						<GradientStop Color="#37538C" Offset="0.8"/>
+					</LinearGradientBrush>
+				</Button.Background>
+				<TextBlock Text="{StaticResource Text.Logs}"/>
+			</Button>
 			
 			<!-- Delete Server Button -->
 			<Button
-                Classes="no_background"
+                Classes="flat primary"
                 Command="{Binding DeleteServerCommand}"
 				IsVisible="{Binding $parent[Window].((vm:Main)DataContext).ActiveServer, Converter={x:Static ObjectConverters.IsNotNull}}">
-				<Path Width="17" Height="17" Data="{StaticResource Icons.Delete}" Stretch="Fill" />
+				<Button.Background>
+					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+						<GradientStop Color="#96B9D9" Offset="0.0"/>
+						<GradientStop Color="#202959" Offset="4.0"/>
+						<GradientStop Color="#37538C" Offset="0.8"/>
+					</LinearGradientBrush>
+				</Button.Background>
+				<Path Width="16" Height="16" Data="{StaticResource Icons.Delete}" Stretch="Fill" />
 			</Button>
 		</StackPanel>
 
