@@ -16,7 +16,6 @@ namespace Launcher;
 
 public partial class App : Application
 {
-    private ResourceDictionary? _activeLocale;
     private readonly Logger _logger;
     private Main? _main;
 
@@ -33,8 +32,6 @@ public partial class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
-        SetLocale(Settings.Instance.Locale);
-        Settings.Instance.LocaleChanged += (_, __) => SetLocale(Settings.Instance.Locale);
     }
 
     public override void OnFrameworkInitializationCompleted()
@@ -94,34 +91,13 @@ public partial class App : Application
         catch (Exception ex)
         {
             app._logger.Error(ex, "Error checking for updates");
-            await AddNotification(GetText("Text.Main.UpdateError"), true).ConfigureAwait(false);
+            await AddNotification(GetText("Text.Main.UpdateError"), true);
         }
         finally
         {
             if (app._main != null)
                 app._main.IsRefreshing = false;
         }
-    }
-
-    public static void SetLocale(LocaleType value)
-    {
-        if (Current is not App app)
-            return;
-
-        if (!app.Resources.TryGetValue(value.ToString(), out var localeResource) ||
-            localeResource is not ResourceDictionary targetLocale)
-        {
-            app._logger.Error("Invalid locale. {locale}", value);
-            return;
-        }
-
-        if (app._activeLocale != null)
-        {
-            app.Resources.MergedDictionaries.Remove(app._activeLocale);
-        }
-
-        app.Resources.MergedDictionaries.Add(targetLocale);
-        app._activeLocale = targetLocale;
     }
 
     public static string GetText(string key, params object?[] args)
@@ -220,16 +196,5 @@ public partial class App : Application
             return;
 
         app._main.Popup = null;
-    }
-
-    public static string GetOSPlatform()
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            return "Windows";
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            return "Linux";
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            return "OSX";
-        return "Other";
     }
 }

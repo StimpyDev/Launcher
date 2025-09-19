@@ -11,13 +11,8 @@
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceInclude Source="/Resources/Icons.axaml"/>
 				<ResourceInclude Source="/Resources/Colors.axaml"/>
+				<ResourceInclude Source="/Resources/Texts.axaml"/>
 			</ResourceDictionary.MergedDictionaries>
-
-			<!-- Localized Resources -->
-			<ResourceInclude x:Key="de_DE" Source="/Resources/Locales/de_DE.axaml"/>
-			<ResourceInclude x:Key="en_US" Source="/Resources/Locales/en_US.axaml"/>
-			<ResourceInclude x:Key="fr_FR" Source="/Resources/Locales/fr_FR.axaml"/>
-			<ResourceInclude x:Key="es_ES" Source="/Resources/Locales/es_ES.axaml"/>
 
 			<!-- Additional Resources -->
 			<FontFamily x:Key="FontDefault">/Assets/Fonts/Maiandra-GD-Regular.otf#Maiandra GD</FontFamily>
