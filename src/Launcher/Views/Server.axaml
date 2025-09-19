@@ -28,12 +28,12 @@
 				<Path Width="18"  Height="18" Classes.rotating="{Binding IsRefreshing}" Data="{StaticResource Icons.Loading}" Stretch="Fill" />			           
 			</Button>
 		
-		<!-- Title -->
+			<!-- Title -->
 			<Border Grid.Column="1">
 				<TextBlock FontSize="24" Text="{Binding Info.Name, Mode=OneWay}" FontFamily="{StaticResource FontDefault}" />
 			</Border>
 		</Grid>
-
+		
 		<!-- Server Status / Player Count -->
 		<Grid Grid.Row="2" HorizontalAlignment="Center" Margin="0,0,0,220">
 			<Grid.ColumnDefinitions>

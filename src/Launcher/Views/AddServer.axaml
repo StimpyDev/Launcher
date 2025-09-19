@@ -9,7 +9,7 @@
     xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
     mc:Ignorable="d"
     d:DesignWidth="500"
-    d:DesignHeight="150"
+    d:DesignHeight="100"
     x:DataType="vm:AddServer"
     x:Class="Launcher.Views.AddServer">
 
@@ -21,10 +21,9 @@
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
 
-		<!-- Header TextB
-		centered -->
+		<!-- Header TextBlock centered -->
 		<Grid Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-			<TextBlock FontSize="18" Text="{DynamicResource Text.Add_Server.ServerUrl}" FontFamily="{StaticResource FontDefault}" />
+			<TextBlock FontSize="18" Text="{StaticResource Text.Add_Server.ServerUrl}" FontFamily="{StaticResource FontDefault}" />
 		</Grid>
 
 		<!-- Input section with overlayed TextBox over image -->
@@ -32,18 +31,18 @@
 			<!-- Place both image and textbox in the same Grid -->
 			<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset4.png" Stretch="None"/>
 			<TextBox
-				CaretBrush="Black"
-				v:AutoFocusBehaviour.IsEnabled="True"
-				Foreground="Black"
-				FontSize="13"
-				FontWeight="SemiBold"
-				Width="254"
-				Height="22"
-				Text="{Binding ServerUrl, Mode=TwoWay}"
-				HorizontalAlignment="Center"
-				VerticalAlignment="Center"
-				Background="Transparent"
-				BorderBrush="Transparent"/>
+                CaretBrush="Black"
+                v:AutoFocusBehaviour.IsEnabled="True"
+                Foreground="Black"
+                FontSize="13"
+                FontWeight="SemiBold"
+                Width="254"
+                Height="22"
+                Text="{Binding ServerUrl, Mode=TwoWay}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Background="Transparent"
+                BorderBrush="Transparent"/>
 		</Grid>
 
 		<!-- Buttons row -->

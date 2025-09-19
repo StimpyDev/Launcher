@@ -76,14 +76,6 @@ public static class DiscordService
 
             await Task.Delay(1000 / 60, _cts.Token);
         }
-        catch (TaskCanceledException)
-        {
-
-        }
-        catch (OperationCanceledException)
-        {
-
-        }
         catch (Exception ex)
         {
             Console.WriteLine($"Error in UpdateAsync: {ex}");

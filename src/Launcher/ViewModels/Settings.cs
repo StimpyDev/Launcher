@@ -23,6 +23,9 @@ public partial class Settings : ObservableObject
     private bool parallelDownload = true;
 
     [ObservableProperty]
+    private int downloadThreads = 4;
+
+    [ObservableProperty]
     private LocaleType locale = LocaleType.en_US;
 
     [ObservableProperty]
@@ -67,6 +70,17 @@ public partial class Settings : ObservableObject
         }
     }
 
+    partial void OnParallelDownloadChanged(bool value)
+    {
+        Save();
+    }
+    partial void OnDownloadThreadsChanged(int value)
+    {
+        if (value != Math.Clamp(value, 2, 8))
+            DownloadThreads = Math.Clamp(value, 2, 8);
+        else
+            Save();
+    }
     partial void OnLocaleChanged(LocaleType value)
         => LocaleChanged?.Invoke(this, EventArgs.Empty);
 

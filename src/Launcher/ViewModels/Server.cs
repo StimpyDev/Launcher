@@ -20,7 +20,6 @@ public partial class Server : ObservableObject
 {
     private readonly Main _main = null!;
     private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-    public string FilesDownloadStatus => $"{FilesDownloaded} / {TotalFilesToDownload} Files Downloaded";
 
     [ObservableProperty]
     private ServerInfo info = null!;
@@ -81,7 +80,6 @@ public partial class Server : ObservableObject
         Info = info;
         _main = main;
     }
-
     public async Task<bool> OnShowAsync()
     {
         if (!await RefreshServerInfoAsync().ConfigureAwait(false))
@@ -194,33 +192,33 @@ public partial class Server : ObservableObject
     {
         string folderPath = Path.Combine(Constants.SavePath, Info.SavePath);
 
-            if (!Directory.Exists(folderPath))
-            {
+        if (!Directory.Exists(folderPath))
+        {
             await App.AddNotification($"The client folder does not exist: {folderPath}", true);
-                return;
-            }
+            return;
+        }
 
         try
         {
             await Task.Run(() =>
             {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                Process.Start(new ProcessStartInfo
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    FileName = folderPath,
-                    UseShellExecute = true,
-                    Verb = "open"
-                });
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                Process.Start("xdg-open", folderPath);
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                Process.Start("open", folderPath);
-            }
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = folderPath,
+                        UseShellExecute = true,
+                        Verb = "open"
+                    });
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    Process.Start("xdg-open", folderPath);
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    Process.Start("open", folderPath);
+                }
             });
         }
         catch (Exception ex)
@@ -280,7 +278,7 @@ public partial class Server : ObservableObject
         catch (Exception ex)
         {
             await App.AddNotification($"An exception was thrown while getting client info. Exception: {ex.Message}", true);
-                _logger.Error(ex.ToString());
+            _logger.Error(ex.ToString());
         }
         return null;
     }
@@ -296,20 +294,27 @@ public partial class Server : ObservableObject
         int success = 1;
         var parallelOptions = new ParallelOptions
         {
-            MaxDegreeOfParallelism = Math.Min(4, Environment.ProcessorCount * 2),
+            MaxDegreeOfParallelism = Settings.Instance.DownloadThreads
         };
 
         IsDownloading = true;
 
         try
         {
+            var downloadConfig = new DownloadConfiguration
+            {
+                RequestConfiguration = { UserAgent = $"{App.GetText("Text.Title")} v{App.CurrentVersion}" },
+            };
+
             if (Settings.Instance.ParallelDownload)
             {
                 await Parallel.ForEachAsync(filesToDownload, parallelOptions, async (file, ct) =>
                 {
                     try
                     {
-                        if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
+                        using var downloadService = new DownloadService(downloadConfig);
+
+                        if (!await DownloadFileAsync(downloadService, file.Path, file.FileName).ConfigureAwait(false))
                         {
                             Interlocked.Exchange(ref success, 0);
                         }
@@ -318,7 +323,7 @@ public partial class Server : ObservableObject
                     {
                         _logger.Error($"Error downloading file {file.FileName}: {ex.Message}");
                     }
-                }).ConfigureAwait(false);
+                });
             }
             else
             {
@@ -326,7 +331,9 @@ public partial class Server : ObservableObject
                 {
                     try
                     {
-                        if (!await DownloadFileAsync(file.Path, file.FileName).ConfigureAwait(false))
+                        using var downloadService = new DownloadService(downloadConfig);
+
+                        if (!await DownloadFileAsync(downloadService, file.Path, file.FileName).ConfigureAwait(false))
                         {
                             success = 0;
                             break;
@@ -347,72 +354,48 @@ public partial class Server : ObservableObject
         _logger.Info("End - Verify Client Files");
         return success == 1;
     }
-    private async Task<bool> DownloadFileAsync(string path, string fileName, int maxRetries = 3, int delayMilliseconds = 2000)
+    
+    private async Task<bool> DownloadFileAsync(DownloadService downloadService, string path, string fileName)
     {
         var downloadFilePath = Path.Combine(path, fileName);
 
-        for (int attempt = 1; attempt <= maxRetries; attempt++)
+        try
         {
-            try
+            var clientFileUri = UriHelper.JoinUriPaths(Info.Url, "client", path, fileName);
+
+            var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
+            Directory.CreateDirectory(fileDirectory);
+            var filePath = Path.Combine(fileDirectory, fileName);
+
+            await using var fileStream = await downloadService.DownloadFileTaskAsync(clientFileUri).ConfigureAwait(false);
+            if (fileStream == null)
             {
-                var clientFileUri = UriHelper.JoinUriPaths(Info.Url, "client", path, fileName);
-
-                using var downloadService = new DownloadService(new DownloadConfiguration
-                {
-                    RequestConfiguration = { UserAgent = $"{App.GetText("Text.Title")} v{App.CurrentVersion}" }
-                });
-
-                downloadService.DownloadStarted += (s, e) =>
-                {
-                    StatusMessage = App.GetText("Text.Server.DownloadingFile", downloadFilePath);
-                };
-
-                var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
-                Directory.CreateDirectory(fileDirectory);
-                var filePath = Path.Combine(fileDirectory, fileName);
-
-                await using var fileStream = await downloadService.DownloadFileTaskAsync(clientFileUri).ConfigureAwait(false)
-                    ?? throw new Exception($"Failed to get client file: {downloadFilePath}");
-
-                await using var writeStream = new FileStream(filePath, new FileStreamOptions
-                {
-                    Mode = FileMode.Create,
-                    Access = FileAccess.Write,
-                    Options = FileOptions.SequentialScan
-                });
-
-                await fileStream.CopyToAsync(writeStream).ConfigureAwait(false);
-                await writeStream.FlushAsync().ConfigureAwait(false);
-
-                await UIThreadHelper.InvokeAsync(() =>
-                {
-                    FilesDownloaded++;
-                    OnPropertyChanged(nameof(FilesDownloadStatus));
-                    return Task.CompletedTask;
-                }).ConfigureAwait(false);
-
-                return true;
+                _logger.Error($"Failed to get client file: {downloadFilePath}");
+                await App.AddNotification($"Failed to download file: {downloadFilePath}. Error: File stream is null.", true);
+                return false;
             }
-            catch (Exception ex)
+
+            await using var writeStream = File.Create(filePath);
+
+            await fileStream.CopyToAsync(writeStream).ConfigureAwait(false);
+            await writeStream.FlushAsync().ConfigureAwait(false);
+
+            await UIThreadHelper.InvokeAsync(() =>
             {
-                _logger.Warn(ex, "Error downloading {path} {filename} (attempt {attempt}/{maxRetries})", path, fileName, attempt, maxRetries);
+                FilesDownloaded++;
+                StatusMessage = $"Downloading Client Files... ({FilesDownloaded}/{TotalFilesToDownload})";
+                return Task.CompletedTask;
+            });
 
-                if (attempt == maxRetries)
-                {
-                    await UIThreadHelper.InvokeAsync(async () =>
-                    {
-                        await App.AddNotification($"Failed to download file: {downloadFilePath} after {maxRetries} attempts.", true).ConfigureAwait(false);
-                    }).ConfigureAwait(false);
-                    _logger.Error("Exceeded max retries for {path} {filename}", path, fileName);
-                    return false;
-                }
-                await Task.Delay(delayMilliseconds).ConfigureAwait(false);
-            }
+            return true;
         }
-
-        return false;
+        catch (Exception ex)
+        {
+            _logger.Error(ex, $"Error downloading: {path}/{fileName}");
+            await App.AddNotification($"Failed to download file: {downloadFilePath}. Error: {ex.Message}", true);
+            return false;
+        }
     }
-
     private IEnumerable<(string Path, string FileName)> GetFilesToDownloadRecursively(ClientFolder clientFolder, string path = "")
     {
         foreach (var folder in clientFolder.Folders)
@@ -429,7 +412,7 @@ public partial class Server : ObservableObject
 
             if (File.Exists(filePath))
             {
-                using var readStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                using var readStream = File.OpenRead(filePath);
                 if (file.Size == readStream.Length)
                 {
                     readStream.Position = 0;
