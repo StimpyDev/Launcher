@@ -40,9 +40,10 @@
             Margin="5"
             FontSize="15" />
 
-		<!-- Buttons area: use a Grid with two columns -->
+		<!-- Buttons area: use a Grid with three columns: Yes, or, No -->
 		<Grid Grid.Row="2" HorizontalAlignment="Center"  Margin="0,10,0,0">
 			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="Auto"/>
 				<ColumnDefinition Width="Auto"/>
 			</Grid.ColumnDefinitions>
@@ -65,9 +66,18 @@
 				</Button.Background>
 			</Button>
 
+			<!-- "or" TextBlock -->
+			<TextBlock
+				Grid.Column="1"
+				VerticalAlignment="Center"
+				FontSize="15"
+				FontFamily="{StaticResource FontDefault}"
+				Text="or"
+				Margin="0,0,10,0" />
+
 			<!-- No Button -->
 			<Button
-                Grid.Column="1"
+                Grid.Column="2"
                 Classes="flat primary"
                 Command="{Binding CancelDeleteServerCommand}"
                 Content="{StaticResource Text.No}"

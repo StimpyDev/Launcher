@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Styles xmlns="https://github.com/avaloniaui"
-		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
 	<Design.PreviewWith>
 		<Border Padding="20">
@@ -8,7 +8,7 @@
 		</Border>
 	</Design.PreviewWith>
 
-	<!-- Path -->
+	<!-- Path Styles -->
 	<Style Selector="Path">
 		<Setter Property="Fill" Value="{StaticResource Color.FG1}" />
 		<Setter Property="Stretch" Value="Uniform" />
@@ -28,7 +28,7 @@
 		</Style.Animations>
 	</Style>
 
-	<!-- TextBlock -->
+	<!-- TextBlock Styles -->
 	<Style Selector="TextBlock">
 		<Setter Property="FontWeight" Value="Medium" />
 		<Setter Property="VerticalAlignment" Value="Center" />
@@ -36,7 +36,7 @@
 		<Setter Property="Foreground" Value="{StaticResource Color.FG1}" />
 	</Style>
 
-	<!-- TextBox -->
+	<!-- TextBox Styles -->
 	<Style Selector="TextBox">
 		<Setter Property="Padding" Value="4,0" />
 		<Setter Property="MinHeight" Value="16" />
@@ -80,7 +80,7 @@
 		<Setter Property="BorderBrush" Value="Transparent" />
 	</Style>
 
-	<!-- DataValidationErrors -->
+	<!-- DataValidationErrors Styles -->
 	<Style Selector="DataValidationErrors">
 		<Setter Property="Theme" Value="{DynamicResource TooltipDataValidationErrors}" />
 	</Style>
@@ -89,7 +89,7 @@
 		<Setter Property="Fill" Value="Transparent" />
 	</Style>
 
-	<!-- Button -->
+	<!-- Button Styles -->
 	<Style Selector="Button.flat.primary">
 		<Setter Property="Background" Value="{StaticResource Color.FlatButton.PrimaryBackground}" />
 		<Setter Property="Cursor" Value="Hand" />

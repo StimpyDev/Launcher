@@ -9,7 +9,7 @@
     xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
     mc:Ignorable="d"
     d:DesignWidth="500"
-    d:DesignHeight="250"
+    d:DesignHeight="350"
     x:DataType="vm:Login"
     x:Class="Launcher.Views.Login">
 
