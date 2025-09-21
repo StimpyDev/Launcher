@@ -63,9 +63,22 @@
 					VerticalAlignment="Center"
 					Width="120"
 					ToolTip.Tip="{StaticResource Text.Settings.General.ParallelDownloads.Tooltip}">
+				
+					<!-- TextBox Parallel Downloads (Readonly) -->
 					<avalonia:NumericUpDown.Styles>
+						<Style Selector="TextBox">
+							<Setter Property="IsReadOnly" Value="True"/>
+							<Setter Property="SelectionBrush" Value="Transparent"/>
+						</Style>
+
 						<Style Selector="TextBox:pointerover">
 							<Setter Property="IsReadOnly" Value="True"/>
+							<Setter Property="SelectionBrush" Value="Transparent"/>
+						</Style>
+
+						<Style Selector="TextBox:focus-within">
+							<Setter Property="IsReadOnly" Value="True"/>
+							<Setter Property="SelectionBrush" Value="Transparent"/>
 						</Style>
 					</avalonia:NumericUpDown.Styles>
 				</avalonia:NumericUpDown>
