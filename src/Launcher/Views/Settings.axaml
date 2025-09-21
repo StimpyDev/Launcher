@@ -62,9 +62,15 @@
 					HorizontalAlignment="Left"
 					VerticalAlignment="Center"
 					Width="120"
-	                ToolTip.Tip="{StaticResource Text.Settings.General.ParallelDownloads.Tooltip}"/>
-
-				<!-- Locale Label (under Game Language) -->
+					ToolTip.Tip="{StaticResource Text.Settings.General.ParallelDownloads.Tooltip}">
+					<avalonia:NumericUpDown.Styles>
+						<Style Selector="TextBox:pointerover">
+							<Setter Property="IsReadOnly" Value="True"/>
+						</Style>
+					</avalonia:NumericUpDown.Styles>
+				</avalonia:NumericUpDown>
+				
+				<!-- Game Language -->
 				<TextBlock Grid.Row="3" Grid.Column="0"
 					VerticalAlignment="Center"
 					FontSize="13"
