@@ -18,7 +18,7 @@
              1 for confirmation text, 
              1 for buttons -->
 		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="30"/>
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
@@ -38,6 +38,7 @@
             Text="{StaticResource Text.Delete_Server.Confirm}"
             FontFamily="{StaticResource FontDefault}"
             Margin="5"
+			Foreground="Yellow"
             FontSize="15" />
 
 		<!-- Buttons area: use a Grid with three columns: Yes, or, No -->

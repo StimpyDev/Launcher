@@ -292,7 +292,7 @@ public partial class Server : ObservableObject
         int success = 1;
         var parallelOptions = new ParallelOptions
         {
-            MaxDegreeOfParallelism = Settings.Instance.DownloadThreads
+            MaxDegreeOfParallelism = Math.Max(1, Settings.Instance.DownloadThreads)
         };
 
         IsDownloading = true;

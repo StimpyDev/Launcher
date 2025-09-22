@@ -43,7 +43,7 @@
 		</StackPanel>
 
 		<!-- Remember username checkbox -->
-		<CheckBox Grid.Row="2" FontSize="14" FontFamily="{StaticResource FontDefault}" HorizontalAlignment="Center" Content="{StaticResource Text.Login.RememberUsername}" IsChecked="{Binding RememberUsername}" Margin="0,10,0,0"/>
+		<CheckBox Grid.Row="2" FontSize="14" FontFamily="{StaticResource FontDefault}" HorizontalAlignment="Center" Content="{StaticResource Text.Login.RememberUsername}" IsChecked="{Binding RememberUsername}"/>
 
 		<!-- Password section -->
 		<StackPanel Grid.Row="3" HorizontalAlignment="Center" Margin="0,10,0,0">
@@ -53,10 +53,10 @@
 		</StackPanel>
 
 		<!-- Remember password checkbox -->
-		<CheckBox Grid.Row="4" FontFamily="{StaticResource FontDefault}" HorizontalAlignment="Center" FontSize="14" Content="{StaticResource Text.Login.RememberPassword}" IsChecked="{Binding RememberPassword}" Margin="0,10,0,0"/>
+		<CheckBox Grid.Row="4" FontFamily="{StaticResource FontDefault}" HorizontalAlignment="Center" FontSize="14" Content="{StaticResource Text.Login.RememberPassword}" IsChecked="{Binding RememberPassword}"/>
 
 		<!-- Buttons -->
-		<StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5" Margin="0,10,0,0">
+		<StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5" Margin="0,0,0,5">
 			<Button Classes="flat primary" Command="{Binding LoginCommand}" FontFamily="{StaticResource FontDefault}" Content="{StaticResource Text.Login}" HotKey="Enter">
 				<Button.Background>
 					<LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
