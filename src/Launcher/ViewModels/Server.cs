@@ -290,6 +290,7 @@ public partial class Server : ObservableObject
         FilesDownloaded = 0;
 
         int success = 1;
+        var failedFiles = new List<string>();
         var parallelOptions = new ParallelOptions
         {
             MaxDegreeOfParallelism = Math.Max(1, Settings.Instance.DownloadThreads)
@@ -311,8 +312,7 @@ public partial class Server : ObservableObject
                     try
                     {
                         using var downloadService = new DownloadService(downloadConfig);
-
-                        if (!await DownloadFileAsync(downloadService, file.Path, file.FileName).ConfigureAwait(false))
+                        if (!await DownloadFileAsync(downloadService, file.Path, file.FileName, failedFiles).ConfigureAwait(false))
                         {
                             Interlocked.Exchange(ref success, 0);
                         }
@@ -320,26 +320,26 @@ public partial class Server : ObservableObject
                     catch (Exception ex)
                     {
                         _logger.Error($"Error downloading file {file.FileName}: {ex.Message}");
+                        lock (failedFiles) failedFiles.Add($"{file.Path}/{file.FileName}");
                     }
                 });
             }
             else
             {
+                using var downloadService = new DownloadService(downloadConfig);
                 foreach (var file in filesToDownload)
                 {
                     try
                     {
-                        using var downloadService = new DownloadService(downloadConfig);
-
-                        if (!await DownloadFileAsync(downloadService, file.Path, file.FileName).ConfigureAwait(false))
+                        if (!await DownloadFileAsync(downloadService, file.Path, file.FileName, failedFiles).ConfigureAwait(false))
                         {
                             success = 0;
-                            break;
                         }
                     }
                     catch (Exception ex)
                     {
                         _logger.Error($"Error downloading file {file.FileName}: {ex.Message}");
+                        failedFiles.Add($"{file.Path}/{file.FileName}");
                     }
                 }
             }
@@ -349,11 +349,18 @@ public partial class Server : ObservableObject
             IsDownloading = false;
         }
 
+        if (failedFiles.Count > 0)
+        {
+            var errorFiles = string.Join("\n", failedFiles.Take(10));
+            var summary = failedFiles.Count > 10 ? $"...and {failedFiles.Count - 10} more." : "";
+            await App.AddNotification($"Failed to download {failedFiles.Count} file(s):\n{errorFiles}\n{summary}", true);
+        }
+
         _logger.Info("End - Verify Client Files");
         return success == 1;
     }
 
-    private async Task<bool> DownloadFileAsync(DownloadService downloadService, string path, string fileName)
+    private async Task<bool> DownloadFileAsync(DownloadService downloadService, string path, string fileName, List<string> failedFiles)
     {
         var downloadFilePath = Path.Combine(path, fileName);
 
@@ -362,21 +369,26 @@ public partial class Server : ObservableObject
             var clientFileUri = UriHelper.JoinUriPaths(Info.Url, "client", path, fileName);
 
             var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
+
+            if (!Directory.Exists(fileDirectory))
             Directory.CreateDirectory(fileDirectory);
+
             var filePath = Path.Combine(fileDirectory, fileName);
 
             await using var fileStream = await downloadService.DownloadFileTaskAsync(clientFileUri).ConfigureAwait(false);
-            if (fileStream == null)
+
+            if (fileStream is null || fileStream.Length == 0)
             {
-                _logger.Error($"Failed to get client file: {downloadFilePath}");
-                await App.AddNotification($"Failed to download file: {downloadFilePath}. Error: File stream is null.", true);
+                _logger.Error($"Failed to download client file or received empty stream: {downloadFilePath}");
+                lock (failedFiles) failedFiles.Add($"{path}/{fileName}");
                 return false;
             }
 
-            await using var writeStream = File.Create(filePath);
-
+            await using (var writeStream = File.Create(filePath))
+            {
             await fileStream.CopyToAsync(writeStream).ConfigureAwait(false);
             await writeStream.FlushAsync().ConfigureAwait(false);
+            }
 
             await UIThreadHelper.InvokeAsync(() =>
             {
@@ -390,7 +402,7 @@ public partial class Server : ObservableObject
         catch (Exception ex)
         {
             _logger.Error(ex, $"Error downloading: {path}/{fileName}");
-            await App.AddNotification($"Failed to download file: {downloadFilePath}. Error: {ex.Message}", true);
+            lock (failedFiles) failedFiles.Add($"{path}/{fileName}");
             return false;
         }
     }
