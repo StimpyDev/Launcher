@@ -230,8 +230,6 @@ public partial class Login : Popup
         await App.AddNotification("DirectX 9 is not available. Cannot launch the client.", true);
         await Task.Delay(500);
 
-        string url = Constants.DirectXDownloadUrl;
-
         try
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -240,22 +238,22 @@ public partial class Login : Popup
                 {
                     Verb = "open",
                     UseShellExecute = true,
-                    FileName = url
+                    FileName = Constants.DirectXDownloadUrl
                 });
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                Process.Start("xdg-open", url);
+                Process.Start("xdg-open", Constants.DirectXDownloadUrl);
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                Process.Start("open", url);
+                Process.Start("open", Constants.DirectXDownloadUrl);
             }
         }
         catch (Exception ex)
         {
             _logger.Error(ex);
-            await App.AddNotification("Failed to open the DirectX download page. Please open this URL manually: " + url, true);
+            await App.AddNotification("Failed to open the DirectX download page. Please open this URL manually: " + Constants.DirectXDownloadUrl, true);
         }
     }
 }

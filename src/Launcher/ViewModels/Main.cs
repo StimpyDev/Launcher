@@ -105,9 +105,7 @@ public partial class Main : ObservableObject
     [RelayCommand]
     public async Task OpenLogs()
     {
-        string logsDir = Constants.LogsDirectory;
-
-        if (!Directory.Exists(logsDir))
+        if (!Directory.Exists(Constants.LogsDirectory))
         {
             await App.AddNotification("Logs directory does not exist.", true);
             return;
@@ -119,18 +117,18 @@ public partial class Main : ObservableObject
             {
                 Process.Start(new ProcessStartInfo
                 {
-                    FileName = logsDir,
+                    FileName = Constants.LogsDirectory,
                     UseShellExecute = true,
                     Verb = "open"
                 });
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                Process.Start("xdg-open", logsDir);
+                Process.Start("xdg-open", Constants.LogsDirectory);
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                Process.Start("open", logsDir);
+                Process.Start("open", Constants.LogsDirectory);
             }
         }
         catch (Exception ex)
