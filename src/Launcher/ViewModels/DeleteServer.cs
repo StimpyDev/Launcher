@@ -32,9 +32,9 @@ public partial class DeleteServer : Popup
         };
     }
 
-    private async Task OnDeleteServer()
+    private Task OnDeleteServer()
     {
-        await App.ProcessPopupAsync();
+        return App.ProcessPopupAsync();
     }
 
     private void OnDeleteServerCancel()
@@ -42,10 +42,10 @@ public partial class DeleteServer : Popup
         App.CancelPopup();
     }
 
-    public override async Task<bool> ProcessAsync()
+    public override Task<bool> ProcessAsync()
     {
         ProgressDescription = App.GetText("Text.Delete_Server.Loading");
-        return await OnDeleteServerAsync().ConfigureAwait(false);
+        return OnDeleteServerAsync();
     }
 
     private async Task<bool> OnDeleteServerAsync()

@@ -69,9 +69,9 @@ public partial class Login : Popup
         };
     }
 
-    private async Task OnLogin()
+    private Task OnLogin()
     {
-        await App.ProcessPopupAsync();
+        return App.ProcessPopupAsync();
     }
 
     private void OnLoginCancel()

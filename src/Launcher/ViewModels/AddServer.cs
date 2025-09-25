@@ -36,9 +36,9 @@ public partial class AddServer : Popup
         };
     }
 
-    private async Task OnAddServer()
+    private Task OnAddServer()
     {
-        await App.ProcessPopupAsync();
+        return App.ProcessPopupAsync();
     }
 
     private void OnAddServerCancel()
@@ -57,10 +57,10 @@ public partial class AddServer : Popup
         return ValidationResult.Success;
     }
 
-    public override async Task<bool> ProcessAsync()
+    public override Task<bool> ProcessAsync()
     {
         ProgressDescription = App.GetText("Text.Add_Server.Loading");
-        return await OnAddServerAsync().ConfigureAwait(false);
+        return OnAddServerAsync();
     }
 
     private async Task<bool> OnAddServerAsync()
