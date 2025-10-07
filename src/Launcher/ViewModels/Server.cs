@@ -101,7 +101,7 @@ public partial class Server : ObservableObject
     {
         await UIThreadHelper.InvokeAsync(() =>
         {
-            Status = "Refreshing";
+            Status = App.GetText("Text.ServerStatus.Refreshing");
             ServerStatusFill = new SolidColorBrush(Color.FromRgb(204, 204, 0));
             IsRefreshing = true;
             return Task.CompletedTask;
