@@ -313,9 +313,9 @@ public partial class Server : ObservableObject
             {
                 await Parallel.ForEachAsync(filesToDownload, parallelOptions, async (file, ct) =>
                 {
+                    using var downloadService = new DownloadService(downloadConfig);
                     try
                     {
-                        using var downloadService = new DownloadService(downloadConfig);
                         if (!await DownloadFileAsync(downloadService, file.Path, file.FileName, failedFiles).ConfigureAwait(false))
                         {
                             Interlocked.Exchange(ref success, 0);
