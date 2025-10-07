@@ -9,7 +9,6 @@
     xmlns:v="using:Launcher.Views"
     xmlns:vm="using:Launcher.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
     mc:Ignorable="d"
     d:DesignWidth="800"
     d:DesignHeight="550"
@@ -30,10 +29,7 @@
 
 	<!-- Window Background -->
 	<Window.Background>
-		<ImageBrush
-            asyncImageLoader:ImageBrushLoader.Source="https://github.com/Open-Source-Free-Realms/Launcher/blob/main/src/Launcher/Assets/background.png?raw=true"
-            AlignmentY="Top"
-            Stretch="UniformToFill" />
+		<ImageBrush Source="/Assets/background.png"/>
 	</Window.Background>
 
 	<Grid RowDefinitions="*" ColumnDefinitions="200,*">
@@ -289,7 +285,7 @@
                                         Orientation="Horizontal"
                                         HorizontalAlignment="Center"
                                         IsVisible="{Binding IsError}">
-										<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset2.png" Stretch="None" HorizontalAlignment="Left"/>
+										<Image Source="/Assets/fr_asset2.png" Stretch="None" HorizontalAlignment="Left"/>
 										<TextBlock Margin="5,0,0,0" FontSize="15" FontFamily="{StaticResource FontDefault}" Text="{StaticResource Text.Main.Error}" />
 									</StackPanel>
 									<!-- Info Notification -->
@@ -298,7 +294,7 @@
                                         Orientation="Horizontal"
                                         HorizontalAlignment="Center"
                                         IsVisible="{Binding IsError, Converter={x:Static BoolConverters.Not}}">
-										<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset2.png" Stretch="None" HorizontalAlignment="Left"/>
+										<Image Source="/Assets/fr_asset2.png" Stretch="None" HorizontalAlignment="Left"/>
 										<TextBlock Margin="5,0,0,0" FontSize="15" FontFamily="{StaticResource FontDefault}" Text="{StaticResource Text.Main.Info}" />
 									</StackPanel>
 									<!-- Message Text -->

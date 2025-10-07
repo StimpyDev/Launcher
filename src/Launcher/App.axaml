@@ -22,7 +22,6 @@
 	<Application.Styles>
 		<FluentTheme/>
 		<StyleInclude Source="/Resources/Styles.axaml" />
-		<StyleInclude Source="avares://AsyncImageLoader.Avalonia/AdvancedImage.axaml" />
 	</Application.Styles>
 
 </Application>

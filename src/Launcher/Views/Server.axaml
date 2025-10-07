@@ -6,7 +6,6 @@
     xmlns:md="https://github.com/whistyun/Markdown.Avalonia"
     xmlns:vm="using:Launcher.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
     mc:Ignorable="d"
     d:DesignWidth="650"
     d:DesignHeight="550"
@@ -67,7 +66,7 @@
 		<StackPanel Grid.Row="3" Margin="0,20,0,0">
 			<Grid HorizontalAlignment="Center">
 				<Button Classes="no_background" Cursor="Hand" Command="{Binding PlayCommand}" IsVisible="{Binding PlayCommand.IsRunning, Converter={x:Static BoolConverters.Not}}" >
-					<asyncImageLoader:AdvancedImage Source="/Assets/fr_asset3.png" Width="165" Stretch="UniformToFill" />
+					<Image Source="/Assets/fr_asset3.png" Width="165" Stretch="UniformToFill" />
 				</Button>
 			</Grid>
 		</StackPanel>
