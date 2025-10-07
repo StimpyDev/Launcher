@@ -208,7 +208,11 @@ public partial class Login : Popup
             _server.Process.StartInfo.FileName = Constants.ClientExecutableName;
             _server.Process.StartInfo.Arguments = arguments;
         }
-
+        else
+        {
+            await App.AddNotification("Launching the client is not supported on this OS.", true);
+            return;
+        }
         _server.Process.StartInfo.UseShellExecute = true;
         _server.Process.StartInfo.WorkingDirectory = workingDirectory;
         _server.Process.EnableRaisingEvents = true;
@@ -248,6 +252,10 @@ public partial class Login : Popup
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 Process.Start("open", Constants.DirectXDownloadUrl);
+            }
+            else
+            {
+                await App.AddNotification("Failed to open the DirectX download page. This operating system is not supported.", true);
             }
         }
         catch (Exception ex)

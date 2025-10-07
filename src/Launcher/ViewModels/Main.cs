@@ -130,6 +130,10 @@ public partial class Main : ObservableObject
             {
                 Process.Start("open", Constants.LogsDirectory);
             }
+            else
+            {
+                await App.AddNotification("Opening the logs folder is not supported on this operating system.", true);
+            }
         }
         catch (Exception ex)
         {

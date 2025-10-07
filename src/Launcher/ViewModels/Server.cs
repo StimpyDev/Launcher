@@ -218,7 +218,10 @@ public partial class Server : ObservableObject
             {
                 Process.Start("open", folderPath);
             }
-
+            else
+            {
+                await App.AddNotification("Opening the client folder is not supported on this operating system.", true);
+        }
         }
         catch (Exception ex)
         {
