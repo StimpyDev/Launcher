@@ -7,6 +7,7 @@ using Launcher.Helpers;
 using Launcher.Models;
 using NLog;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -290,7 +291,7 @@ public partial class Server : ObservableObject
         FilesDownloaded = 0;
 
         int success = 1;
-        var failedFiles = new List<string>();
+        var failedFiles = new ConcurrentBag<string>();
         var parallelOptions = new ParallelOptions
         {
             MaxDegreeOfParallelism = Math.Max(1, Settings.Instance.DownloadThreads)
@@ -320,7 +321,7 @@ public partial class Server : ObservableObject
                     catch (Exception ex)
                     {
                         _logger.Error($"Error downloading file {file.FileName}: {ex.Message}");
-                        lock (failedFiles) failedFiles.Add($"{file.Path}/{file.FileName}");
+                        failedFiles.Add($"{file.Path}/{file.FileName}");
                     }
                 });
             }
@@ -349,7 +350,7 @@ public partial class Server : ObservableObject
             IsDownloading = false;
         }
 
-        if (failedFiles.Count > 0)
+        if (!failedFiles.IsEmpty)
         {
             var errorFiles = string.Join("\n", failedFiles.Take(10));
             var summary = failedFiles.Count > 10 ? $"...and {failedFiles.Count - 10} more." : "";
@@ -360,7 +361,7 @@ public partial class Server : ObservableObject
         return success == 1;
     }
 
-    private async Task<bool> DownloadFileAsync(DownloadService downloadService, string path, string fileName, List<string> failedFiles)
+    private async Task<bool> DownloadFileAsync(DownloadService downloadService, string path, string fileName, ConcurrentBag<string> failedFiles)
     {
         var downloadFilePath = Path.Combine(path, fileName);
 
@@ -380,7 +381,7 @@ public partial class Server : ObservableObject
             if (fileStream is null || fileStream.Length == 0)
             {
                 _logger.Error($"Failed to download client file or received empty stream: {downloadFilePath}");
-                lock (failedFiles) failedFiles.Add($"{path}/{fileName}");
+                failedFiles.Add($"{path}/{fileName}");
                 return false;
             }
 
@@ -402,7 +403,7 @@ public partial class Server : ObservableObject
         catch (Exception ex)
         {
             _logger.Error(ex, $"Error downloading: {path}/{fileName}");
-            lock (failedFiles) failedFiles.Add($"{path}/{fileName}");
+            failedFiles.Add($"{path}/{fileName}");
             return false;
         }
     }
