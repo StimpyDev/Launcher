@@ -43,12 +43,13 @@ public static class DiscordService
     {
         lock (_lock)
         {
-            if (_cts != null && !_cts.IsCancellationRequested)
+            if (!_cts.IsCancellationRequested)
             {
                 _cts.Cancel();
+            }
+
                 _cts.Dispose();
                 _cts = new CancellationTokenSource();
-            }
 
             _discord?.Dispose();
             _discord = null;
@@ -71,6 +72,10 @@ public static class DiscordService
                 }
                 await Task.Delay(1000 / 60, _cts.Token);
             }
+        }
+        catch (TaskCanceledException)
+        {
+
         }
         catch (Exception ex)
         {
