@@ -1,4 +1,5 @@
 ﻿using Avalonia.Collections;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Launcher.Helpers;
@@ -94,13 +95,13 @@ public partial class Main : ObservableObject
     }
 
     [RelayCommand]
-    public static Task CheckForUpdates() => App.CheckForUpdatesAsync();
+    public Task CheckForUpdates() => App.CheckForUpdatesAsync();
 
     [RelayCommand]
-    public static void ShowSettings() => App.ShowSettings();
+    public void ShowSettings() => App.ShowSettings();
 
     [RelayCommand]
-    public static Task AddServer() => App.ShowPopupAsync(new AddServer());
+    public Task AddServer() => App.ShowPopupAsync(new AddServer());
 
     [RelayCommand]
     public async Task OpenLogs()
@@ -148,18 +149,29 @@ public partial class Main : ObservableObject
         if (ActiveServer == null)
             return;
 
+        if (ActiveServer.IsDownloading)
+        {
+            await App.AddNotification("Cannot delete server while download is in progress.", true);
+            return;
+        }
+
         await App.ShowPopupAsync(new DeleteServer(ActiveServer.Info));
     }
 
     public async Task OnReceiveNotification(Notification notification)
     {
-        if (Notifications.Count >= 3)
-            return;
-
-        Notifications.Add(notification);
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            if (Notifications.Count >= 3)
+                Notifications.RemoveAt(0);
+            Notifications.Add(notification);
+        });
 
         await Task.Delay(1000);
 
-        Notifications.Remove(notification);
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            Notifications.Remove(notification);
+        });
     }
 }
