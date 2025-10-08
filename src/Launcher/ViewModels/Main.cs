@@ -56,16 +56,22 @@ public partial class Main : ObservableObject
     }
     private void ServerInfoList_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (e.Action == NotifyCollectionChangedAction.Add && e.NewStartingIndex != -1)
+        Dispatcher.UIThread.InvokeAsync(() =>
         {
-            var serverInfo = Settings.Instance.ServerInfoList[e.NewStartingIndex];
+            if (e.Action == NotifyCollectionChangedAction.Add && e.NewStartingIndex != -1)
+            {
+                var serverInfo = Settings.Instance.ServerInfoList[e.NewStartingIndex];
 
-            Servers.Add(new Server(serverInfo, this));
-        }
-        else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldStartingIndex != -1)
-        {
-            Servers.RemoveAt(e.OldStartingIndex);
-        }
+                Servers.Add(new Server(serverInfo, this));
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldStartingIndex != -1)
+            {
+                Servers.RemoveAt(e.OldStartingIndex);
+                // If ActiveServer was removed, set to null
+                if (ActiveServer != null && !Servers.Contains(ActiveServer))
+                    ActiveServer = null;
+            }
+        });
     }
 
     public void OnLoad()

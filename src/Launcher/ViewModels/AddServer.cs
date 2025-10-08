@@ -48,6 +48,11 @@ public partial class AddServer : Popup
 
     public static ValidationResult? ValidateServerUrl(string serverUrl, ValidationContext context)
     {
+        if (string.IsNullOrWhiteSpace(serverUrl))
+            return new ValidationResult(App.GetText("Text.Add_Server.InvalidServerUrl1", "<empty>"));
+
+        serverUrl = serverUrl.Trim();
+
         if (!Uri.TryCreate(serverUrl, UriKind.Absolute, out var serverUri))
             return new ValidationResult(App.GetText("Text.Add_Server.InvalidServerUrl1", serverUrl));
 
@@ -56,7 +61,6 @@ public partial class AddServer : Popup
 
         return ValidationResult.Success;
     }
-
     public override Task<bool> ProcessAsync()
     {
         ProgressDescription = App.GetText("Text.Add_Server.Loading");
