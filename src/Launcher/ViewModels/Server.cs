@@ -221,7 +221,7 @@ public partial class Server : ObservableObject
             else
             {
                 await App.AddNotification("Opening the client folder is not supported on this operating system.", true);
-        }
+            }
         }
         catch (Exception ex)
         {
@@ -375,7 +375,9 @@ public partial class Server : ObservableObject
             var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
 
             if (!Directory.Exists(fileDirectory))
-            Directory.CreateDirectory(fileDirectory);
+            {
+                Directory.CreateDirectory(fileDirectory);
+            }
 
             var filePath = Path.Combine(fileDirectory, fileName);
 
@@ -390,8 +392,8 @@ public partial class Server : ObservableObject
 
             await using (var writeStream = File.Create(filePath))
             {
-            await fileStream.CopyToAsync(writeStream).ConfigureAwait(false);
-            await writeStream.FlushAsync().ConfigureAwait(false);
+                await fileStream.CopyToAsync(writeStream).ConfigureAwait(false);
+                await writeStream.FlushAsync().ConfigureAwait(false);
             }
 
             await UIThreadHelper.InvokeAsync(() =>

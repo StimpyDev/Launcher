@@ -63,9 +63,9 @@ public partial class Login : Popup
         LoginCommand = new AsyncRelayCommand(OnLogin);
         LoginCancelCommand = new RelayCommand(OnLoginCancel);
 
-        View = new Views.Login 
+        View = new Views.Login
         {
-            DataContext = this 
+            DataContext = this
         };
     }
 
@@ -108,14 +108,24 @@ public partial class Login : Popup
 
     private void SaveRememberedCredentials()
     {
-        if (RememberUsername)
+        if (RememberUsername && !string.IsNullOrEmpty(Username))
         {
             _server.Info.Username = Username;
         }
-        if (RememberPassword)
+        else
+        {
+            _server.Info.Username = null;
+        }
+
+        if (RememberPassword && !string.IsNullOrEmpty(Password))
         {
             _server.Info.Password = Password;
         }
+        else
+        {
+            _server.Info.Password = null;
+        }
+
         Settings.Instance.Save();
     }
 
@@ -144,7 +154,7 @@ public partial class Login : Popup
             }
 
             var loginResponse = await httpResponse.Content.ReadFromJsonAsync<LoginResponse>().ConfigureAwait(false);
-            if (string.IsNullOrEmpty(loginResponse?.SessionId))
+            if (loginResponse == null || string.IsNullOrEmpty(loginResponse.SessionId))
             {
                 await App.AddNotification("Invalid login API response.", true);
                 Password = string.Empty;
