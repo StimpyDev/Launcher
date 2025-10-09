@@ -74,7 +74,7 @@
 	<x:String x:Key="Text.Settings.General.ParallelDownload" xml:space="preserve">Parallel Download</x:String>
 	<x:String x:Key="Text.Settings.General.ParallelDownloads" xml:space="preserve">Parallel Downloads: </x:String>
 	<x:String x:Key="Text.Settings.General.ParallelDownload.Tooltip" xml:space="preserve">Enables / Disables parallel downloading. Hover over "parallel downloads" for more information. If parallel downloading isn't working as intended, consider disabling this option.</x:String>
-	<x:String x:Key="Text.Settings.General.ParallelDownloads.Tooltip" xml:space="preserve">Number of parallel downloads. Higher values are faster on faster connections/SSDs but are more resource-intensive. (2–8). Recommended: 4. Use what is best for your hardware.</x:String>
+	<x:String x:Key="Text.Settings.General.ParallelDownloads.Tooltip" xml:space="preserve">Number of parallel downloads. Higher values are faster on faster connections/SSDs but are more resource-intensive. (2–10). Recommended: 4. Use what is best for your hardware.</x:String>
 
 	<!-- Discord -->
 	<x:String x:Key="Text.Discord.Playing" xml:space="preserve">Playing on Server(s): </x:String>

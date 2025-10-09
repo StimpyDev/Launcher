@@ -83,8 +83,8 @@ public partial class Settings : ObservableObject
     }
     partial void OnDownloadThreadsChanged(int value)
     {
-        if (value != Math.Clamp(value, 2, 8))
-            DownloadThreads = Math.Clamp(value, 2, 8);
+        if (value != Math.Clamp(value, 2, 10))
+            DownloadThreads = Math.Clamp(value, 2, 10);
         else
             Save();
     }
