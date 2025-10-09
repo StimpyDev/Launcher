@@ -171,6 +171,7 @@ public partial class Server : ObservableObject
         {
             await App.AddNotification("Failed to verify client files, please try again", true);
             _logger.Warn("Failed to verify client files");
+            StatusMessage = string.Empty;
             return;
         }
 

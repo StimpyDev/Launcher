@@ -173,7 +173,7 @@ public partial class Main : ObservableObject
             Notifications.Add(notification);
         });
 
-        await Task.Delay(1000);
+        await Task.Delay(1500);
 
         await Dispatcher.UIThread.InvokeAsync(() =>
         {

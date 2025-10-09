@@ -7,6 +7,7 @@ using NLog;
 using System;
 using System.IO;
 using System.Threading;
+using System.Xml.Serialization;
 
 namespace Launcher.ViewModels;
 public partial class Settings : ObservableObject
@@ -14,7 +15,7 @@ public partial class Settings : ObservableObject
     private static Settings? _instance;
     private static readonly string _savePath;
     private static readonly Lock _lock = new();
-    private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
     [ObservableProperty]
     private bool discordActivity = true;
@@ -41,6 +42,7 @@ public partial class Settings : ObservableObject
 
     private Settings() { }
 
+    [XmlIgnore]
     public static Settings Instance
     {
         get
@@ -53,7 +55,12 @@ public partial class Settings : ObservableObject
                 if (_instance is null)
                 {
                     if (File.Exists(_savePath))
-                        XmlHelper.TryDeserialize(_savePath, out _instance);
+                    {
+                        if (!XmlHelper.TryDeserialize(_savePath, out _instance))
+                        {
+                            _logger.Error($"Failed to deserialize settings from '{_savePath}'.");
+                        }
+                    }
 
                     _instance ??= new Settings();
                 }
