@@ -89,15 +89,13 @@ public partial class Main : ObservableObject
             return;
 
         var serversPlaying = Servers.Where(x => x.Process is not null).Select(x => x.Info.Name);
+        var playingOn = string.Join(", ", serversPlaying);
 
-        if (serversPlaying.Any())
-        {
-            DiscordService.UpdateActivity(App.GetText("Text.Discord.Playing"), string.Join(", ", serversPlaying));
-        }
-        else
-        {
-            DiscordService.UpdateActivity(App.GetText("Text.Discord.Idle"), string.Empty);
-        }
+        var details = string.IsNullOrEmpty(playingOn)
+            ? App.GetText("Text.Discord.Idle")
+            : App.GetText("Text.Discord.Playing");
+
+        DiscordService.UpdateActivity(details, playingOn);
     }
 
     [RelayCommand]

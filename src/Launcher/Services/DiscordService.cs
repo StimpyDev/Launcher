@@ -47,9 +47,8 @@ public static class DiscordService
             {
                 _cts.Cancel();
             }
-
-                _cts.Dispose();
-                _cts = new CancellationTokenSource();
+            _cts.Dispose();
+            _cts = new CancellationTokenSource();
 
             _discord?.Dispose();
             _discord = null;

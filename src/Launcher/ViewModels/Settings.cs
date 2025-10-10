@@ -13,7 +13,7 @@ namespace Launcher.ViewModels;
 public partial class Settings : ObservableObject
 {
     private static Settings? _instance;
-    private static readonly string _savePath;
+    private static readonly string _savePath = Path.Combine(Constants.SavePath, Constants.SettingsFile);
     private static readonly Lock _lock = new();
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
@@ -34,11 +34,6 @@ public partial class Settings : ObservableObject
 
     public event EventHandler? LocaleChanged;
     public event EventHandler? DiscordActivityChanged;
-
-    static Settings()
-    {
-        _savePath = Path.Combine(Constants.SavePath, Constants.SettingsFile);
-    }
 
     private Settings() { }
 
