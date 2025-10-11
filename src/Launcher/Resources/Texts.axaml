@@ -42,7 +42,7 @@
 	<x:String x:Key="Text.Login.Loading" xml:space="preserve">Logging In...</x:String>
 
 	<!-- Server Operations -->
-	<x:String x:Key="Text.Server.DownloadingFile" xml:space="preserve">Downloading: {0}</x:String>
+	<x:String x:Key="Text.Server.PreparingGameFiles" xml:space="preserve">Preparing Game Files: ({0}/{1})</x:String>
 	<x:String x:Key="Text.Server.VerifyClientFiles" xml:space="preserve">Verifying Client Files...</x:String>
 	<x:String x:Key="Text.ServerStatus" xml:space="preserve">Server Status: </x:String>
 	<x:String x:Key="Text.ServerStatus.Online" xml:space="preserve">Online</x:String>

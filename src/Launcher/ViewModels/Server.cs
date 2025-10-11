@@ -302,29 +302,37 @@ public partial class Server : ObservableObject
         FilesDownloaded = 0;
 
         int success = 1;
+        int filesDownloaded = 0;
         var failedFiles = new ConcurrentBag<string>();
         var parallelOptions = new ParallelOptions
         {
-            MaxDegreeOfParallelism = Math.Max(1, Settings.Instance.DownloadThreads)
+            MaxDegreeOfParallelism = Math.Max(2, Settings.Instance.DownloadThreads)
         };
 
         IsDownloading = true;
 
         try
         {
-            var downloadConfig = new DownloadConfiguration
-            {
-                RequestConfiguration = { UserAgent = $"{App.GetText("Text.Title")} v{App.CurrentVersion}" },
-            };
-
             if (Settings.Instance.ParallelDownload)
             {
                 await Parallel.ForEachAsync(filesToDownload, parallelOptions, async (file, ct) =>
                 {
-                    using var downloadService = new DownloadService(downloadConfig);
                     try
                     {
-                        if (!await DownloadFileAsync(downloadService, file.Path, file.FileName, failedFiles).ConfigureAwait(false))
+                        if (await DownloadFileAsync(file.Path, file.FileName, failedFiles).ConfigureAwait(false))
+                        {
+                            int downloadedFilesCount = Interlocked.Increment(ref filesDownloaded);
+                            if (success == 1)
+                            {
+                                await UIThreadHelper.InvokeAsync(() =>
+                                {
+                                    FilesDownloaded = downloadedFilesCount;
+                                    StatusMessage = App.GetText("Text.Server.PreparingGameFiles", FilesDownloaded, TotalFilesToDownload);
+                                    return Task.CompletedTask;
+                                });
+                            }
+                        }
+                        else
                         {
                             Interlocked.Exchange(ref success, 0);
                         }
@@ -338,12 +346,21 @@ public partial class Server : ObservableObject
             }
             else
             {
-                using var downloadService = new DownloadService(downloadConfig);
                 foreach (var file in filesToDownload)
                 {
                     try
                     {
-                        if (!await DownloadFileAsync(downloadService, file.Path, file.FileName, failedFiles).ConfigureAwait(false))
+                        if (await DownloadFileAsync(file.Path, file.FileName, failedFiles).ConfigureAwait(false))
+                        {
+                            filesDownloaded++;
+                            await UIThreadHelper.InvokeAsync(() =>
+                            {
+                                FilesDownloaded = filesDownloaded;
+                                StatusMessage = App.GetText("Text.Server.PreparingGameFiles", FilesDownloaded, TotalFilesToDownload);
+                                return Task.CompletedTask;
+                            });
+                        }
+                        else
                         {
                             success = 0;
                         }
@@ -378,7 +395,7 @@ public partial class Server : ObservableObject
         return success == 1;
     }
 
-    private async Task<bool> DownloadFileAsync(DownloadService downloadService, string path, string fileName, ConcurrentBag<string> failedFiles)
+    private async Task<bool> DownloadFileAsync(string path, string fileName, ConcurrentBag<string> failedFiles)
     {
         var downloadFilePath = Path.Combine(path, fileName);
 
@@ -387,6 +404,14 @@ public partial class Server : ObservableObject
             var clientFileUri = UriHelper.JoinUriPaths(Info.Url, "client", path, fileName);
 
             var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
+
+            using var downloadService = new DownloadService(new DownloadConfiguration
+            {
+                RequestConfiguration =
+                {
+                    UserAgent = $"{App.GetText("Text.Title")} v{App.CurrentVersion}"
+                }
+            });
 
             if (!Directory.Exists(fileDirectory))
             {
@@ -404,18 +429,9 @@ public partial class Server : ObservableObject
                 return false;
             }
 
-            await using (var writeStream = File.Create(filePath))
-            {
+            await using var writeStream = File.Create(filePath);
                 await fileStream.CopyToAsync(writeStream).ConfigureAwait(false);
                 await writeStream.FlushAsync().ConfigureAwait(false);
-            }
-
-            await UIThreadHelper.InvokeAsync(() =>
-            {
-                FilesDownloaded++;
-                StatusMessage = $"Preparing Game Files: ({FilesDownloaded}/{TotalFilesToDownload})";
-                return Task.CompletedTask;
-            });
 
             return true;
         }
@@ -442,6 +458,8 @@ public partial class Server : ObservableObject
 
             if (File.Exists(filePath))
             {
+                try
+                {
                 using var readStream = File.OpenRead(filePath);
                 if (file.Size == readStream.Length)
                 {
@@ -451,6 +469,12 @@ public partial class Server : ObservableObject
                         continue;
                 }
             }
+                catch (Exception ex)
+                {
+                    _logger.Warn(ex, $"Could not verify hash for file(s): {filePath}.");
+                }
+            }
+
             yield return (path, file.Name);
         }
     }
