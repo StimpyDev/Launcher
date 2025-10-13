@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace Launcher.ViewModels;
+
 public partial class DeleteServer : Popup
 {
     [ObservableProperty]
@@ -31,43 +32,28 @@ public partial class DeleteServer : Popup
             DataContext = this
         };
     }
+    private Task OnDeleteServer() => App.ProcessPopupAsync();
 
-    private Task OnDeleteServer()
-    {
-        return App.ProcessPopupAsync();
-    }
-
-    private void OnDeleteServerCancel()
-    {
-        App.CancelPopup();
-    }
+    private void OnDeleteServerCancel() => App.CancelPopup();
 
     public override Task<bool> ProcessAsync()
     {
         ProgressDescription = App.GetText("Text.Delete_Server.Loading");
         return OnDeleteServerAsync();
     }
-
     private async Task<bool> OnDeleteServerAsync()
     {
         try
         {
-            await ForceDeleteDirectoryAsync(Info.SavePath);
+            // Delete the server's directory and all its contents from the file system.
+            var serverDirectoryPath = Path.Combine(Constants.SavePath, Info.SavePath);
+            await ForceDeleteDirectoryAsync(serverDirectoryPath);
         }
         catch (Exception ex)
         {
-            await UIThreadHelper.InvokeAsync(async () =>
-            {
-                try
-                {
-                    await App.AddNotification($"Failed to delete server directory: {ex.Message}", true);
-                }
-                catch (Exception notifyEx)
-                {
-                    _logger.Error(notifyEx, "Error showing notification");
-                }
-                _logger.Error(ex, "Error deleting server directory");
-            });
+            // If file deletion fails, notify the user and log the error.
+            _logger.Error(ex, $"Error deleting server directory for: {Info.Name}");
+            await App.AddNotification($"Failed to delete server directory: {ex.Message}", true);
             return false;
         }
 
@@ -80,13 +66,15 @@ public partial class DeleteServer : Popup
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Error removing server info or saving settings");
+                // This is a secondary failure, but we should still log it.
+                _logger.Error(ex, "Error removing server info from settings after directory deletion.");
             }
             return Task.CompletedTask;
         });
 
         return true;
     }
+
     private async Task ForceDeleteDirectoryAsync(string path)
     {
         if (!Directory.Exists(path))
@@ -96,22 +84,20 @@ public partial class DeleteServer : Popup
         {
             try
             {
-                var directoryInfo = new DirectoryInfo(path)
-                {
-                    Attributes = FileAttributes.Normal
-                };
+                var directoryInfo = new DirectoryInfo(path);
 
                 foreach (var info in directoryInfo.GetFileSystemInfos("*", SearchOption.AllDirectories))
                 {
                     info.Attributes = FileAttributes.Normal;
                 }
 
+                // Delete the directory and all its contents.
                 directoryInfo.Delete(true);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, $"Failed to delete directory: {path}");
-                throw;
+                _logger.Error(ex, $"Failed to forcefully delete directory: {path}");
+                throw; // Re-throw the exception to be caught by the calling method.
             }
         });
     }

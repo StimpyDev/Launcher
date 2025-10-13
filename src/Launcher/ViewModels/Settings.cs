@@ -10,6 +10,7 @@ using System.Threading;
 using System.Xml.Serialization;
 
 namespace Launcher.ViewModels;
+
 public partial class Settings : ObservableObject
 {
     private static Settings? _instance;
@@ -45,10 +46,12 @@ public partial class Settings : ObservableObject
             if (_instance is not null)
                 return _instance;
 
+            // If the instance is null, acquire a lock to ensure only one thread creates it.
             lock (_lock)
             {
                 if (_instance is null)
                 {
+                    // If a settings file exists, try to load it.
                     if (File.Exists(_savePath))
                     {
                         if (!XmlHelper.TryDeserialize(_savePath, out _instance))
@@ -57,6 +60,7 @@ public partial class Settings : ObservableObject
                         }
                     }
 
+                    // If loading failed or the file didn't exist, create a new instance with default values.
                     _instance ??= new Settings();
                 }
             }
@@ -76,13 +80,21 @@ public partial class Settings : ObservableObject
     {
         Save();
     }
+
     partial void OnDownloadThreadsChanged(int value)
     {
-        if (value != Math.Clamp(value, 2, 10))
-            DownloadThreads = Math.Clamp(value, 2, 10);
+        int clampedValue = Math.Clamp(value, 2, 10);
+        if (value != clampedValue)
+        {
+            DownloadThreads = clampedValue;
+        }
         else
+        {
+            // If the value is valid, save the settings.
             Save();
+        }
     }
+
     partial void OnLocaleChanged(LocaleType value)
         => LocaleChanged?.Invoke(this, EventArgs.Empty);
 

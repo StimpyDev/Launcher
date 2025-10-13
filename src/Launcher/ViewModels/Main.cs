@@ -51,9 +51,11 @@ public partial class Main : ObservableObject
         }
 #endif
 
+        // Subscribe to changes in the server list from settings to keep the UI in sync.
         Settings.Instance.ServerInfoList.CollectionChanged += ServerInfoList_CollectionChanged;
         Settings.Instance.DiscordActivityChanged += (_, _) => UpdateDiscordActivity();
     }
+
     private void ServerInfoList_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         Dispatcher.UIThread.InvokeAsync(() =>
@@ -118,9 +120,10 @@ public partial class Main : ObservableObject
                 return;
             }
 
-            var startInfo = new ProcessStartInfo
-            {
-                UseShellExecute = true
+            // Platform-specific logic to open a folder
+            var startInfo = new ProcessStartInfo 
+            { 
+                UseShellExecute = true 
             };
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -165,6 +168,7 @@ public partial class Main : ObservableObject
             return;
         }
 
+        // Show a confirmation dialog before deleting
         await App.ShowPopupAsync(new DeleteServer(ActiveServer.Info));
     }
 
@@ -172,11 +176,13 @@ public partial class Main : ObservableObject
     {
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
+            // Limit the number of visible notifications
             if (Notifications.Count >= 3)
                 Notifications.RemoveAt(0);
             Notifications.Add(notification);
         });
 
+        // Wait for a few seconds before removing the notification
         await Task.Delay(3000);
 
         await Dispatcher.UIThread.InvokeAsync(() =>

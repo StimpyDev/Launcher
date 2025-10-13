@@ -133,7 +133,6 @@ public partial class Server : ObservableObject
                     OnlinePlayers = 0;
                     ServerStatusFill = new SolidColorBrush(Color.FromRgb(242, 63, 67));
                 }
-
                 return Task.CompletedTask;
             });
         }
@@ -183,6 +182,7 @@ public partial class Server : ObservableObject
             return;
         }
 
+        // All checks passed, show the login popup
         await UIThreadHelper.InvokeAsync(async () =>
         {
             StatusMessage = string.Empty;
@@ -203,6 +203,7 @@ public partial class Server : ObservableObject
                 return;
             }
 
+            // Platform-specific logic to open a folder
             var startInfo = new ProcessStartInfo
             {
                 UseShellExecute = true
@@ -253,6 +254,7 @@ public partial class Server : ObservableObject
             }
             var serverManifest = result.ServerManifest;
 
+            // Update properties on the UI thread
             await UIThreadHelper.InvokeAsync(() =>
             {
                 Info.Name = serverManifest.Name;
@@ -307,8 +309,14 @@ public partial class Server : ObservableObject
         TotalFilesToDownload = filesToDownload.Count;
         FilesDownloaded = 0;
 
+        if (TotalFilesToDownload == 0)
+        {
+            _logger.Info("All client files are up to date.");
+            return true;
+        }
+
         int success = 1;
-        int filesDownloaded = 0;
+        int filesDownloadedCount = 0;
         var failedFiles = new ConcurrentBag<string>();
         var parallelOptions = new ParallelOptions
         {
@@ -319,63 +327,39 @@ public partial class Server : ObservableObject
 
         try
         {
+            // Choose between parallel and sequential download based on settings
             if (Settings.Instance.ParallelDownload)
             {
                 await Parallel.ForEachAsync(filesToDownload, parallelOptions, async (file, ct) =>
                 {
-                    try
+                    if (!await DownloadFileAsync(file.Path, file.FileName, failedFiles).ConfigureAwait(false))
                     {
-                        if (await DownloadFileAsync(file.Path, file.FileName, failedFiles).ConfigureAwait(false))
-                        {
-                            int downloadedFilesCount = Interlocked.Increment(ref filesDownloaded);
-                            if (success == 1)
-                            {
-                                await UIThreadHelper.InvokeAsync(() =>
-                                {
-                                    FilesDownloaded = downloadedFilesCount;
-                                    StatusMessage = App.GetText("Text.Server.PreparingGameFiles", FilesDownloaded, TotalFilesToDownload);
-                                    return Task.CompletedTask;
-                                });
-                            }
-                        }
-                        else
-                        {
-                            Interlocked.Exchange(ref success, 0);
-                        }
+                        Interlocked.Exchange(ref success, 0);
                     }
-                    catch (Exception ex)
+                    int currentCount = Interlocked.Increment(ref filesDownloadedCount);
+                    await UIThreadHelper.InvokeAsync(() =>
                     {
-                        _logger.Error(ex, $"Error downloading file: {file.FileName}.");
-                        failedFiles.Add($"{file.Path}/{file.FileName}");
-                    }
+                        FilesDownloaded = currentCount;
+                        StatusMessage = App.GetText("Text.Server.PreparingGameFiles", FilesDownloaded, TotalFilesToDownload);
+                        return Task.CompletedTask;
+                    });
                 });
             }
             else
             {
                 foreach (var file in filesToDownload)
                 {
-                    try
+                    if (!await DownloadFileAsync(file.Path, file.FileName, failedFiles).ConfigureAwait(false))
                     {
-                        if (await DownloadFileAsync(file.Path, file.FileName, failedFiles).ConfigureAwait(false))
-                        {
-                            filesDownloaded++;
-                            await UIThreadHelper.InvokeAsync(() =>
-                            {
-                                FilesDownloaded = filesDownloaded;
-                                StatusMessage = App.GetText("Text.Server.PreparingGameFiles", FilesDownloaded, TotalFilesToDownload);
-                                return Task.CompletedTask;
-                            });
-                        }
-                        else
-                        {
-                            success = 0;
-                        }
+                        success = 0;
                     }
-                    catch (Exception ex)
+                    filesDownloadedCount++;
+                    await UIThreadHelper.InvokeAsync(() =>
                     {
-                        _logger.Error(ex, $"Error downloading file: {file.FileName}.");
-                        failedFiles.Add($"{file.Path}/{file.FileName}");
-                    }
+                        FilesDownloaded = filesDownloadedCount;
+                        StatusMessage = App.GetText("Text.Server.PreparingGameFiles", FilesDownloaded, TotalFilesToDownload);
+                        return Task.CompletedTask;
+                    });
                 }
             }
         }
@@ -384,6 +368,7 @@ public partial class Server : ObservableObject
             IsDownloading = false;
         }
 
+        // Report any files that failed to download
         if (!failedFiles.IsEmpty)
         {
             var message = new StringBuilder();
@@ -391,9 +376,8 @@ public partial class Server : ObservableObject
             message.AppendLine(string.Join("\n", failedFiles.Take(10)));
 
             if (failedFiles.Count > 10)
-            {
                 message.AppendLine($"...And {failedFiles.Count - 10} more.");
-            }
+
             await App.AddNotification(message.ToString(), true);
         }
 
@@ -404,12 +388,11 @@ public partial class Server : ObservableObject
     private async Task<bool> DownloadFileAsync(string path, string fileName, ConcurrentBag<string> failedFiles)
     {
         var downloadFilePath = Path.Combine(path, fileName);
-
         try
         {
             var clientFileUri = UriHelper.JoinUriPaths(Info.Url, "client", path, fileName);
-
             var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
+            var filePath = Path.Combine(fileDirectory, fileName);
 
             using var downloadService = new DownloadService(new DownloadConfiguration
             {
@@ -419,19 +402,13 @@ public partial class Server : ObservableObject
                 }
             });
 
-            if (!Directory.Exists(fileDirectory))
-            {
-                Directory.CreateDirectory(fileDirectory);
-            }
-
-            var filePath = Path.Combine(fileDirectory, fileName);
+            Directory.CreateDirectory(fileDirectory);
 
             await using var fileStream = await downloadService.DownloadFileTaskAsync(clientFileUri).ConfigureAwait(false);
-
             if (fileStream is null || fileStream.Length == 0)
             {
                 _logger.Error($"Failed to get client file or received empty stream: {downloadFilePath}.");
-                failedFiles.Add($"{path}/{fileName}");
+                failedFiles.Add(downloadFilePath);
                 return false;
             }
 
@@ -442,13 +419,15 @@ public partial class Server : ObservableObject
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, $"Error downloading: {path}/{fileName}.");
-            failedFiles.Add($"{path}/{fileName}");
+            _logger.Error(ex, $"Error downloading: {downloadFilePath}.");
+            failedFiles.Add(downloadFilePath);
             return false;
         }
     }
+
     private IEnumerable<(string Path, string FileName)> GetFilesToDownloadRecursively(ClientFolder clientFolder, string path = "")
     {
+        // Recurse into subfolders
         foreach (var folder in clientFolder.Folders)
         {
             var folderPath = Path.Combine(path, folder.Name);
@@ -456,6 +435,7 @@ public partial class Server : ObservableObject
                 yield return fileToDownload;
         }
 
+        // Check files in the current folder
         foreach (var file in clientFolder.Files)
         {
             var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
@@ -466,19 +446,22 @@ public partial class Server : ObservableObject
                 try
                 {
                     using var readStream = File.OpenRead(filePath);
+                    // First, check if file size matches. This is a quick check before hashing.
                     if (file.Size == readStream.Length)
                     {
                         var hash = XXHash.Hash64(readStream);
+                        // If hash also matches, the file is valid.
                         if (file.Hash == hash)
                             continue;
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.Warn(ex, $"Could not verify hash for file(s): {filePath}.");
+                    _logger.Warn(ex, $"Could not verify hash for file: {filePath}. Will re-download.");
                 }
             }
 
+            // If file doesn't exist, or size/hash mismatch, yield it for download.
             yield return (path, file.Name);
         }
     }

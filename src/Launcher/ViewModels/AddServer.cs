@@ -35,32 +35,29 @@ public partial class AddServer : Popup
             DataContext = this
         };
     }
+    private Task OnAddServer() => App.ProcessPopupAsync();
 
-    private Task OnAddServer()
-    {
-        return App.ProcessPopupAsync();
-    }
-
-    private void OnAddServerCancel()
-    {
-        App.CancelPopup();
-    }
+    private void OnAddServerCancel() => App.CancelPopup();
 
     public static ValidationResult? ValidateServerUrl(string serverUrl, ValidationContext context)
     {
         if (string.IsNullOrWhiteSpace(serverUrl))
             return new ValidationResult(App.GetText("Text.Add_Server.InvalidServerUrl1", "<empty>"));
 
+        // Remove leading/trailing whitespace to handle accidental spaces from copy-pasting.
         serverUrl = serverUrl.Trim();
 
+        // Ensure the URL is a valid, absolute URI.
         if (!Uri.TryCreate(serverUrl, UriKind.Absolute, out var serverUri))
             return new ValidationResult(App.GetText("Text.Add_Server.InvalidServerUrl1", serverUrl));
 
+        // Ensure the URL scheme is either HTTP or HTTPS.
         if (serverUri.Scheme != Uri.UriSchemeHttp && serverUri.Scheme != Uri.UriSchemeHttps)
             return new ValidationResult(App.GetText("Text.Add_Server.InvalidServerUrl2", serverUrl));
 
         return ValidationResult.Success;
     }
+
     public override Task<bool> ProcessAsync()
     {
         ProgressDescription = App.GetText("Text.Add_Server.Loading");
@@ -73,6 +70,7 @@ public partial class AddServer : Popup
         {
             ServerUrl = ServerUrl.Trim();
 
+            // Fetch the server manifest from the provided URL.
             var result = await HttpHelper.GetServerManifestAsync(ServerUrl).ConfigureAwait(false);
 
             if (!result.Success || result.ServerManifest is null)
@@ -83,12 +81,15 @@ public partial class AddServer : Popup
 
             var serverManifest = result.ServerManifest;
 
+            // Validate the manifest data.
             if (string.IsNullOrEmpty(serverManifest.Name))
                 return await NotifyAndReturnFalse("Server name is missing in manifest.");
 
+            // Create a unique local directory for the server's files.
             if (!TryCreateSavePath(serverManifest.Name, out var savePath))
-                return await NotifyAndReturnFalse("Failed to create a save path for server.");
+                return await NotifyAndReturnFalse("Failed to create a save path for the server.");
 
+            // If all checks pass, create the ServerInfo object and save it.
             var serverInfo = new ServerInfo
             {
                 Url = ServerUrl,
@@ -106,7 +107,7 @@ public partial class AddServer : Popup
         }
         catch (Exception ex)
         {
-            _logger.Error(ex);
+            _logger.Error(ex, "An exception occurred while adding a server.");
             await App.AddNotification($"An exception occurred: {ex.Message}", true);
             return false;
         }
@@ -123,6 +124,7 @@ public partial class AddServer : Popup
         path = string.Empty;
         try
         {
+            // Sanitize the server name to be a valid directory name.
             var validName = name.ToValidDirectoryName();
             var basePath = Path.Combine(Constants.SavePath, Constants.ServersDirectory);
             Directory.CreateDirectory(basePath);
@@ -130,21 +132,24 @@ public partial class AddServer : Popup
             int counter = 1;
             string currentName = validName;
 
+            // Loop until a unique directory name is found.
             while (true)
             {
                 var candidatePath = Path.Combine(basePath, currentName);
                 if (!Directory.Exists(candidatePath))
                 {
+                    // Found a unique name, create the directory.
                     Directory.CreateDirectory(candidatePath);
                     path = candidatePath;
                     return true;
                 }
+                // If the directory exists, append a counter and try again.
                 currentName = $"{validName}_{counter++}";
             }
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "Failed to create save path");
+            _logger.Error(ex, "Failed to create save path.");
             return false;
         }
     }
