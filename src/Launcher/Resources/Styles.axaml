@@ -79,14 +79,13 @@
 	<Style Selector="TextBox.no_border:focus /template/ Border#PART_BorderElement">
 		<Setter Property="BorderBrush" Value="Transparent" />
 	</Style>
+	<Style Selector="TextBox:error /template/ Border#PART_BorderElement">
+		<Setter Property="BorderBrush" Value="#F23F43" />
+	</Style>
 
 	<!-- DataValidationErrors Styles -->
 	<Style Selector="DataValidationErrors">
-		<Setter Property="Theme" Value="{DynamicResource TooltipDataValidationErrors}" />
-	</Style>
-	<Style Selector="DataValidationErrors Path">
-		<Setter Property="Stroke" Value="Red" />
-		<Setter Property="Fill" Value="Transparent" />
+		<Setter Property="Theme" Value="{DynamicResource CustomDataValidationErrors}" />
 	</Style>
 
 	<!-- Button Styles -->
