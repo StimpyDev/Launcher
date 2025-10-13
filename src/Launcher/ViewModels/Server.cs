@@ -193,41 +193,47 @@ public partial class Server : ObservableObject
     [RelayCommand]
     public async Task OpenClientFolder()
     {
-        string folderPath = Path.Combine(Constants.SavePath, Info.SavePath);
-
-        if (!Directory.Exists(folderPath))
-        {
-            await App.AddNotification($"The client folder does not exist: {folderPath}.", true);
-            return;
-        }
-
         try
         {
+            string folderPath = Path.Combine(Constants.SavePath, Info.SavePath);
+
+            if (!Directory.Exists(folderPath))
+            {
+                await App.AddNotification($"The client folder does not exist: {folderPath}.", true);
+                return;
+            }
+
+            var startInfo = new ProcessStartInfo
+            {
+                UseShellExecute = true
+            };
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = folderPath,
-                    UseShellExecute = true,
-                    Verb = "open"
-                });
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                Process.Start("xdg-open", folderPath);
+                startInfo.FileName = "explorer.exe";
+                startInfo.Arguments = folderPath;
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                Process.Start("open", folderPath);
+                startInfo.FileName = "open";
+                startInfo.Arguments = folderPath;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                startInfo.FileName = "xdg-open";
+                startInfo.Arguments = folderPath;
             }
             else
             {
                 await App.AddNotification("Opening the client folder is not supported on this operating system.", true);
+                return;
             }
+
+            Process.Start(startInfo);
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, $"Error opening client folder directory: {folderPath}.");
+            _logger.Error(ex, "Error opening client folder directory.");
             await App.AddNotification($"Failed to open client folder directory. Error: {ex.Message}.", true);
         }
     }
@@ -249,10 +255,10 @@ public partial class Server : ObservableObject
 
             await UIThreadHelper.InvokeAsync(() =>
             {
-            Info.Name = serverManifest.Name;
-            Info.Description = serverManifest.Description;
-            Info.LoginServer = serverManifest.LoginServer;
-            Info.LoginApiUrl = serverManifest.LoginApiUrl;
+                Info.Name = serverManifest.Name;
+                Info.Description = serverManifest.Description;
+                Info.LoginServer = serverManifest.LoginServer;
+                Info.LoginApiUrl = serverManifest.LoginApiUrl;
                 return Task.CompletedTask;
             });
 
@@ -387,7 +393,7 @@ public partial class Server : ObservableObject
             if (failedFiles.Count > 10)
             {
                 message.AppendLine($"...And {failedFiles.Count - 10} more.");
-        }
+            }
             await App.AddNotification(message.ToString(), true);
         }
 
@@ -430,8 +436,7 @@ public partial class Server : ObservableObject
             }
 
             await using var writeStream = File.Create(filePath);
-                await fileStream.CopyToAsync(writeStream).ConfigureAwait(false);
-                await writeStream.FlushAsync().ConfigureAwait(false);
+            await fileStream.CopyToAsync(writeStream).ConfigureAwait(false);
 
             return true;
         }
@@ -460,15 +465,14 @@ public partial class Server : ObservableObject
             {
                 try
                 {
-                using var readStream = File.OpenRead(filePath);
-                if (file.Size == readStream.Length)
-                {
-                    readStream.Position = 0;
-                    var hash = XXHash.Hash64(readStream);
-                    if (file.Hash == hash)
-                        continue;
+                    using var readStream = File.OpenRead(filePath);
+                    if (file.Size == readStream.Length)
+                    {
+                        var hash = XXHash.Hash64(readStream);
+                        if (file.Hash == hash)
+                            continue;
+                    }
                 }
-            }
                 catch (Exception ex)
                 {
                     _logger.Warn(ex, $"Could not verify hash for file(s): {filePath}.");

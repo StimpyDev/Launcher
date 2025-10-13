@@ -249,27 +249,32 @@ public partial class Login : Popup
 
         try
         {
+            var startInfo = new ProcessStartInfo
+            {
+                UseShellExecute = true
+            };
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Process.Start(new ProcessStartInfo
-                {
-                    Verb = "open",
-                    UseShellExecute = true,
-                    FileName = Constants.DirectXDownloadUrl
-                });
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                Process.Start("xdg-open", Constants.DirectXDownloadUrl);
+                startInfo.FileName = Constants.DirectXDownloadUrl;
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                Process.Start("open", Constants.DirectXDownloadUrl);
+                startInfo.FileName = "open";
+                startInfo.Arguments = Constants.DirectXDownloadUrl;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                startInfo.FileName = "xdg-open";
+                startInfo.Arguments = Constants.DirectXDownloadUrl;
             }
             else
             {
                 await App.AddNotification("Failed to open the DirectX download page. This operating system is not supported.", true);
+                return;
             }
+
+            Process.Start(startInfo);
         }
         catch (Exception ex)
         {

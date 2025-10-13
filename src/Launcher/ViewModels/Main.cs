@@ -110,35 +110,41 @@ public partial class Main : ObservableObject
     [RelayCommand]
     public async Task OpenLogs()
     {
-        if (!Directory.Exists(Constants.LogsDirectory))
-        {
-            await App.AddNotification("Logs directory does not exist.", true);
-            return;
-        }
-
         try
         {
+            if (!Directory.Exists(Constants.LogsDirectory))
+            {
+                await App.AddNotification("Logs directory does not exist.", true);
+                return;
+            }
+
+            var startInfo = new ProcessStartInfo
+            {
+                UseShellExecute = true
+            };
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = Constants.LogsDirectory,
-                    UseShellExecute = true,
-                    Verb = "open"
-                });
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                Process.Start("xdg-open", Constants.LogsDirectory);
+                startInfo.FileName = "explorer.exe";
+                startInfo.Arguments = Constants.LogsDirectory;
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                Process.Start("open", Constants.LogsDirectory);
+                startInfo.FileName = "open";
+                startInfo.Arguments = Constants.LogsDirectory;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                startInfo.FileName = "xdg-open";
+                startInfo.Arguments = Constants.LogsDirectory;
             }
             else
             {
                 await App.AddNotification("Opening the logs folder is not supported on this operating system.", true);
+                return;
             }
+
+            Process.Start(startInfo);
         }
         catch (Exception ex)
         {
