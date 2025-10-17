@@ -24,7 +24,12 @@ public static class ServerStatusHelper
 
         public int OnlinePlayers;
 
-        public static ServerStatus Offline = new();
+        public readonly static ServerStatus Offline = new()
+        {
+            IsOnline = false,
+            IsLocked = false,
+            OnlinePlayers = 0
+        };
     }
 
     public static async Task<ServerStatus> GetAsync(string serverAddress, int timeout = 5000)
@@ -34,14 +39,16 @@ public static class ServerStatusHelper
 
         if (portIndex > 0)
         {
-            int.TryParse(serverAddress.AsSpan(portIndex + 1), out serverPort);
-            serverAddress = serverAddress.Substring(0, portIndex);
+            if (!int.TryParse(serverAddress.AsSpan(portIndex + 1), out serverPort) || serverPort == 0)
+            {
+                serverPort = DefaultLoginServerPort;
+            }
+            serverAddress = serverAddress[..portIndex];
         }
 
         if (!string.IsNullOrEmpty(serverAddress) && serverPort != 0)
         {
             using var cts = new CancellationTokenSource();
-
             cts.CancelAfter(timeout);
 
             try
@@ -58,8 +65,9 @@ public static class ServerStatusHelper
                         return serverStatus;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+               Console.WriteLine($"Error querying server status: {ex}");
             }
         }
 
