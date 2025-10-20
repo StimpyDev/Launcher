@@ -1,4 +1,7 @@
 using Avalonia.Controls;
+using Avalonia.Threading;
+using System;
+using System.Diagnostics;
 
 namespace Launcher.Views;
 
@@ -11,12 +14,22 @@ public partial class Server : UserControl
 
     protected override async void OnDataContextBeginUpdate()
     {
-        if (DataContext is not ViewModels.Server server)
-            return;
+        try
+        {
+            if (DataContext is not ViewModels.Server server)
+                return;
 
-        var success = await server.OnShowAsync();
+            var success = await server.OnShowAsync();
 
-        if (!success)
-            App.ClearServerSelection();
+            if (!success)
+            {
+                Dispatcher.UIThread.Post(App.ClearServerSelection);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Catch this, because it's a fire and forget method, to prevent crashes.
+            Debug.WriteLine(ex);
+        }
     }
 }

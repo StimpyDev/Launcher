@@ -12,7 +12,6 @@ using System.IO;
 using Velopack;
 
 namespace Launcher;
-
 internal sealed class Program
 {
     [STAThread]
@@ -22,10 +21,10 @@ internal sealed class Program
 
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-        VelopackApp.Build().Run();
-
         if (Settings.Instance.DiscordActivity)
+        {
             DiscordService.Start();
+        }
 
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
 
@@ -34,10 +33,11 @@ internal sealed class Program
 
     internal static AppBuilder BuildAvaloniaApp()
     {
-        var builder = AppBuilder.Configure<App>();
+        VelopackApp.Build().Run();
 
-        builder.WithInterFont();
-        builder.UsePlatformDetect();
+        var builder = AppBuilder.Configure<App>()
+            .WithInterFont()
+            .UsePlatformDetect();
 
 #if DEBUG
         builder.LogToTrace();
@@ -50,22 +50,29 @@ internal sealed class Program
 
     private static void SetupNLog()
     {
-        var loggingConfiguration = new LoggingConfiguration();
+        var config = new LoggingConfiguration();
 
 #if DEBUG
         var debuggerTarget = new DebuggerTarget("debugger");
-        loggingConfiguration.AddRule(LogLevel.Debug, LogLevel.Fatal, debuggerTarget);
+        config.AddRule(LogLevel.Debug, LogLevel.Fatal, debuggerTarget);
 #endif
+
+        // Ensure logs directory exists
+        var logsDir = Path.Combine(Directory.GetCurrentDirectory(), "logs");
+        if (!Directory.Exists(logsDir))
+        {
+            Directory.CreateDirectory(logsDir);
+        }
 
         var fileTarget = new FileTarget("file")
         {
             DeleteOldFileOnStartup = true,
-            FileName = Path.Combine(Constants.SavePath, Constants.LogFile)
+            FileName = Path.Combine(logsDir, Constants.LogFile)
         };
 
-        loggingConfiguration.AddRule(LogLevel.Info, LogLevel.Fatal, fileTarget);
+        config.AddRule(LogLevel.Info, LogLevel.Fatal, fileTarget);
 
-        LogManager.Configuration = loggingConfiguration;
+        LogManager.Configuration = config;
     }
 
     private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -73,6 +80,12 @@ internal sealed class Program
         var logger = LogManager.GetCurrentClassLogger();
 
         if (e.ExceptionObject is Exception exception)
-            logger.Log(LogLevel.Fatal, exception.ToString());
+        {
+            logger.Fatal(exception.ToString());
+        }
+        else
+        {
+            logger.Fatal("Unhandled exception of unknown type: {0}", e.ExceptionObject?.ToString() ?? "null");
+        }
     }
 }

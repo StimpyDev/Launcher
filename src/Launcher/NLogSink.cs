@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Launcher;
-
 public class NLogSink : ILogSink
 {
     private readonly LogEventLevel _level;
@@ -19,41 +18,42 @@ public class NLogSink : ILogSink
 
     public bool IsEnabled(LogEventLevel level, string area)
     {
-        return level >= _level && (_areas?.Contains(area) ?? true);
+        if (level < _level)
+            return false;
+
+        if (_areas == null)
+            return true;
+
+        return _areas.Contains(area);
     }
 
     public void Log(LogEventLevel level, string area, object? source, string messageTemplate)
     {
-        if (IsEnabled(level, area))
-        {
-            var logger = Resolve(source?.GetType(), area);
-            logger.Log(LogLevelToNLogLevel(level), messageTemplate);
-        }
+        if (!IsEnabled(level, area))
+            return;
+
+        var logger = Resolve(source?.GetType(), area);
+        logger.Log(LogLevelToNLogLevel(level), messageTemplate);
     }
 
     public void Log(LogEventLevel level, string area, object? source, string messageTemplate, params object?[] propertyValues)
     {
-        if (IsEnabled(level, area))
-        {
-            var logger = Resolve(source?.GetType(), area);
-            logger.Log(LogLevelToNLogLevel(level), messageTemplate, propertyValues);
-        }
+        if (!IsEnabled(level, area))
+            return;
+
+        var logger = Resolve(source?.GetType(), area);
+        logger.Log(LogLevelToNLogLevel(level), messageTemplate, propertyValues);
     }
+
 
     public NLog.ILogger Resolve(Type? source, string? area)
     {
-        var loggerName = source?.ToString() ?? area;
+        var loggerName = source?.FullName ?? area ?? typeof(NLogSink).FullName;
 
         if (string.IsNullOrEmpty(loggerName))
-            loggerName = typeof(NLogSink).ToString();
+            loggerName = typeof(NLogSink).FullName!;
 
-        if (!_loggerCache.TryGetValue(loggerName, out var logger))
-        {
-            logger = NLog.LogManager.GetLogger(loggerName);
-            _loggerCache.TryAdd(loggerName, logger);
-        }
-
-        return logger;
+        return _loggerCache.GetOrAdd(loggerName, name => NLog.LogManager.GetLogger(name));
     }
 
     private static NLog.LogLevel LogLevelToNLogLevel(LogEventLevel level)

@@ -1,30 +1,28 @@
-<Application xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Launcher.App"
-             xmlns:local="using:Launcher"
-             RequestedThemeVariant="Dark">
+<Application
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="Launcher.App"
+    xmlns:local="using:Launcher"
+    RequestedThemeVariant="Dark">
 
-  <Application.Resources>
-    <ResourceDictionary>
-      <ResourceDictionary.MergedDictionaries>
-        <ResourceInclude Source="/Resources/Icons.axaml"/>
-        <ResourceInclude Source="/Resources/Colors.axaml"/>
-      </ResourceDictionary.MergedDictionaries>
-	  <ResourceInclude x:Key="de_DE" Source="/Resources/Locales/de_DE.axaml"/>
-      <ResourceInclude x:Key="en_US" Source="/Resources/Locales/en_US.axaml"/>
-	  <ResourceInclude x:Key="fr_FR" Source="/Resources/Locales/fr_FR.axaml"/>
-	  <ResourceInclude x:Key="es_ES" Source="/Resources/Locales/es_ES.axaml"/>
-    </ResourceDictionary>
-  </Application.Resources>
-
-  <Application.Styles>
-    <FluentTheme />
-    <StyleInclude Source="/Resources/Styles.axaml" />
-	<StyleInclude Source="avares://AsyncImageLoader.Avalonia/AdvancedImage.axaml" />
-  </Application.Styles>
-	
 	<Application.Resources>
-		<FontFamily x:Key="FontDefault">/Assets/Fonts/Maiandra-GD-Regular.otf#Maiandra GD</FontFamily>
+		<ResourceDictionary>
+			<!-- Merged Resource Dictionaries -->
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceInclude Source="/Resources/Icons.axaml"/>
+				<ResourceInclude Source="/Resources/Colors.axaml"/>
+				<ResourceInclude Source="/Resources/Texts.axaml"/>
+				<ResourceInclude Source="/Resources/Theme.axaml"/>
+			</ResourceDictionary.MergedDictionaries>
+
+			<!-- Additional Resources -->
+			<FontFamily x:Key="FontDefault">/Assets/Fonts/Maiandra-GD-Regular.otf#Maiandra GD</FontFamily>
+		</ResourceDictionary>
 	</Application.Resources>
-	
+
+	<Application.Styles>
+		<FluentTheme/>
+		<StyleInclude Source="/Resources/Styles.axaml" />
+	</Application.Styles>
+
 </Application>

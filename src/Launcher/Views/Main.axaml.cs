@@ -1,12 +1,13 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using System.Linq;
 
 namespace Launcher.Views;
 
 public partial class Main : Window
 {
-    public readonly ViewModels.Main ViewModel = new ViewModels.Main();
+    public readonly ViewModels.Main ViewModel = new();
 
     public Main()
     {
@@ -20,6 +21,18 @@ public partial class Main : Window
         ViewModel.OnLoad();
     }
 
+    protected override async void OnClosing(WindowClosingEventArgs e)
+    {
+        if (ViewModel.Servers.Any(s => s.IsDownloading))
+        {
+            e.Cancel = true;
+            await App.AddNotification(App.GetText("Text.Downloading.OnClose"), true);
+        }
+        else
+        {
+            base.OnClosing(e);
+        }
+    }
     protected override void OnKeyDown(KeyEventArgs e)
     {
         if (e.Key == Key.Escape)

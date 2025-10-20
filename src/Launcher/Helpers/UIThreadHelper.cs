@@ -1,18 +1,20 @@
 ﻿using Avalonia.Threading;
 using System;
+using System.Threading.Tasks;
 
 namespace Launcher.Helpers;
 
 public static class UIThreadHelper
 {
-    public static void Invoke(Action action)
+    public static async Task InvokeAsync(Func<Task> action)
     {
         if (Dispatcher.UIThread.CheckAccess())
         {
-            action();
-            return;
+            await action();
         }
-
-        Dispatcher.UIThread.Invoke(action);
+        else
+        {
+            await Dispatcher.UIThread.InvokeAsync(action);
+        }
     }
 }

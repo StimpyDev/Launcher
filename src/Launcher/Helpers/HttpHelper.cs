@@ -1,4 +1,5 @@
-﻿using Launcher.Models;
+﻿using Launcher.Handlers;
+using Launcher.Models;
 using NLog;
 using System.Net.Http;
 using System.Net.Mime;
@@ -9,8 +10,8 @@ namespace Launcher.Helpers;
 
 public static class HttpHelper
 {
-    private static Logger _logger = LogManager.GetCurrentClassLogger();
-    private static HttpClient _httpClient = CreateHttpClient();
+    private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+    private static readonly HttpClient _httpClient = CreateHttpClient();
 
     public static HttpClient CreateHttpClient()
     {
@@ -44,7 +45,7 @@ public static class HttpHelper
             return (false, error, null);
         }
 
-        if (response.Content.Headers.ContentType?.MediaType is not MediaTypeNames.Text.Xml or MediaTypeNames.Application.Xml)
+        if (response.Content.Headers.ContentType?.MediaType is not MediaTypeNames.Text.Xml and not MediaTypeNames.Application.Xml)
         {
             var error = $"""
                          Failed to get server manifest, invalid format.

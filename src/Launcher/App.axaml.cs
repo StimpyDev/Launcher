@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -8,6 +7,8 @@ using Launcher.Models;
 using Launcher.ViewModels;
 using NLog;
 using NuGet.Versioning;
+using System;
+using System.Threading.Tasks;
 using Velopack;
 using Velopack.Sources;
 
@@ -15,10 +16,7 @@ namespace Launcher;
 
 public partial class App : Application
 {
-    private ResourceDictionary? _activeLocale;
-
     private readonly Logger _logger;
-
     private Main? _main;
 
     private const string GitHubRepoUrl = "https://github.com/Open-Source-Free-Realms/Launcher";
@@ -34,13 +32,6 @@ public partial class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
-
-        SetLocale(Settings.Instance.Locale);
-
-        Settings.Instance.LocaleChanged += (s, e) =>
-        {
-            SetLocale(Settings.Instance.Locale);
-        };
     }
 
     public override void OnFrameworkInitializationCompleted()
@@ -49,7 +40,6 @@ public partial class App : Application
             return;
 
         var main = new Views.Main();
-
         _main = main.ViewModel;
 
         applicationLifetime.MainWindow = main;
@@ -65,92 +55,75 @@ public partial class App : Application
         if (Current is not App app || app._main is null)
             return;
 
-        if (_updateManager.IsInstalled)
+        try
         {
-            // Checking For Updates
-            app._main.IsRefreshing = true;
-            app._main.Message = GetText("Text.Main.CheckingForUpdates");
-            var updateInfo = await _updateManager.CheckForUpdatesAsync();
-
-            if (updateInfo is null)
+            if (_updateManager.IsInstalled)
             {
-                // No Updates Found
-                app._main.Message = GetText("Text.Main.NoUpdatesFound");
+                app._main.IsRefreshing = true;
+                app._main.Message = GetText("Text.Main.CheckingForUpdates");
 
-                await Task.Delay(700);
+                var updateInfo = await _updateManager.CheckForUpdatesAsync().ConfigureAwait(false);
 
-                app._main.Message = string.Empty;
-                app._main.IsRefreshing = false;
-            }
-
-            else if (updateInfo is not null)
-            {
-                await _updateManager.DownloadUpdatesAsync(updateInfo, (p) =>
+                if (updateInfo is null)
                 {
-                    // Downloading Update
-                    app._main.Message = GetText("Text.Main.Downloading", updateInfo.TargetFullRelease.Version, p);
-                });
+                    app._main.Message = GetText("Text.Main.NoUpdatesFound");
 
-                // Relaunches the launcher to complete the update
-                app._main.Message = GetText("Text.Main.Relaunching");
+                    await Task.Delay(500);
 
-                await Task.Delay(500);
+                    app._main.Message = string.Empty;
+                }
+                else
+                {
+                    await _updateManager.DownloadUpdatesAsync(updateInfo, p =>
+                    {
+                        app._main.Message = GetText("Text.Main.Downloading", updateInfo.TargetFullRelease.Version, p);
+                    });
 
-                _updateManager.ApplyUpdatesAndRestart(updateInfo);
+                    app._main.Message = GetText("Text.Main.Relaunching");
 
-                return;
+                    await Task.Delay(500);
+
+                    _updateManager.ApplyUpdatesAndRestart(updateInfo);
+                    return;
+                }
             }
         }
-    }
-
-    public static void SetLocale(LocaleType value)
-    {
-        if (Current is not App app)
-            return;
-
-        if (!app.Resources.TryGetValue(value.ToString(), out var localeResource) ||
-            localeResource is not ResourceDictionary targetLocale)
+        catch (Exception ex)
         {
-            app._logger.Error("Invalid locale. {locale}", value);
-
-            return;
+            app._logger.Error(ex, "Error checking for updates");
+            await AddNotification(GetText("Text.Main.UpdateError"), true);
         }
-
-        if (app._activeLocale is not null)
-            app.Resources.MergedDictionaries.Remove(app._activeLocale);
-
-        app.Resources.MergedDictionaries.Add(targetLocale);
-
-        app._activeLocale = targetLocale;
+        finally
+        {
+            if (app._main != null)
+                app._main.IsRefreshing = false;
+        }
     }
 
     public static string GetText(string key, params object?[] args)
     {
-        if (Current is not App app)
+        if (Current is not App)
             return key;
 
-        var text = Current.FindResource(key) as string;
-
-        if (text is null)
+        if (Current.FindResource(key) is not string text)
             return $"#{key}";
 
         return string.Format(text, args);
     }
 
-    public static void AddNotification(string message, bool isError = false)
+    public static async Task AddNotification(string message, bool isError = false)
     {
         if (Current is not App app || app._main is null)
             return;
 
-        var notice = new Notification()
+        var notice = new Notification
         {
             IsError = isError,
             Message = message
         };
 
         app._logger.Log(isError ? LogLevel.Error : LogLevel.Info, message);
-
-        app._main.OnReceiveNotification(notice);
+        await app._main.OnReceiveNotification(notice);
     }
 
     public static void ShowSettings()
@@ -159,7 +132,6 @@ public partial class App : Application
             && desktop.MainWindow is not null)
         {
             var dialog = new Views.Settings();
-
             dialog.ShowDialog(desktop.MainWindow);
         }
     }
@@ -177,7 +149,7 @@ public partial class App : Application
         if (Current is not App app || app._main is null)
             return;
 
-        if (app._main.Popup is not null && app._main.Popup.InProgress)
+        if (app._main.Popup?.InProgress ?? false)
             return;
 
         app._main.Popup = popup;
@@ -188,10 +160,10 @@ public partial class App : Application
 
     public static async Task ProcessPopupAsync()
     {
-        if (Current is not App app || app._main is null)
+        if (Current is not App app || app._main is null || app._main.Popup is null)
             return;
 
-        if (app._main.Popup is null || !app._main.Popup.Validate())
+        if (!app._main.Popup.Validate())
             return;
 
         app._main.Popup.InProgress = true;
@@ -204,7 +176,7 @@ public partial class App : Application
             return;
         }
 
-        var finished = await task;
+        var finished = await task.ConfigureAwait(false);
 
         if (finished)
             app._main.Popup = null;
@@ -214,10 +186,13 @@ public partial class App : Application
 
     public static void CancelPopup()
     {
-        if (Current is not App app || app._main is null)
+        if (Current is not App app)
             return;
 
-        if (app._main.Popup is null || app._main.Popup.InProgress)
+        if (app._main is null)
+            return;
+
+        if (app._main.Popup?.InProgress ?? true)
             return;
 
         app._main.Popup = null;

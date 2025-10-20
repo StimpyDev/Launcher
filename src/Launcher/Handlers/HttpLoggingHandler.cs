@@ -4,8 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Launcher;
-
+namespace Launcher.Handlers;
 public class HttpLoggingHandler : DelegatingHandler
 {
     private readonly Logger _logger;
@@ -19,15 +18,20 @@ public class HttpLoggingHandler : DelegatingHandler
     {
         try
         {
-            _logger.Info(request.ToString());
+            _logger.Info("HTTP Request: {Method} {RequestUri} | Content Headers: {ContentHeaders}",
+                request.Method, request.RequestUri, request.Content?.Headers);
+
             var response = await base.SendAsync(request, cancellationToken);
-            _logger.Info(response.ToString());
+
+            _logger.Info("HTTP Response: {StatusCode} {ReasonPhrase} for {RequestUri} | Content Headers: {ContentHeaders}",
+                response.StatusCode, response.ReasonPhrase, request.RequestUri, request.Content?.Headers);
+
             return response;
         }
-
         catch (Exception ex)
         {
-            throw new Exception(ex.ToString());
+            _logger.Error(ex, "HTTP request failed");
+            throw;
         }
     }
 }
