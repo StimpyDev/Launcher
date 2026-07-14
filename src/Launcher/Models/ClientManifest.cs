@@ -21,15 +21,13 @@ public sealed class ClientManifest
     {
         get
         {
-            try
+            foreach (var language in LanguagesString.Split(',', StringSplitOptions.RemoveEmptyEntries))
             {
-                return LanguagesString.Split(',').Select(x => Enum.Parse<LocaleType>(x, true));
+                if (Enum.TryParse<LocaleType>(language, true, out var locale))
+                {
+                    yield return locale;
+                }
             }
-            catch
-            {
-            }
-
-            return [];
         }
     }
 
