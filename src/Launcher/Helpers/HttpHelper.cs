@@ -1,6 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
+using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -15,14 +21,16 @@ public static class HttpHelper
 {
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
     private static readonly HttpClient _httpClient = CreateHttpClient();
+    private static readonly TimeSpan _connectionAttemptDelay = TimeSpan.FromMilliseconds(150);
 
     public static string UserAgent => $"{App.GetText("Text.Title")} v{App.CurrentVersion}";
 
     public static HttpClient CreateHttpClient()
     {
-        var httpClient = new HttpClient(new HttpLoggingHandler(new HttpClientHandler()
+        var httpClient = new HttpClient(new HttpLoggingHandler(new SocketsHttpHandler()
         {
-            AllowAutoRedirect = true
+            AllowAutoRedirect = true,
+            ConnectCallback = HappyEyeballsConnectAsync
         }));
 
         httpClient.Timeout = TimeSpan.FromSeconds(10);
@@ -30,6 +38,92 @@ public static class HttpHelper
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
 
         return httpClient;
+    }
+
+    private static async ValueTask<Stream> HappyEyeballsConnectAsync(SocketsHttpConnectionContext context, CancellationToken cancellationToken)
+    {
+        var dnsEndPoint = context.DnsEndPoint;
+
+        var addresses = await Dns.GetHostAddressesAsync(dnsEndPoint.Host, cancellationToken).ConfigureAwait(false);
+
+        if (addresses.Length == 0)
+        {
+            throw new SocketException((int)SocketError.HostNotFound);
+        }
+
+        // Try IPv4 first so a broken IPv6 route cannot stall the request, but keep IPv6 as a fallback.
+        var orderedAddresses = addresses
+            .OrderBy(address => address.AddressFamily == AddressFamily.InterNetwork ? 0 : 1)
+            .ToArray();
+
+        if (orderedAddresses.Length == 1)
+        {
+            var socket = await ConnectToAddressAsync(orderedAddresses[0], dnsEndPoint.Port, cancellationToken).ConfigureAwait(false);
+
+            return new NetworkStream(socket, ownsSocket: true);
+        }
+
+        using var attemptsCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+        var pendingTasks = new List<Task<Socket>>(orderedAddresses.Length);
+
+        for (var i = 0; i < orderedAddresses.Length; i++)
+        {
+            var address = orderedAddresses[i];
+            var staggerDelay = _connectionAttemptDelay * i;
+
+            pendingTasks.Add(ConnectWithDelayAsync(address, dnsEndPoint.Port, staggerDelay, attemptsCts.Token));
+        }
+
+        Exception? lastException = null;
+
+        while (pendingTasks.Count > 0)
+        {
+            var completed = await Task.WhenAny(pendingTasks).ConfigureAwait(false);
+            pendingTasks.Remove(completed);
+
+            if (completed.IsCompletedSuccessfully)
+            {
+                // Cancel the remaining attempts; their sockets are disposed in their own catch blocks.
+                await attemptsCts.CancelAsync().ConfigureAwait(false);
+
+                return new NetworkStream(completed.Result, ownsSocket: true);
+            }
+
+            lastException = completed.Exception?.GetBaseException() ?? lastException;
+        }
+
+        throw lastException ?? new SocketException((int)SocketError.HostUnreachable);
+    }
+
+    private static async Task<Socket> ConnectWithDelayAsync(IPAddress address, int port, TimeSpan delay, CancellationToken cancellationToken)
+    {
+        if (delay > TimeSpan.Zero)
+        {
+            await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+        }
+
+        return await ConnectToAddressAsync(address, port, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task<Socket> ConnectToAddressAsync(IPAddress address, int port, CancellationToken cancellationToken)
+    {
+        var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+        {
+            NoDelay = true
+        };
+
+        try
+        {
+            await socket.ConnectAsync(address, port, cancellationToken).ConfigureAwait(false);
+
+            return socket;
+        }
+        catch
+        {
+            socket.Dispose();
+            throw;
+        }
     }
 
     public static async Task<(ManifestResult Result, string Error, ServerManifest? ServerManifest)> GetServerManifestAsync(string serverUrl)
