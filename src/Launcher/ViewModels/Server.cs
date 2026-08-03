@@ -365,26 +365,52 @@ public partial class Server : ObservableObject
             // Choose between parallel and sequential download based on settings
             if (Settings.Instance.ParallelDownload)
             {
+                var numParallelDownloads = Math.Max(2, Settings.Instance.DownloadThreads);
+
                 var parallelOptions = new ParallelOptions
                 {
-                    MaxDegreeOfParallelism = Math.Max(2, Settings.Instance.DownloadThreads)
+                    MaxDegreeOfParallelism = numParallelDownloads
                 };
 
-                await Parallel.ForEachAsync(filesToDownload, parallelOptions, async (file, ct) =>
+                var servicePool = new ConcurrentBag<DownloadService>();
+
+                for (var i = 0; i < numParallelDownloads; i++)
+                    servicePool.Add(new DownloadService(CreateDownloadConfiguration()));
+
+                try
                 {
-                    if (!await DownloadFileAsync(file.Path, file.Name))
-                        failedFiles.Add(file.Name);
+                    await Parallel.ForEachAsync(filesToDownload, parallelOptions, async (file, ct) =>
+                    {
+                        servicePool.TryTake(out var downloadService); // guaranteed non-null
 
-                    filesDownloaded = Interlocked.Increment(ref filesDownloaded);
+                        try
+                        {
+                            if (!await DownloadFileAsync(downloadService!, file.Path, file.Name))
+                                failedFiles.Add(file.Name);
+                        }
+                        finally
+                        {
+                            servicePool.Add(downloadService!);
+                        }
 
-                    StatusMessage = App.GetText("Text.Server.PreparingGameFiles", filesDownloaded, filesToDownload.Count);
-                });
+                        filesDownloaded = Interlocked.Increment(ref filesDownloaded);
+
+                        StatusMessage = App.GetText("Text.Server.PreparingGameFiles", filesDownloaded, filesToDownload.Count);
+                    });
+                }
+                finally
+                {
+                    foreach (var downloadService in servicePool)
+                        downloadService.Dispose();
+                }
             }
             else
             {
+                using var downloadService = new DownloadService(CreateDownloadConfiguration());
+
                 foreach (var file in filesToDownload)
                 {
-                    if (!await DownloadFileAsync(file.Path, file.Name))
+                    if (!await DownloadFileAsync(downloadService, file.Path, file.Name))
                         failedFiles.Add(file.Name);
 
                     filesDownloaded++;
@@ -417,7 +443,17 @@ public partial class Server : ObservableObject
         return failedFiles.IsEmpty;
     }
 
-    private async Task<bool> DownloadFileAsync(string path, string fileName)
+    private static DownloadConfiguration CreateDownloadConfiguration() => new()
+    {
+        CustomHttpClientFactory = () => HttpHelper.DownloadHttpClient,
+        MaxTryAgainOnFailure = 5,
+
+        // Parallelism happens per-file
+        ChunkCount = 1,
+        ParallelDownload = false,
+    };
+
+    private async Task<bool> DownloadFileAsync(DownloadService downloadService, string path, string fileName)
     {
         if (string.IsNullOrEmpty(Info.Url))
             return false;
@@ -429,14 +465,6 @@ public partial class Server : ObservableObject
             var clientFileUri = UriHelper.JoinUriPaths(Info.Url, "client", path, fileName);
             var fileDirectory = Path.Combine(Constants.SavePath, Info.SavePath, "Client", path);
             var filePath = Path.Combine(fileDirectory, fileName);
-
-            using var downloadService = new DownloadService(new DownloadConfiguration
-            {
-                RequestConfiguration =
-                {
-                    UserAgent = HttpHelper.UserAgent
-                }
-            });
 
             Directory.CreateDirectory(fileDirectory);
 

@@ -12,6 +12,7 @@ using System.Xml.Linq;
 
 using Launcher.Handlers;
 using Launcher.Models;
+using Launcher.ViewModels;
 
 using NLog;
 
@@ -21,9 +22,12 @@ public static class HttpHelper
 {
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
     private static readonly HttpClient _httpClient = CreateHttpClient();
+    private static readonly HttpClient _downloadHttpClient = CreateDownloadHttpClient();
     private static readonly TimeSpan _connectionAttemptDelay = TimeSpan.FromMilliseconds(150);
 
     public static string UserAgent => $"{App.GetText("Text.Title")} v{App.CurrentVersion}";
+
+    public static HttpClient DownloadHttpClient => _downloadHttpClient;
 
     public static HttpClient CreateHttpClient()
     {
@@ -34,6 +38,26 @@ public static class HttpHelper
         }));
 
         httpClient.Timeout = TimeSpan.FromSeconds(10);
+
+        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
+
+        return httpClient;
+    }
+
+    private static HttpClient CreateDownloadHttpClient()
+    {
+        var httpClient = new HttpClient(new SocketsHttpHandler()
+        {
+            AllowAutoRedirect = true,
+            ConnectCallback = HappyEyeballsConnectAsync,
+            PooledConnectionLifetime = TimeSpan.FromMinutes(10),
+            PooledConnectionIdleTimeout = TimeSpan.FromMinutes(2),
+            MaxConnectionsPerServer = Settings.Instance.DownloadThreads,
+        });
+
+        // Downloader enforces its own per-block timeouts, so disable the
+        // overall client timeout to avoid cutting off large files on slow connections.
+        httpClient.Timeout = Timeout.InfiniteTimeSpan;
 
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
 
